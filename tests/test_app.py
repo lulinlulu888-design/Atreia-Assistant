@@ -89,3 +89,28 @@ class AppTests(unittest.TestCase):
         self.assertEqual(self.app.client.get(), "Steam / Global")
         self.assertFalse(self.app.running)
         self.assertFalse(self.app.consent.get())
+
+    def test_reset_control_is_not_lost_during_fast_snapshot_refresh(self):
+        previous = {"encounter_id": 1, "revision": 1, "status": "combat_detected", "targets": [], "healing": []}
+        reset = {"encounter_id": 2, "revision": 2, "status": "no_combat_detected",
+                 "targets": [], "healing": [], "previous_encounter": previous}
+        self.app.notify(("reset", reset))
+        for revision in range(3, 100):
+            self.app.notify(("snapshot", {"encounter_id": 2, "revision": revision,
+                             "targets": [], "healing": []}, {}))
+        self.app.poll()
+        self.assertEqual(len(self.app.history), 1)
+        self.assertEqual(self.app.last_snapshot["revision"], 99)
+        self.assertFalse(self.app.resetting)
+        self.app.render(previous, {})
+        self.assertEqual(self.app.last_snapshot["encounter_id"], 2)
+
+    def test_history_is_bounded_and_exportable_after_clear(self):
+        for encounter in range(25):
+            self.app.notify(("reset", {"encounter_id": encounter + 2, "revision": encounter + 2,
+                "status": "no_combat_detected", "targets": [], "healing": [],
+                "previous_encounter": {"encounter_id": encounter + 1, "status": "combat_detected"}}))
+        self.app.poll()
+        self.assertEqual(len(self.app.history), 20)
+        self.assertEqual(self.app.history[0]["encounter_id"], 6)
+        self.assertEqual(str(self.app.export_button["state"]), "normal")

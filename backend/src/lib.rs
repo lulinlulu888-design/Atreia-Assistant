@@ -25,6 +25,8 @@ pub struct Input {
     pub payload_hex: String,
     #[serde(default)]
     pub close: bool,
+    #[serde(default)]
+    pub reset: bool,
 }
 
 struct Flow {
@@ -42,6 +44,8 @@ pub struct Backend {
     last_timestamp: Option<i64>,
     last_record_timestamp: Option<i64>,
     discarded_protocol_bytes: usize,
+    encounter_id: u64,
+    revision: u64,
 }
 
 impl Backend {
@@ -59,10 +63,36 @@ impl Backend {
             last_timestamp: None,
             last_record_timestamp: None,
             discarded_protocol_bytes: 0,
+            encounter_id: 1,
+            revision: 0,
         })
     }
 
     pub fn feed(&mut self, input: Input) -> Result<Value, String> {
+        if input.reset {
+            if input.flow != "session-control"
+                || input.timestamp_ms != 0
+                || input.close
+                || !input.payload_hex.is_empty()
+            {
+                return Err("invalid encounter reset command".into());
+            }
+            let previous = self.snapshot();
+            self.revision = self.revision.saturating_add(1);
+            self.storage.flush_combat_only();
+            self.encounter_id = self.encounter_id.saturating_add(1);
+            self.last_timestamp = None;
+            self.discarded_protocol_bytes = 0;
+            for flow in self.flows.values_mut() {
+                self.discarded_protocol_bytes = self
+                    .discarded_protocol_bytes
+                    .saturating_add(flow.pending.len());
+                flow.pending.clear();
+            }
+            let mut current = self.snapshot();
+            current["previous_encounter"] = previous;
+            return Ok(current);
+        }
         if input.flow.is_empty() || input.flow.len() > 128 {
             return Err("invalid flow identifier".into());
         }
@@ -85,6 +115,7 @@ impl Backend {
             }
             // Lifecycle housekeeping must not extend combat duration.
             self.last_record_timestamp = Some(input.timestamp_ms);
+            self.revision = self.revision.saturating_add(1);
             return Ok(self.snapshot());
         }
         if !self.flows.contains_key(&input.flow) && self.flows.len() >= MAX_FLOWS {
@@ -112,6 +143,7 @@ impl Backend {
         flow.processor.set_override_timestamp(None);
         self.last_timestamp = Some(input.timestamp_ms);
         self.last_record_timestamp = Some(input.timestamp_ms);
+        self.revision = self.revision.saturating_add(1);
         Ok(self.snapshot())
     }
 
@@ -166,6 +198,8 @@ impl Backend {
             )
         });
         json!({"client": self.client, "compatibility": "unverified",
+            "encounter_id": self.encounter_id,
+            "revision": self.revision,
             "status": if targets.is_empty() && healing.is_empty() { "no_combat_detected" } else { "combat_detected" },
             "targets": targets, "healing": healing,
             "active_flows": self.flows.len(),
@@ -208,6 +242,7 @@ mod tests {
             timestamp_ms,
             payload_hex: bytes.iter().map(|b| format!("{b:02x}")).collect(),
             close: false,
+            reset: false,
         }
     }
 
@@ -311,5 +346,55 @@ mod tests {
         assert_eq!(backend.feed(close).unwrap()["targets"], before);
         assert!(backend.feed(input(&[], 4999)).is_err());
         backend.feed(input(&[], 5000)).unwrap();
+    }
+
+    #[test]
+    fn reset_archives_totals_preserves_identity_and_discards_partial_frames() {
+        for client in ["steam", "purple"] {
+            let mut backend = Backend::new(client, HashSet::from([100])).unwrap();
+            backend
+                .storage
+                .append_nickname_authoritative(100, "测试角色");
+            backend.feed(input(&tick(2, 50), 1000)).unwrap();
+            backend.feed(input(&tick(0x0B, 30), 2000)).unwrap();
+            backend.feed(input(&tick(2, 50)[..4], 2001)).unwrap();
+            let mut reset = input(&[], 0);
+            reset.flow = "session-control".into();
+            reset.reset = true;
+            let snapshot = backend.feed(reset).unwrap();
+            assert_eq!(snapshot["previous_encounter"]["targets"][0]["damage"], 50);
+            assert_eq!(snapshot["previous_encounter"]["healing"][0]["healing"], 30);
+            assert_eq!(snapshot["status"], "no_combat_detected");
+            assert_eq!(snapshot["active_flows"], 1);
+            assert_eq!(snapshot["pending_bytes"], 0);
+            assert_eq!(snapshot["discarded_protocol_bytes"], 4);
+            let snapshot = backend.feed(input(&tick(2, 25), 3000)).unwrap();
+            assert_eq!(snapshot["encounter_id"], 2);
+            assert_eq!(snapshot["targets"][0]["damage"], 25);
+            assert_eq!(snapshot["targets"][0]["players"][0]["name"], "测试角色");
+            assert_eq!(snapshot["targets"][0]["duration_ms"], 0);
+            assert!(backend.feed(input(&[], 2999)).is_err());
+        }
+    }
+
+    #[test]
+    fn malformed_resets_do_not_clear_existing_combat() {
+        let mut backend = Backend::new("steam", HashSet::from([100])).unwrap();
+        backend.feed(input(&tick(2, 50), 1000)).unwrap();
+        for variant in 0..4 {
+            let mut reset = input(&[], 0);
+            reset.flow = "session-control".into();
+            reset.reset = true;
+            match variant {
+                0 => reset.flow = "wrong-control".into(),
+                1 => reset.timestamp_ms = 1000,
+                2 => reset.close = true,
+                _ => reset.payload_hex = "00".into(),
+            }
+            assert!(backend.feed(reset).is_err());
+            let snapshot = backend.snapshot();
+            assert_eq!(snapshot["encounter_id"], 1);
+            assert_eq!(snapshot["targets"][0]["damage"], 50);
+        }
     }
 }

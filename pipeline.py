@@ -51,6 +51,10 @@ class BackendBridge:
         return self._request({"flow": flow, "timestamp_ms": timestamp_ms,
                               "payload_hex": "", "close": True})
 
+    def reset_encounter(self):
+        return self._request({"flow": "session-control", "timestamp_ms": 0,
+                              "payload_hex": "", "reset": True})
+
     def _request(self, fields):
         with self._lock:
             if self._process.poll() is not None:

@@ -16,7 +16,9 @@ class AssistantApp:
     def __init__(self, root, backend_path=None):
         self.root = root
         self.backend_path = backend_path
-        self.events = queue.Queue(maxsize=32)
+        self.events = queue.Queue()
+        self.snapshot_lock = threading.Lock()
+        self.latest_event = None
         self.cancelled = threading.Event()
         self.bridge = None
         self.running = False
@@ -27,6 +29,9 @@ class AssistantApp:
         self.devices = []
         self.connections = []
         self.detecting = False
+        self.is_live = False
+        self.resetting = False
+        self.history = []
         self.report_state = "not_started"
         root.title("亚特雷亚助手 · 战斗统计（开发版）")
         root.geometry("1040x700")
@@ -110,6 +115,8 @@ class AssistantApp:
         ttk.Label(footer, textvariable=self.diagnostics).pack(side="left")
         self.export_button = ttk.Button(footer, text="导出本地报告", command=self.export_report, state="disabled")
         self.export_button.pack(side="right")
+        self.reset_button = ttk.Button(footer, text="开始新一场", command=self.reset_encounter, state="disabled")
+        self.reset_button.pack(side="right", padx=6)
         root.after(100, self.poll)
 
     @staticmethod
@@ -207,9 +214,10 @@ class AssistantApp:
                           port, (device, self.server_ip.get()))
 
     def start_replay(self, path, executable, client, port, live_options=None):
-        if self.running or self.detecting:
+        if self.running or self.detecting or self.resetting:
             return
         self.running = True
+        self.is_live = live_options is not None
         self.cancelled.clear()
         self.last_snapshot = None
         self.report_state = "running"
@@ -226,19 +234,18 @@ class AssistantApp:
         threading.Thread(target=self.work, args=(path, executable, client, port, live_options), daemon=True).start()
 
     def notify(self, event):
-        try:
-            self.events.put_nowait(event)
-        except queue.Full:
-            try:
-                self.events.get_nowait()
-            except queue.Empty:
-                pass
+        if event[0] == "snapshot":
+            with self.snapshot_lock:
+                self.latest_event = event
+        else:
+            # Low-volume lifecycle events must not be evicted by snapshots.
             self.events.put_nowait(event)
 
     def work(self, path, executable, client, port, live_options):
         try:
             with BackendBridge(executable, client) as bridge:
                 self.bridge = bridge
+                self.notify(("ready",))
                 if live_options:
                     router = ConnectionRouter(bridge, port, server_ip=live_options[1])
                     for packet in self.npcap.packets(*live_options, port, self.cancelled):
@@ -256,12 +263,33 @@ class AssistantApp:
             self.bridge = None
 
     def poll(self):
-        latest = None
+        with self.snapshot_lock:
+            latest, self.latest_event = self.latest_event, None
         while True:
             try:
                 event = self.events.get_nowait()
             except queue.Empty:
                 break
+            if event[0] == "ready":
+                self.reset_button.configure(state="normal" if self.running and self.is_live else "disabled")
+                continue
+            if event[0] in ("reset", "reset_error"):
+                self.resetting = False
+                self.reset_button.configure(state="normal" if self.running and self.is_live else "disabled")
+                if latest is not None:
+                    self.render(latest[1], latest[2])
+                    latest = None
+                if event[0] == "reset":
+                    snapshot = event[1]
+                    previous = snapshot.pop("previous_encounter", None)
+                    if previous and previous.get("status") == "combat_detected":
+                        self.history.append(previous)
+                        self.history = self.history[-20:]
+                    self.render(snapshot, self.last_diagnostics)
+                    self.status.set(f"已开始新一场；内存中保留最近 {len(self.history)} 场手动结束的战斗，可导出。实战兼容性未验证。")
+                else:
+                    self.status.set("开始新一场失败：" + event[1])
+                continue
             if event[0] in ("connections", "connections_error"):
                 self.detecting = False
                 self.detect_button.configure(state="normal")
@@ -288,6 +316,7 @@ class AssistantApp:
                 self.client_box.configure(state="readonly")
                 self.port_box.configure(state="normal")
                 self.stop_button.configure(state="disabled")
+                self.reset_button.configure(state="disabled")
                 self.device_box.configure(state="readonly")
                 self.connection_box.configure(state="readonly")
                 for control in (self.ip_box, self.refresh_button, self.live_button, self.consent_box,
@@ -309,8 +338,14 @@ class AssistantApp:
         self.root.after(100, self.poll)
 
     def render(self, snapshot, diagnostics):
+        old_encounter = (self.last_snapshot or {}).get("encounter_id", 0)
+        new_encounter = snapshot.get("encounter_id", 0)
+        if new_encounter < old_encounter:
+            return  # A queued pre-reset snapshot must not restore old totals.
+        if snapshot.get("revision", 0) < (self.last_snapshot or {}).get("revision", 0):
+            return  # A delayed reset reply must not replace newer post-reset data.
         selection = self.damage.selection()
-        selected = selection[0] if selection else None
+        selected = selection[0] if selection and new_encounter == old_encounter else None
         self.last_snapshot, self.last_diagnostics = snapshot, diagnostics
         for table in (self.damage, self.skills, self.healing):
             table.delete(*table.get_children())
@@ -344,7 +379,7 @@ class AssistantApp:
         if snapshot.get("discarded_protocol_bytes", 0):
             warnings.append("连接关闭时丢弃了残帧，部分记录可能未计入")
         self.integrity.set("；".join(warnings))
-        self.export_button.configure(state="normal" if snapshot.get("status") == "combat_detected" else "disabled")
+        self.export_button.configure(state="normal" if snapshot.get("status") == "combat_detected" or self.history else "disabled")
 
     def select_player(self, _=None):
         self.skills.delete(*self.skills.get_children())
@@ -361,10 +396,26 @@ class AssistantApp:
         if path:
             try:
                 Path(path).write_text(json.dumps({"compatibility": "unverified", "report_state": self.report_state,
-                    "diagnostics": self.last_diagnostics, "snapshot": self.last_snapshot},
+                    "diagnostics": self.last_diagnostics, "snapshot": self.last_snapshot,
+                    "history": self.history},
                     ensure_ascii=False, indent=2), encoding="utf-8")
             except OSError as error:
                 messagebox.showerror("导出失败", str(error), parent=self.root)
+
+    def reset_encounter(self):
+        if not self.running or not self.is_live or self.bridge is None or self.resetting:
+            return
+        if not messagebox.askyesno("开始新一场", "将当前伤害和治疗归档到内存历史（最近 20 场），清空本场数值。\n不会断开采集；未解析残帧会丢弃。继续吗？", parent=self.root):
+            return
+        self.resetting = True
+        self.reset_button.configure(state="disabled")
+        bridge = self.bridge
+        def reset():
+            try:
+                self.notify(("reset", bridge.reset_encounter()))
+            except Exception as error:
+                self.notify(("reset_error", str(error)))
+        threading.Thread(target=reset, daemon=True).start()
 
     def stop(self):
         self.cancelled.set()

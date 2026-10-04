@@ -82,6 +82,22 @@ class RouterTests(unittest.TestCase):
 
 @unittest.skipUnless(os.environ.get("ATREIA_BACKEND"), "requires built Rust backend")
 class BackendIntegrationTests(unittest.TestCase):
+    def test_reset_preserves_tcp_connection_and_starts_new_totals(self):
+        payload = bytes.fromhex("0f053878026400d007000032")
+        for client in ("steam", "purple"):
+            with BackendBridge(os.environ["ATREIA_BACKEND"], client) as backend:
+                router = ConnectionRouter(backend, 7777)
+                router.feed(Packet(1_000_000_000, 101, ipv4(b"", 99, 2)))
+                first = router.feed(Packet(1_000_000_000, 101, ipv4(payload, 100)))
+                reset = backend.reset_encounter()
+                self.assertEqual(reset["previous_encounter"]["targets"][0]["damage"], 50)
+                self.assertGreater(reset["revision"], first["revision"])
+                second = router.feed(Packet(2_000_000_000, 101, ipv4(payload, 100 + len(payload))))
+                self.assertEqual(second["encounter_id"], 2)
+                self.assertEqual(second["targets"][0]["damage"], 50)
+                self.assertEqual(second["active_flows"], 1)
+                self.assertGreater(second["revision"], reset["revision"])
+
     def test_many_closed_connections_do_not_exhaust_backend(self):
         payload = bytes.fromhex("0f053878026400d007000032")
         for client in ("steam", "purple"):

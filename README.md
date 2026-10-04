@@ -48,6 +48,8 @@ Windows 下可点击“检测游戏连接”：只读取 `AION2.exe` 的进程�
 
 停止按钮终止本地分析。报告仅在用户选择导出时保存，可能包含玩家昵称；中途开始、缺包、提前停止或错误后的报告可能不完整。未识别到事件不代表没有战斗。尚未完成真实 Npcap 驱动测试、Steam/PURPLE 游戏实测或窗口视觉验收。
 
+实时分析时可点击“开始新一场”，确认后清空本场伤害与治疗，保留角色身份和 TCP 连接。上一场候选统计保留在内存历史中（最近 20 场），随“导出本地报告”一起保存；退出后内存历史消失，超过 20 场的最早记录会移出历史，需提前导出。分场是手动边界，不是已验证的 Boss 开战/结束识别；跨边界的缺包、乱序及残帧可能影响场次归属。清零时丢弃待解析残帧并显示诊断，旧快照不能恢复上一场数值。
+
 ### Rust 协议后端
 
 ```sh
@@ -59,6 +61,8 @@ cargo run --manifest-path backend/Cargo.toml -- --client steam
 标准输入为逐行 JSON：`{"flow":"local-flow-1","timestamp_ms":1000,"payload_hex":"…"}`。载荷必须是已完成 TCP 重组的有序游戏字节流，不是整个网卡封包。输出为本地 JSON 快照，包含目标、玩家、技能伤害与治疗；不联网上传，不注入游戏。无可识别事件时输出 `no_combat_detected`，不能当作真实零伤害或兼容性已确认。`compatibility` 当前始终为 `unverified`。
 
 连接关闭时发送同格式的空载荷并增加 `"close":true`，释放对应解析流而不清空战斗数据，也不延长战斗时长。快照的 `active_flows`、`pending_bytes` 和 `discarded_protocol_bytes` 分别表示活跃流数、待解析字节与关闭时丢弃的残帧字节；这些诊断不能代替完整性验证。
+
+手动分场命令为 `{"flow":"session-control","timestamp_ms":0,"payload_hex":"","reset":true}`；不能同时含载荷或 `close`。回复包含新场快照及 `previous_encounter` 上一场快照，`encounter_id` 和 `revision` 用于防止异步刷新回退。清零不会放宽后续数据的时间顺序校验。
 
 ### 客户端验证矩阵
 
