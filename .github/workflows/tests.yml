@@ -36,11 +36,16 @@ jobs:
       - name: Frozen Windows development bundle smoke test
         if: runner.os == 'Windows'
         shell: pwsh
-        run: ./build-windows.ps1 -SkipBackendBuild -BackendPath (Join-Path $PWD 'backend/target/debug/atreia-combat-backend.exe')
+        run: |
+          python audit_dependencies.py --output dist/license-inventory
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./build-windows.ps1 -SkipBackendBuild -BackendPath (Join-Path $PWD 'backend/target/debug/atreia-combat-backend.exe')
       - name: Store synthetic smoke report only (no binary publication)
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
           name: windows-synthetic-smoke-report
-          path: dist/dev-*/synthetic-self-test.json
+          path: |
+            dist/dev-*/synthetic-self-test.json
+            dist/license-inventory/
           if-no-files-found: error

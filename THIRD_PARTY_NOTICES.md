@@ -19,3 +19,9 @@ Npcap 不打包分发；用户需按其官网许可自行安装。Rust 传递依
 ## 本地开发版打包工具
 
 `build-windows.ps1` 使用 `requirements-build.txt` 中固定版本的 PyInstaller 及构建依赖；只生成本地测试包，不发布二进制。PyInstaller 的许可与打包例外见 [官方许可说明](https://pyinstaller.org/en/stable/license.html)。该例外不替代本项目、Rust 依赖及随包 Python/Tcl/Tk 等运行时各自的许可要求。对外提供下载前仍需完成对应源码、运行时许可与通知文件审计；当前不声称已完成这一发布审计。
+
+## Rust 依赖清单与许可文本收集
+
+构建并缓存 Windows 后端依赖后，可运行 `python audit_dependencies.py --output dist/license-inventory`（输出目录必须尚不存在）。脚本使用锁定依赖和 Windows 目标元数据，记录组件名称、版本、许可表达式和来源类别，收集可找到的许可/通知文本；不会公开本机缓存目录或账号路径。上游解析核心的仓库级 GPL 依据仅适用于上述固定来源和提交，不会仅凭同名包套用许可。
+
+当前锁定配置在本地生成了 47 个组件的清单。报告始终标记 `release_audit_complete: false`：它不是完整合规审计，也没有包含可重建的全部对应源码、Python/Tcl/Tk 运行时审计或实际客户端验证。CI 可保存清单和许可文本用于检查，不发布二进制。
