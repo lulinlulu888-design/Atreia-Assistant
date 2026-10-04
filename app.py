@@ -80,6 +80,8 @@ class AssistantApp:
         self.consent_box.pack(anchor="w", pady=(0, 8))
         self.status = tk.StringVar(value="准备就绪。请选择客户端、填写游戏端口，再打开已授权采集的 .pcap 文件。")
         ttk.Label(body, textvariable=self.status, wraplength=960).pack(anchor="w", pady=(0, 8))
+        self.integrity = tk.StringVar(value="")
+        ttk.Label(body, textvariable=self.integrity, style="Warning.TLabel", wraplength=960).pack(anchor="w", pady=(0, 6))
         tabs = ttk.Notebook(body)
         tabs.pack(fill="both", expand=True)
         damage_tab, healing_tab = ttk.Frame(tabs), ttk.Frame(tabs)
@@ -250,6 +252,8 @@ class AssistantApp:
         self.root.after(100, self.poll)
 
     def render(self, snapshot, diagnostics):
+        selection = self.damage.selection()
+        selected = selection[0] if selection else None
         self.last_snapshot, self.last_diagnostics = snapshot, diagnostics
         for table in (self.damage, self.skills, self.healing):
             table.delete(*table.get_children())
@@ -259,17 +263,30 @@ class AssistantApp:
                 skills = player["skills"]
                 hits = sum(s["hits"] for s in skills)
                 critical = sum(s["critical_hits"] for s in skills)
-                row = self.damage.insert("", "end", values=(target["target_id"],
+                row = self.damage.insert("", "end", iid=f'{target["target_id"]}:{player["actor_id"]}', values=(target["target_id"],
                     player.get("name") or f'#{player["actor_id"]}', f'{player["damage"]:,}',
                     f'{player["dps"]:,.1f}', f'{player["contribution"]:.1%}',
                     f'{critical / hits:.1%}' if hits else "—"))
                 self.row_skills[row] = skills
+        if selected and self.damage.exists(selected):
+            self.damage.selection_set(selected)
+            self.select_player()
         for heal in snapshot.get("healing", []):
             self.healing.insert("", "end", values=(heal["actor_id"], heal["skill_id"],
                 "是" if heal["hot"] else "否", f'{heal["healing"]:,}', heal["ticks"]))
         self.diagnostics.set(f'载荷 {diagnostics.get("payload_bytes", 0):,} 字节 · '
             f'中途开始 {diagnostics.get("partial_streams", 0)} 条 · '
             f'未补齐缺口 {diagnostics.get("closed_gaps", 0)} 条')
+        warnings = []
+        if diagnostics.get("partial_streams", 0):
+            warnings.append("采集中途开始，可能缺少此前战斗或身份信息")
+        if diagnostics.get("closed_gaps", 0) or diagnostics.get("pending_bytes", 0):
+            warnings.append("TCP 数据存在未补齐缺口，统计可能偏低")
+        if snapshot.get("pending_bytes", 0):
+            warnings.append("仍有协议字节待解析，当前快照不是完整结果")
+        if snapshot.get("discarded_protocol_bytes", 0):
+            warnings.append("连接关闭时丢弃了残帧，部分记录可能未计入")
+        self.integrity.set("；".join(warnings))
         self.export_button.configure(state="normal" if snapshot.get("status") == "combat_detected" else "disabled")
 
     def select_player(self, _=None):

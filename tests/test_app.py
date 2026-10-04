@@ -1,4 +1,5 @@
 import os
+import copy
 import unittest
 import tkinter as tk
 from app import AssistantApp
@@ -48,3 +49,29 @@ class AppTests(unittest.TestCase):
         self.app.poll()
         self.assertEqual(self.app.last_diagnostics["closed_gaps"], 2)
         self.assertEqual(self.app.report_state, "finished")
+
+    def test_selected_player_survives_refresh_and_name_change(self):
+        self.test_chinese_view_renders_damage_skills_and_healing()
+        selected, = self.app.damage.selection()
+        snapshot = copy.deepcopy(self.app.last_snapshot)
+        player = snapshot["targets"][0]["players"][0]
+        player["name"] = "测试角色"
+        player["skills"][0]["damage"] = 75
+        self.app.render(snapshot, {})
+        self.assertEqual(self.app.damage.selection(), (selected,))
+        skill, = self.app.skills.get_children()
+        self.assertEqual(str(self.app.skills.item(skill, "values")[2]), "75")
+        # Another target with the same actor must not inherit selection.
+        snapshot["targets"][0]["target_id"] = 121
+        self.app.render(snapshot, {})
+        self.assertFalse(self.app.damage.selection())
+        self.assertFalse(self.app.skills.get_children())
+
+    def test_incomplete_transport_and_protocol_are_visible(self):
+        self.app.render({"targets": [], "healing": [], "pending_bytes": 4,
+                         "discarded_protocol_bytes": 3},
+                        {"pending_bytes": 2, "partial_streams": 1})
+        for phrase in ("中途开始", "未补齐缺口", "协议字节待解析", "丢弃了残帧"):
+            self.assertIn(phrase, self.app.integrity.get())
+        self.app.render({"targets": [], "healing": []}, {})
+        self.assertEqual(self.app.integrity.get(), "")

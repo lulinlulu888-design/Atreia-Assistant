@@ -40,6 +40,7 @@ pub struct Backend {
     dot_skills: HashSet<i32>,
     flows: HashMap<String, Flow>,
     last_timestamp: Option<i64>,
+    last_record_timestamp: Option<i64>,
     discarded_protocol_bytes: usize,
 }
 
@@ -56,6 +57,7 @@ impl Backend {
             dot_skills,
             flows: HashMap::new(),
             last_timestamp: None,
+            last_record_timestamp: None,
             discarded_protocol_bytes: 0,
         })
     }
@@ -64,7 +66,11 @@ impl Backend {
         if input.flow.is_empty() || input.flow.len() > 128 {
             return Err("invalid flow identifier".into());
         }
-        if input.timestamp_ms < 0 || self.last_timestamp.is_some_and(|t| input.timestamp_ms < t) {
+        if input.timestamp_ms < 0
+            || self
+                .last_record_timestamp
+                .is_some_and(|t| input.timestamp_ms < t)
+        {
             return Err("capture timestamps must be nonnegative and ordered".into());
         }
         let payload = decode_hex(&input.payload_hex)?;
@@ -78,6 +84,7 @@ impl Backend {
                     .saturating_add(flow.pending.len());
             }
             // Lifecycle housekeeping must not extend combat duration.
+            self.last_record_timestamp = Some(input.timestamp_ms);
             return Ok(self.snapshot());
         }
         if !self.flows.contains_key(&input.flow) && self.flows.len() >= MAX_FLOWS {
@@ -104,6 +111,7 @@ impl Backend {
         flow.pending.drain(..consumed);
         flow.processor.set_override_timestamp(None);
         self.last_timestamp = Some(input.timestamp_ms);
+        self.last_record_timestamp = Some(input.timestamp_ms);
         Ok(self.snapshot())
     }
 
@@ -290,5 +298,18 @@ mod tests {
         close.close = true;
         backend.feed(close).unwrap();
         backend.feed(input(&[], 1000)).unwrap();
+    }
+
+    #[test]
+    fn close_preserves_duration_but_enforces_record_order() {
+        let mut backend = Backend::new("steam", HashSet::from([100])).unwrap();
+        backend.feed(input(&tick(2, 50), 1000)).unwrap();
+        backend.feed(input(&tick(2, 50), 2000)).unwrap();
+        let before = backend.snapshot()["targets"].clone();
+        let mut close = input(&[], 5000);
+        close.close = true;
+        assert_eq!(backend.feed(close).unwrap()["targets"], before);
+        assert!(backend.feed(input(&[], 4999)).is_err());
+        backend.feed(input(&[], 5000)).unwrap();
     }
 }
