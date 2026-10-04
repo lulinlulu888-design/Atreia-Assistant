@@ -42,3 +42,21 @@ class ConnectionScope:
         reverse = (f"src host {self.remote_ip} and src port {self.remote_port} and "
                    f"dst host {self.local_ip} and dst port {self.local_port}")
         return f"ip and tcp and (({forward}) or ({reverse}))"
+
+
+def validate_scopes(scopes):
+    if not isinstance(scopes, (list, tuple)) or not 1 <= len(scopes) <= 16:
+        raise ValueError("自动采集需 1—16 条精确游戏连接")
+    seen = set()
+    for scope in scopes:
+        if not isinstance(scope, ConnectionScope):
+            raise ValueError("采集范围必须是精确连接")
+        key = frozenset((scope.local, scope.remote))
+        if key in seen:
+            raise ValueError("采集连接重复")
+        seen.add(key)
+    return tuple(scopes)
+
+
+def scopes_filter(scopes):
+    return " or ".join(f"({scope.filter_expression()})" for scope in validate_scopes(scopes))

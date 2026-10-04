@@ -1,6 +1,6 @@
 """Synthetic local bundle smoke test. No driver, network or game operations."""
 import struct
-from pipeline import BackendBridge, ConnectionRouter
+from pipeline import BackendBridge, ConnectionRouter, ScopedConnectionRouter
 from transport import Packet
 from connection_scope import ConnectionScope
 
@@ -16,6 +16,7 @@ def check_backend(executable):
     payload = bytes.fromhex("0f053878026400d007000032")
     checked = []
     loopback_checked = []
+    group_checked = []
     for client in ("steam", "purple"):
         with BackendBridge(executable, client) as backend:
             router = ConnectionRouter(backend, 7777)
@@ -45,7 +46,18 @@ def check_backend(executable):
             if loopback.feed(loopback_packet(50000)) is not None or loopback.payload_bytes != len(payload):
                 raise RuntimeError("回环重传去重失败")
             loopback_checked.append(client)
+            backend.reset_encounter()
+            scopes = (scope, ConnectionScope("127.0.0.1", 50001, "127.0.0.1", 1111))
+            group = ScopedConnectionRouter(backend, scopes)
+            if group.feed(loopback_packet(50002)) is not None:
+                raise RuntimeError("自动范围包含了无关连接")
+            group.feed(loopback_packet(50000))
+            result = group.feed(loopback_packet(50001))
+            if result["targets"][0]["damage"] != 100 or group.diagnostics()["payload_bytes"] != 2 * len(payload):
+                raise RuntimeError("自动多连接分流失败")
+            group_checked.append(client)
             checked.append(client)
     return {"synthetic_profiles": checked, "compatibility": "unverified",
             "synthetic_scoped_loopback_profiles": loopback_checked,
+            "synthetic_auto_group_profiles": group_checked,
             "real_game_tested": False, "packet_capture_started": False}

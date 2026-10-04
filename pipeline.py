@@ -157,6 +157,10 @@ class ConnectionRouter:
             return response
         state = self.flows.get(key)
         if segment.flags & 2:
+            if self.scope is not None and not segment.flags & 0x10 and (
+                    (state is not None and state[2] != segment.sequence) or
+                    (state is None and reverse in self.flows)):
+                raise BackendError("所选连接疑似被重新使用，请停止并重新检测进程归属")
             if not segment.flags & 0x10 and (state is None or state[2] != segment.sequence):
                 # A fresh initiating SYN replaces the entire connection,
                 # including stale server-to-client parser state.
@@ -191,6 +195,26 @@ class ConnectionRouter:
         return {"segments": self.segments, "payload_bytes": self.payload_bytes,
                 "partial_streams": self.partial_streams, "closed_gaps": self.closed_gaps,
                 "pending_bytes": sum(len(s[0]._pending) for s in self.flows.values())}
+
+
+class ScopedConnectionRouter:
+    """Game connection group, with independent TCP/protocol state per tuple."""
+    def __init__(self, backend, scopes):
+        from connection_scope import validate_scopes
+        self.routers = {frozenset((s.local, s.remote)): ConnectionRouter(
+            backend, s.remote_port, server_ip=s.remote_ip, scope=s) for s in validate_scopes(scopes)}
+
+    def feed(self, packet):
+        segment = decode_tcp(packet)
+        if segment is None:
+            return None
+        router = self.routers.get(frozenset((segment.source, segment.destination)))
+        return router.feed(packet) if router is not None else None
+
+    def diagnostics(self):
+        values = [router.diagnostics() for router in self.routers.values()]
+        return {key: sum(value[key] for value in values) for key in
+                ("segments", "payload_bytes", "partial_streams", "closed_gaps", "pending_bytes")}
 
 
 def replay_capture(path, backend, server_port, callback, cancelled=None):

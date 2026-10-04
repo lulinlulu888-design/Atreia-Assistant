@@ -124,6 +124,20 @@ class AppTests(unittest.TestCase):
         self.assertIn("尚不能确定战斗通道", self.app.status.get())
         self.assertFalse(self.app.consent.get())
 
+    def test_auto_capture_requires_human_confirmation_and_cancel_never_starts(self):
+        scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)
+        report = DiscoveryReport([GameConnection(100, "127.0.0.1", 1111, "path_restricted", scope)], 1, 1, 1)
+        self.app.devices = [(r"\Device\NPF_Loopback", "Loopback")]
+        for consent in (False, True):
+            self.app.consent.set(False)
+            with patch.object(self.app, "backend_executable", return_value="fixture"), \
+                    patch("app.messagebox.askyesno", return_value=consent) as question, \
+                    patch.object(self.app, "start_replay") as start:
+                self.app.confirm_auto_start(report)
+            question.assert_called_once()
+            self.assertEqual(self.app.consent.get(), consent)
+            self.assertEqual(start.call_count, int(consent))
+
     def test_start_button_requires_ready_scope_interface_and_manual_consent(self):
         scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)
         self.app.selected_connection = GameConnection(100, "127.0.0.1", 1111, "unknown", scope)

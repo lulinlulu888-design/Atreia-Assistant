@@ -7,9 +7,10 @@ import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import webbrowser
-from pipeline import BackendBridge, ConnectionRouter, replay_capture
+from pipeline import BackendBridge, ConnectionRouter, ScopedConnectionRouter, replay_capture
 from capture_live import Npcap, capture_filter
 from connections import find_game_discovery
+from auto_capture import AutoCapturePlan, prepare_auto_capture
 
 
 class AssistantApp:
@@ -35,6 +36,7 @@ class AssistantApp:
         self.history = []
         self.report_state = "not_started"
         self.guided_check = False
+        self.pending_auto_start = False
         self.advanced_visible = False
         root.title("亚特雷亚助手 · 战斗统计（开发版）")
         root.geometry("1060x780")
@@ -103,8 +105,8 @@ class AssistantApp:
         self.client_box.pack(side="left", padx=(8, 16))
         self.detect_button = ttk.Button(controls, text="1  检查环境", command=self.check_setup)
         self.detect_button.pack(side="left", padx=4)
-        self.live_button = ttk.Button(controls, text="开始统计", style="Accent.TButton", command=self.start_live, state="disabled")
-        self.live_button.pack(side="left", padx=4)
+        self.auto_start_button = ttk.Button(controls, text="开启战斗统计", style="Accent.TButton", command=self.begin_auto)
+        self.auto_start_button.pack(side="left", padx=4)
         self.stop_button = ttk.Button(controls, text="停止", command=self.stop, state="disabled")
         self.stop_button.pack(side="left", padx=4)
         self.advanced_button = ttk.Button(controls, text="高级设置 ▾", command=self.toggle_advanced)
@@ -122,7 +124,7 @@ class AssistantApp:
         self.ip_box.pack(side="left", padx=6)
         self.open_button = ttk.Button(settings, text="导入离线 PCAP", command=self.open_capture)
         self.open_button.pack(side="right")
-        detected = ttk.Frame(body)
+        detected = ttk.Frame(self.advanced, style="Card.TFrame")
         detected.pack(fill="x", pady=(0, 8))
         ttk.Label(detected, text="2  游戏连接").pack(side="left", padx=(0, 8))
         self.connection_box = ttk.Combobox(detected, state="readonly", width=62)
@@ -135,6 +137,8 @@ class AssistantApp:
         self.device_box.pack(side="left")
         self.refresh_button = ttk.Button(live, text="检测驱动/网卡", command=self.refresh_devices)
         self.refresh_button.pack(side="left", padx=6)
+        self.live_button = ttk.Button(live, text="按手动设置开始", command=self.start_live, state="disabled")
+        self.live_button.pack(side="left", padx=6)
         ttk.Button(live, text="重新检测游戏连接", command=self.detect_connections).pack(side="right")
         self.scope_summary = tk.StringVar(value="尚未确认连接范围。")
         ttk.Label(self.advanced, textvariable=self.scope_summary, style="Card.TLabel", wraplength=920).pack(anchor="w", pady=(8, 0))
@@ -145,10 +149,10 @@ class AssistantApp:
         ttk.Label(setup, text="首次使用才需要安装 Npcap；安装后再点“检查环境”。", style="Muted.TLabel",
                   wraplength=690).pack(side="left")
         self.consent = tk.BooleanVar(value=False)
-        self.consent_box = ttk.Checkbutton(body, text="我同意仅采集所选游戏连接并在本地分析，理解第三方工具及未验证版本的风险。",
+        self.consent_box = ttk.Checkbutton(self.advanced, text="我同意仅采集所选游戏连接并在本地分析，理解第三方工具及未验证版本的风险。",
             variable=self.consent, command=self.update_live_state)
         self.consent_box.pack(anchor="w", pady=(0, 8))
-        self.status = tk.StringVar(value="先启动游戏，再点“检查环境”。不需要先填写 IP 或端口。")
+        self.status = tk.StringVar(value="进入游戏后点“开启战斗统计”，程序会自动检查连接；不需要先填写 IP 或端口。")
         ttk.Label(body, textvariable=self.status, wraplength=960).pack(anchor="w", pady=(0, 8))
         self.integrity = tk.StringVar(value="")
         ttk.Label(body, textvariable=self.integrity, style="Warning.TLabel", wraplength=960).pack(anchor="w", pady=(0, 6))
@@ -189,12 +193,41 @@ class AssistantApp:
         if self.running or self.detecting:
             return
         if not self.refresh_devices(show_error=False):
+            self.pending_auto_start = False
             self.status.set("还缺采集组件：点“安装采集组件”，自行完成安装后再点“检查环境”。")
             return
         self.guided_check = True
         self.detect_connections()
 
+    def begin_auto(self):
+        if self.running or self.detecting:
+            return
+        self.pending_auto_start = True
+        self.check_setup()
+
+    def confirm_auto_start(self, report):
+        try:
+            plan = prepare_auto_capture(report, self.devices)
+            executable = self.backend_executable()
+        except (ValueError, FileNotFoundError) as error:
+            self.status.set(str(error))
+            return
+        self.scope_summary.set("自动范围：" + "；".join(
+            f"{s.local_ip}:{s.local_port} → {s.remote_ip}:{s.remote_port}" for s in plan.scopes))
+        text = (f"将分析当前 {self.client.get()} 游戏进程的 {len(plan.scopes)} 条精确网络连接，"
+                "其中可能包含非战斗服务。\n\n仅在本机分析，不保存或上传原始封包，不修改游戏。"
+                "\n第三方工具风险及真实游戏兼容性尚未验证。")
+        if plan.identity_restricted:
+            text += "\n程序路径读取受限，请确认所选 Steam/PURPLE 客户端正确。"
+        if not messagebox.askyesno("确认开启战斗统计", text + "\n精确范围可在高级设置查看。\n\n确认采集这些游戏连接并开始？", parent=self.root):
+            self.consent.set(False)
+            self.status.set("已取消，没有开始采集。")
+            return
+        self.consent.set(True)  # Only after the human confirms this exact plan.
+        self.start_replay(None, executable, "steam" if self.client.get() == "Steam / Global" else "purple", 0, plan)
+
     def update_live_state(self):
+        self.auto_start_button.configure(state="disabled" if self.running or self.detecting else "normal")
         ready = False
         if not self.running and not self.detecting and self.npcap is not None and self.consent.get():
             try:
@@ -287,6 +320,7 @@ class AssistantApp:
         if self.running or self.detecting:
             return
         self.detecting = True
+        self.auto_start_button.configure(state="disabled")
         self.detect_button.configure(state="disabled")
         self.apply_button.configure(state="disabled")
         self.open_button.configure(state="disabled")
@@ -362,7 +396,7 @@ class AssistantApp:
         self.client_box.configure(state="disabled")
         self.port_box.configure(state="disabled")
         self.stop_button.configure(state="normal")
-        for control in (self.device_box, self.ip_box, self.refresh_button, self.install_guide_button, self.live_button, self.consent_box,
+        for control in (self.device_box, self.ip_box, self.refresh_button, self.install_guide_button, self.live_button, self.auto_start_button, self.consent_box,
                         self.connection_box, self.detect_button, self.apply_button):
             control.configure(state="disabled")
         self.status.set("正在实时分析所选游戏连接；兼容性未验证。" if live_options else "正在离线解析；当前客户端兼容性仍为未验证……")
@@ -382,14 +416,20 @@ class AssistantApp:
                 self.bridge = bridge
                 self.notify(("ready",))
                 if live_options:
-                    device, server_ip, candidate = live_options
-                    scope = candidate.scope if candidate else None
-                    if scope is not None:
-                        current = find_game_discovery()
-                        if not any(c.pid == candidate.pid and c.scope == scope for c in current.connections):
-                            raise ValueError("所选游戏连接已变化或关闭，请重新检测；没有开始采集")
-                    router = ConnectionRouter(bridge, port, server_ip=server_ip, scope=scope)
-                    for packet in self.npcap.packets(device, server_ip, port, self.cancelled, scope=scope):
+                    if isinstance(live_options, AutoCapturePlan):
+                        live_options.verify(find_game_discovery())
+                        router = ScopedConnectionRouter(bridge, live_options.scopes)
+                        packets = self.npcap.packets_for_scopes(live_options.device, live_options.scopes, self.cancelled)
+                    else:
+                        device, server_ip, candidate = live_options
+                        scope = candidate.scope if candidate else None
+                        if scope is not None:
+                            current = find_game_discovery()
+                            if not any(c.pid == candidate.pid and c.scope == scope for c in current.connections):
+                                raise ValueError("所选游戏连接已变化或关闭，请重新检测；没有开始采集")
+                        router = ConnectionRouter(bridge, port, server_ip=server_ip, scope=scope)
+                        packets = self.npcap.packets(device, server_ip, port, self.cancelled, scope=scope)
+                    for packet in packets:
                         snapshot = router.feed(packet)
                         if snapshot is not None:
                             self.notify(("snapshot", snapshot, router.diagnostics()))
@@ -451,7 +491,12 @@ class AssistantApp:
                 self.status.set(event[1].message() if event[0] == "discovery" else
                     f"找到 {len(self.connections)} 条候选连接，请手动选择；检测不会启动采集。"
                     if event[0] == "connections" else "检测失败：" + event[1])
-                if self.guided_check:
+                if self.pending_auto_start:
+                    self.pending_auto_start = False
+                    self.guided_check = False
+                    if event[0] == "discovery":
+                        self.confirm_auto_start(event[1])
+                elif self.guided_check:
                     self.guided_check = False
                     if len(self.connections) == 1:
                         self.connection_box.current(0)

@@ -4,7 +4,7 @@ import ipaddress
 import os
 from pathlib import Path
 from transport import Packet
-from connection_scope import ConnectionScope
+from connection_scope import ConnectionScope, scopes_filter, validate_scopes
 
 
 class CaptureError(RuntimeError):
@@ -106,6 +106,17 @@ class Npcap:
         if loopback and (scope is None or not ipaddress.IPv4Address(scope.local_ip).is_loopback
                          or device != r"\Device\NPF_Loopback"):
             raise CaptureError("本地代理连接需精确两端范围和 Npcap 回环接口")
+        yield from self._packets(device, expression, cancelled, loopback)
+
+    def packets_for_scopes(self, device, scopes, cancelled):
+        scopes = validate_scopes(scopes)
+        loopbacks = [ipaddress.IPv4Address(s.local_ip).is_loopback and
+                     ipaddress.IPv4Address(s.remote_ip).is_loopback for s in scopes]
+        if any(loopbacks) != all(loopbacks) or all(loopbacks) != (device == r"\Device\NPF_Loopback"):
+            raise CaptureError("精确连接范围与采集接口不匹配")
+        yield from self._packets(device, scopes_filter(scopes).encode("ascii"), cancelled, all(loopbacks))
+
+    def _packets(self, device, expression, cancelled, loopback):
         if device not in {name for name, _ in self.devices()}:
             raise CaptureError("请选择当前网卡列表中的设备")
         error = c.create_string_buffer(256)

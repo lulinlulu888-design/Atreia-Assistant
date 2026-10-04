@@ -16,6 +16,7 @@ class HealthcheckTests(unittest.TestCase):
         result = check_backend(os.environ["ATREIA_BACKEND"])
         self.assertEqual(result["synthetic_profiles"], ["steam", "purple"])
         self.assertEqual(result["synthetic_scoped_loopback_profiles"], ["steam", "purple"])
+        self.assertEqual(result["synthetic_auto_group_profiles"], ["steam", "purple"])
         self.assertEqual(result["compatibility"], "unverified")
         self.assertFalse(result["real_game_tested"])
         self.assertFalse(result["packet_capture_started"])

@@ -1,7 +1,7 @@
 import os
 import unittest
 import struct
-from pipeline import BackendBridge, ConnectionRouter, BackendError
+from pipeline import BackendBridge, ConnectionRouter, ScopedConnectionRouter, BackendError
 from transport import Packet
 from connection_scope import ConnectionScope
 from test_tcp_decode import ipv4
@@ -42,6 +42,20 @@ class RouterTests(unittest.TestCase):
         router.feed(Packet(0, 101, ipv4(b"done", 100, 0x19)))
         with self.assertRaisesRegex(BackendError, "重新检测"):
             router.feed(Packet(0, 101, ipv4(b"", 199, 2)))
+
+    def test_scoped_tuple_reuse_without_observed_close_requires_detection(self):
+        scope = ConnectionScope("10.0.0.1", 1234, "10.0.0.2", 7777)
+        for reverse_only in (False, True):
+            backend = FakeBackend()
+            router = ConnectionRouter(backend, 7777, server_ip="10.0.0.2", scope=scope)
+            data = bytearray(ipv4(b"a", 100))
+            if reverse_only:
+                data[12:16], data[16:20] = data[16:20], data[12:16]
+                data[20:22], data[22:24] = data[22:24], data[20:22]
+            router.feed(Packet(0, 101, bytes(data)))
+            with self.assertRaisesRegex(BackendError, "重新检测"):
+                router.feed(Packet(0, 101, ipv4(b"", 199, 2)))
+            self.assertEqual(len(backend.received), 1)
 
     def test_ordering_retransmission_and_connection_filter(self):
         backend = FakeBackend()
@@ -105,6 +119,26 @@ class RouterTests(unittest.TestCase):
 
 @unittest.skipUnless(os.environ.get("ATREIA_BACKEND"), "requires built Rust backend")
 class BackendIntegrationTests(unittest.TestCase):
+    def test_game_connection_group_keeps_streams_separate_and_ignores_outsiders(self):
+        payload = bytes.fromhex("0f053878026400d007000032")
+        scopes = tuple(ConnectionScope("127.0.0.1", p, "127.0.0.1", 1111) for p in (50000, 50001))
+        def sample(port):
+            data = bytearray(ipv4(payload))
+            data[12:20] = b"\x7f\x00\x00\x01" * 2
+            data[20:24] = struct.pack("!HH", port, 1111)
+            return Packet(1_000_000_000, 0, struct.pack("<I", 2) + bytes(data))
+        for client in ("steam", "purple"):
+            with BackendBridge(os.environ["ATREIA_BACKEND"], client) as backend:
+                router = ScopedConnectionRouter(backend, scopes)
+                self.assertIsNone(router.feed(sample(50002)))
+                first = router.feed(sample(50000))
+                self.assertEqual(first["targets"][0]["damage"], 50)
+                second = router.feed(sample(50001))
+                self.assertEqual(second["targets"][0]["damage"], 100)
+                self.assertIsNone(router.feed(sample(50000)))
+                self.assertEqual(router.diagnostics()["payload_bytes"], 2 * len(payload))
+                self.assertEqual(second["compatibility"], "unverified")
+
     def test_synthetic_loopback_scope_to_backend_for_both_clients(self):
         payload = bytes.fromhex("0f053878026400d007000032")
         scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)

@@ -3,7 +3,7 @@ import ctypes as c
 import threading
 from unittest.mock import Mock
 from capture_live import capture_filter, Npcap, Header, CaptureError
-from connection_scope import ConnectionScope
+from connection_scope import ConnectionScope, scopes_filter
 
 
 class CaptureFilterTests(unittest.TestCase):
@@ -84,3 +84,22 @@ class NpcapMockTests(unittest.TestCase):
         self.assertEqual(list(reader.packets(r"\Device\NPF_Loopback", "127.0.0.1", 1111, cancelled, scope)), [])
         self.assertEqual(reader.dll.pcap_compile.call_args.args[2], scope.filter_expression().encode("ascii"))
         reader.dll.pcap_close.assert_called_once_with(1)
+
+    def test_mock_group_compiles_only_game_scopes_and_closes_once(self):
+        reader = self.reader()
+        reader.devices = lambda: [(r"\Device\NPF_Loopback", "Synthetic loopback")]
+        reader.dll.pcap_datalink.return_value = 0
+        scopes = tuple(ConnectionScope("127.0.0.1", p, "127.0.0.1", 1111) for p in (50000, 50001))
+        cancelled = threading.Event()
+        cancelled.set()
+        self.assertEqual(list(reader.packets_for_scopes(r"\Device\NPF_Loopback", scopes, cancelled)), [])
+        self.assertEqual(reader.dll.pcap_compile.call_args.args[2], scopes_filter(scopes).encode("ascii"))
+        reader.dll.pcap_close.assert_called_once_with(1)
+
+    def test_group_rejects_mixed_interfaces_before_open(self):
+        reader = self.reader()
+        scopes = (ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111),
+                  ConnectionScope("10.0.0.1", 50001, "10.0.0.2", 7777))
+        with self.assertRaises(CaptureError):
+            list(reader.packets_for_scopes("fixture-device", scopes, threading.Event()))
+        reader.dll.pcap_open_live.assert_not_called()
