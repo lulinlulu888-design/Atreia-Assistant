@@ -1,5 +1,6 @@
 """Offline transport primitives; no live capture or game protocol decoding."""
 from dataclasses import dataclass
+import socket
 import struct
 
 
@@ -8,6 +9,71 @@ class Packet:
     timestamp_ns: int
     link_type: int
     data: bytes
+
+
+@dataclass(frozen=True)
+class TcpSegment:
+    timestamp_ns: int
+    source: tuple
+    destination: tuple
+    sequence: int
+    flags: int
+    payload: bytes
+
+    @property
+    def payload_sequence(self):
+        # SYN occupies a sequence number even when it carries no data.
+        return (self.sequence + bool(self.flags & 2)) % 2 ** 32
+
+
+def decode_tcp(packet):
+    """Extract IPv4/TCP; skip ARP/UDP, reject unsupported IPv6/fragments.
+
+    Ethernet, up to two VLAN tags, and raw IPv4 are supported. Checksums are
+    deliberately not checked because capture may precede checksum offload.
+    This extracts transport bytes only and never interprets game damage.
+    """
+    data = packet.data
+    if packet.link_type == 1:
+        if len(data) < 14:
+            raise ValueError("Truncated Ethernet header")
+        offset, protocol = 14, int.from_bytes(data[12:14], "big")
+        for _ in range(2):
+            if protocol not in (0x8100, 0x88A8):
+                break
+            if len(data) < offset + 4:
+                raise ValueError("Truncated VLAN header")
+            protocol = int.from_bytes(data[offset + 2:offset + 4], "big")
+            offset += 4
+        if protocol in (0x8100, 0x88A8):
+            raise ValueError("More than two VLAN tags are unsupported")
+        if protocol == 0x86DD:
+            raise ValueError("IPv6 decoding not implemented")
+        if protocol != 0x0800:
+            return None
+        data = data[offset:]
+    elif packet.link_type != 101:
+        raise ValueError("Unsupported link type")
+    if not data or data[0] >> 4 != 4:
+        raise ValueError("IPv4 packet required")
+    if len(data) < 20:
+        raise ValueError("Truncated IPv4 header")
+    ihl, size = (data[0] & 15) * 4, int.from_bytes(data[2:4], "big")
+    if ihl < 20 or not ihl <= size <= len(data):
+        raise ValueError("Invalid IPv4 length")
+    if data[9] != 6:
+        return None
+    if int.from_bytes(data[6:8], "big") & 0x3FFF:
+        raise ValueError("Fragmented IPv4 TCP requires IP reassembly")
+    tcp = data[ihl:size]
+    if len(tcp) < 20:
+        raise ValueError("Truncated TCP header")
+    tcp_length = (tcp[12] >> 4) * 4
+    if not 20 <= tcp_length <= len(tcp):
+        raise ValueError("Invalid TCP header length")
+    src, dst, sequence = struct.unpack("!HHI", tcp[:8])
+    return TcpSegment(packet.timestamp_ns, (socket.inet_ntoa(data[12:16]), src),
+                      (socket.inet_ntoa(data[16:20]), dst), sequence, tcp[13], tcp[tcp_length:])
 
 
 def read_pcap(stream):
