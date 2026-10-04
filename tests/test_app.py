@@ -2,8 +2,10 @@ import os
 import copy
 import unittest
 import tkinter as tk
+from unittest.mock import patch, Mock
 from app import AssistantApp
 from connections import GameConnection, DiscoveryReport
+from connection_scope import ConnectionScope
 
 
 @unittest.skipUnless(os.name == "nt" or os.environ.get("DISPLAY"), "GUI requires a display")
@@ -99,6 +101,18 @@ class AppTests(unittest.TestCase):
         self.assertEqual(self.app.server_ip.get(), "")
         self.assertFalse(self.app.running)
         self.assertFalse(self.app.consent.get())
+
+    def test_changed_game_connection_stops_before_opening_capture(self):
+        scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)
+        candidate = GameConnection(100, "127.0.0.1", 1111, "path_restricted", scope)
+        self.app.npcap = Mock()
+        with patch("app.BackendBridge"), patch("app.find_game_discovery",
+                return_value=DiscoveryReport([], 1, 1, 0)):
+            self.app.work(None, "fixture", "steam", 1111, (r"\Device\NPF_Loopback", "127.0.0.1", candidate))
+        self.app.npcap.packets.assert_not_called()
+        self.app.poll()
+        self.assertIn("连接已变化", self.app.status.get())
+        self.assertIsNone(self.app.bridge)
 
     def test_reset_control_is_not_lost_during_fast_snapshot_refresh(self):
         previous = {"encounter_id": 1, "revision": 1, "status": "combat_detected", "targets": [], "healing": []}

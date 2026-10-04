@@ -66,6 +66,23 @@ class ConnectionTests(unittest.TestCase):
         self.assertIn("不代表游戏未运行", report.message())
         self.assertIn("未发现", parse_discovery('{"processes":[],"connections":[]}').message())
 
+    def test_proxy_candidates_preserve_each_local_endpoint_and_unverified_identity(self):
+        records = [connection(executable=None, server_ip="127.0.0.1", server_port=1111,
+                              local_ip="127.0.0.1", local_port=port) for port in (50000, 50001)]
+        report = parse_discovery(json.dumps(dict(processes=[dict(pid=100, executable=None)],
+                                                 connections=records + records)))
+        self.assertEqual(len(report.connections), 2)
+        self.assertEqual([c.scope.local_port for c in report.connections], [50000, 50001])
+        self.assertTrue(all(c.client_hint == "path_restricted" for c in report.connections))
+
+    def test_verified_direct_candidate_is_upgraded_to_full_scope(self):
+        record = connection(local_ip="10.1.2.4", local_port=50000)
+        report = parse_discovery(json.dumps(dict(processes=[dict(pid=100, executable=record["executable"])],
+                                                 connections=[record])))
+        self.assertEqual(len(report.connections), 1)
+        self.assertEqual(report.connections[0].scope.local_port, 50000)
+        self.assertEqual(report.connections[0].client_hint, "steam")
+
     def test_inconsistent_process_report_rejected(self):
         for processes in ([], [dict(pid=100, executable=None)], [dict(pid=True)],
                           [dict(pid=100), dict(pid=100)]):

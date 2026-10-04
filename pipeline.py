@@ -98,12 +98,17 @@ class ConnectionRouter:
     No automatic connection search: caller supplies the game's port. Captures
     started after SYN are flagged as partial; they cannot prove completeness.
     """
-    def __init__(self, backend, server_port, max_flows=32, server_ip=None):
+    def __init__(self, backend, server_port, max_flows=32, server_ip=None, scope=None):
         if type(server_port) is not int or not 1 <= server_port <= 65535:
             raise ValueError("需要填写真实游戏连接端口（1—65535）")
         self.backend = backend
         self.server_port = server_port
         self.server_ip = str(ipaddress.IPv4Address(server_ip)) if server_ip is not None else None
+        if scope is not None:
+            from connection_scope import ConnectionScope
+            if not isinstance(scope, ConnectionScope) or scope.remote != (self.server_ip, server_port):
+                raise ValueError("连接范围与服务器端点不匹配")
+        self.scope = scope
         self.max_flows = max_flows
         self.flows = {}
         self.closed_flows = {}
@@ -130,12 +135,16 @@ class ConnectionRouter:
         segment = decode_tcp(packet)
         if segment is None or self.server_port not in (segment.source[1], segment.destination[1]):
             return None
+        if self.scope is not None and not self.scope.matches(segment.source, segment.destination):
+            return None
         if self.server_ip is not None and self.server_ip not in (segment.source[0], segment.destination[0]):
             return None
         key = (segment.source, segment.destination)
         reverse = (segment.destination, segment.source)
         timestamp_ms = segment.timestamp_ns // 1_000_000
         if segment.flags & 2:
+            if self.scope is not None and (key in self.closed_flows or reverse in self.closed_flows):
+                raise BackendError("所选连接已重新建立，请停止并重新检测以确认进程归属")
             self.closed_flows.pop(key, None)
         elif key in self.closed_flows and not segment.flags & 4:
             return None

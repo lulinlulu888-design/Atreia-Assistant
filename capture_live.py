@@ -4,16 +4,23 @@ import ipaddress
 import os
 from pathlib import Path
 from transport import Packet
+from connection_scope import ConnectionScope
 
 
 class CaptureError(RuntimeError):
     pass
 
 
-def capture_filter(server_ip, port):
+def capture_filter(server_ip, port, scope=None):
     address = ipaddress.IPv4Address(server_ip)
     if type(port) is not int or not 1 <= port <= 65535:
         raise ValueError("游戏 TCP 端口应为 1—65535")
+    if scope is not None:
+        if not isinstance(scope, ConnectionScope) or scope.remote != (str(address), port):
+            raise ValueError("连接范围与服务器端点不匹配")
+        return scope.filter_expression()
+    if address.is_loopback:
+        raise ValueError("回环采集必须选择包含两端 IP/端口的游戏连接，不能仅按代理端口采集")
     return f"ip and tcp and host {address} and port {port}"
 
 
@@ -43,7 +50,7 @@ class Npcap:
             raise CaptureError("无法定位 Windows 系统目录")
         dll = Path(windows_dir.value) / "System32/Npcap/wpcap.dll"
         if not dll.is_file():
-            raise CaptureError("未安装 Npcap。请从 npcap.com 自行安装并启用 WinPcap API-compatible Mode；本工具不自动安装驱动。")
+            raise CaptureError("未找到系统 Npcap。请从 npcap.com 自行安装；本工具不自动安装驱动，不要求启用 WinPcap 兼容模式。")
         try:
             # cdecl API; restrict dependencies to DLL directory and System32.
             self.dll = c.CDLL(str(dll), winmode=0x100 | 0x800)
@@ -93,8 +100,12 @@ class Npcap:
             self.dll.pcap_freealldevs(head)
         return result
 
-    def packets(self, device, server_ip, port, cancelled):
-        expression = capture_filter(server_ip, port).encode("ascii")
+    def packets(self, device, server_ip, port, cancelled, scope=None):
+        expression = capture_filter(server_ip, port, scope).encode("ascii")
+        loopback = ipaddress.IPv4Address(server_ip).is_loopback
+        if loopback and (scope is None or not ipaddress.IPv4Address(scope.local_ip).is_loopback
+                         or device != r"\Device\NPF_Loopback"):
+            raise CaptureError("本地代理连接需精确两端范围和 Npcap 回环接口")
         if device not in {name for name, _ in self.devices()}:
             raise CaptureError("请选择当前网卡列表中的设备")
         error = c.create_string_buffer(256)
@@ -103,8 +114,8 @@ class Npcap:
             raise CaptureError("无法打开网卡，请检查采集权限。工具不会自动提升权限或修改系统设置。")
         try:
             link = self.dll.pcap_datalink(handle)
-            if link not in (1, 101):
-                raise CaptureError("当前网卡链路格式尚未支持；回环/VPN 需后续单独验证")
+            if link not in (0, 1, 101) or (link == 0 and not loopback):
+                raise CaptureError("当前网卡链路格式或连接范围尚未支持")
             program = BpfProgram()
             if self.dll.pcap_compile(handle, c.byref(program), expression, 1, 0xFFFFFFFF) != 0:
                 raise CaptureError("无法编译游戏连接过滤条件")

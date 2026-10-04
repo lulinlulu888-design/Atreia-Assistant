@@ -3,6 +3,7 @@ import ctypes as c
 import threading
 from unittest.mock import Mock
 from capture_live import capture_filter, Npcap, Header, CaptureError
+from connection_scope import ConnectionScope
 
 
 class CaptureFilterTests(unittest.TestCase):
@@ -16,6 +17,8 @@ class CaptureFilterTests(unittest.TestCase):
         for port in (0, -1, 65536, "7777", True):
             with self.subTest(port=port), self.assertRaises(ValueError):
                 capture_filter("192.0.2.1", port)
+        with self.assertRaises(ValueError):
+            capture_filter("127.0.0.1", 1111)
 
 
 class NpcapMockTests(unittest.TestCase):
@@ -62,3 +65,22 @@ class NpcapMockTests(unittest.TestCase):
         with self.assertRaises(CaptureError):
             list(reader.packets("other", "192.0.2.1", 7777, threading.Event()))
         reader.dll.pcap_open_live.assert_not_called()
+
+    def test_loopback_cannot_open_with_broad_filter_or_wrong_interface(self):
+        reader = self.reader()
+        scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)
+        for supplied, error in ((None, ValueError), (scope, CaptureError)):
+            with self.assertRaises(error):
+                list(reader.packets("fixture-device", "127.0.0.1", 1111, threading.Event(), supplied))
+        reader.dll.pcap_open_live.assert_not_called()
+
+    def test_mock_loopback_uses_exact_bpf_and_null_header(self):
+        reader = self.reader()
+        reader.devices = lambda: [(r"\Device\NPF_Loopback", "Synthetic loopback")]
+        reader.dll.pcap_datalink.return_value = 0
+        scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)
+        cancelled = threading.Event()
+        cancelled.set()
+        self.assertEqual(list(reader.packets(r"\Device\NPF_Loopback", "127.0.0.1", 1111, cancelled, scope)), [])
+        self.assertEqual(reader.dll.pcap_compile.call_args.args[2], scope.filter_expression().encode("ascii"))
+        reader.dll.pcap_close.assert_called_once_with(1)

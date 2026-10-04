@@ -28,6 +28,7 @@ class AssistantApp:
         self.npcap = None
         self.devices = []
         self.connections = []
+        self.selected_connection = None
         self.detecting = False
         self.is_live = False
         self.resetting = False
@@ -191,9 +192,13 @@ class AssistantApp:
             self.status.set("请先检测并选择候选游戏连接，或手动填写 IP 和端口。")
             return
         candidate = self.connections[index]
+        self.selected_connection = candidate
+        self.consent.set(False)
         self.server_ip.set(candidate.server_ip)
         self.port.set(str(candidate.server_port))
-        self.status.set("已填入候选 IP/端口，请确认 Steam 或 PURPLE 客户端；尚未启动采集，连接可能不是战斗服务。")
+        self.status.set("已选择候选连接，请确认客户端及采集范围；尚未启动采集，连接可能不是战斗服务。"
+                        + (" 程序路径读取受限，客户端身份未由路径验证。"
+                           if candidate.client_hint == "path_restricted" else ""))
 
     def start_live(self):
         if not self.consent.get():
@@ -201,17 +206,23 @@ class AssistantApp:
             return
         try:
             port = int(self.port.get())
-            capture_filter(self.server_ip.get(), port)
+            candidate = self.selected_connection
+            if candidate and (candidate.server_ip, candidate.server_port) != (self.server_ip.get(), port):
+                raise ValueError("IP/端口已改变，请重新检测并选择连接，以确认精确采集范围")
+            scope = candidate.scope if candidate else None
+            capture_filter(self.server_ip.get(), port, scope)
             executable = self.backend_executable()
             index = self.device_box.current()
             if self.npcap is None or not 0 <= index < len(self.devices):
                 raise ValueError("请先刷新并选择网卡")
             device = self.devices[index][0]
+            if scope and scope.remote_ip.startswith("127.") and device != r"\Device\NPF_Loopback":
+                raise ValueError("本地代理连接请选择 Npcap Loopback 回环接口")
         except (ValueError, FileNotFoundError) as error:
             messagebox.showerror("无法开始", str(error), parent=self.root)
             return
         self.start_replay(None, executable, "steam" if self.client.get() == "Steam / Global" else "purple",
-                          port, (device, self.server_ip.get()))
+                          port, (device, self.server_ip.get(), candidate))
 
     def start_replay(self, path, executable, client, port, live_options=None):
         if self.running or self.detecting or self.resetting:
@@ -247,8 +258,14 @@ class AssistantApp:
                 self.bridge = bridge
                 self.notify(("ready",))
                 if live_options:
-                    router = ConnectionRouter(bridge, port, server_ip=live_options[1])
-                    for packet in self.npcap.packets(*live_options, port, self.cancelled):
+                    device, server_ip, candidate = live_options
+                    scope = candidate.scope if candidate else None
+                    if scope is not None:
+                        current = find_game_discovery()
+                        if not any(c.pid == candidate.pid and c.scope == scope for c in current.connections):
+                            raise ValueError("所选游戏连接已变化或关闭，请重新检测；没有开始采集")
+                    router = ConnectionRouter(bridge, port, server_ip=server_ip, scope=scope)
+                    for packet in self.npcap.packets(device, server_ip, port, self.cancelled, scope=scope):
                         snapshot = router.feed(packet)
                         if snapshot is not None:
                             self.notify(("snapshot", snapshot, router.diagnostics()))
@@ -298,9 +315,14 @@ class AssistantApp:
                 self.live_button.configure(state="normal")
                 self.connections = (event[1].connections if event[0] == "discovery" else
                     event[1] if event[0] == "connections" else [])
+                self.selected_connection = None
+                self.consent.set(False)
                 self.connection_box["values"] = tuple(
-                    f'PID {candidate.pid} → {candidate.server_ip}:{candidate.server_port} · '
-                    + ("Steam 路径" if candidate.client_hint == "steam" else "客户端需确认")
+                    f'PID {candidate.pid} '
+                    + (f'{candidate.scope.local_ip}:{candidate.scope.local_port} ' if candidate.scope else "")
+                    + f'→ {candidate.server_ip}:{candidate.server_port} · '
+                    + ("Steam 路径" if candidate.client_hint == "steam" else
+                       "路径受限，客户端需确认" if candidate.client_hint == "path_restricted" else "客户端需确认")
                     for candidate in self.connections)
                 self.connection_box.set("")
                 self.status.set(event[1].message() if event[0] == "discovery" else

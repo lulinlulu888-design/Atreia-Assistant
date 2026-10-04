@@ -1,7 +1,9 @@
 import os
 import unittest
-from pipeline import BackendBridge, ConnectionRouter
+import struct
+from pipeline import BackendBridge, ConnectionRouter, BackendError
 from transport import Packet
+from connection_scope import ConnectionScope
 from test_tcp_decode import ipv4
 
 
@@ -20,6 +22,27 @@ class FakeBackend:
 
 
 class RouterTests(unittest.TestCase):
+    def test_exact_scope_filters_unrelated_tcp_before_backend(self):
+        backend = FakeBackend()
+        scope = ConnectionScope("10.0.0.1", 1234, "10.0.0.2", 7777)
+        router = ConnectionRouter(backend, 7777, server_ip="10.0.0.2", scope=scope)
+        unrelated = bytearray(ipv4(b"other"))
+        unrelated[20:22] = (1235).to_bytes(2, "big")
+        self.assertIsNone(router.feed(Packet(0, 101, bytes(unrelated))))
+        self.assertEqual(router.segments, 0)
+        self.assertEqual(backend.received, [])
+        router.feed(Packet(0, 101, ipv4(b"game")))
+        self.assertEqual([record[2] for record in backend.received], [b"game"])
+        with self.assertRaises(ValueError):
+            ConnectionRouter(FakeBackend(), 7778, server_ip="10.0.0.2", scope=scope)
+
+    def test_scoped_tuple_cannot_reopen_after_close_without_new_detection(self):
+        scope = ConnectionScope("10.0.0.1", 1234, "10.0.0.2", 7777)
+        router = ConnectionRouter(FakeBackend(), 7777, server_ip="10.0.0.2", scope=scope)
+        router.feed(Packet(0, 101, ipv4(b"done", 100, 0x19)))
+        with self.assertRaisesRegex(BackendError, "重新检测"):
+            router.feed(Packet(0, 101, ipv4(b"", 199, 2)))
+
     def test_ordering_retransmission_and_connection_filter(self):
         backend = FakeBackend()
         router = ConnectionRouter(backend, 7777)
@@ -82,6 +105,25 @@ class RouterTests(unittest.TestCase):
 
 @unittest.skipUnless(os.environ.get("ATREIA_BACKEND"), "requires built Rust backend")
 class BackendIntegrationTests(unittest.TestCase):
+    def test_synthetic_loopback_scope_to_backend_for_both_clients(self):
+        payload = bytes.fromhex("0f053878026400d007000032")
+        scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)
+        def loopback_packet(local_port):
+            data = bytearray(ipv4(payload))
+            data[12:20] = b"\x7f\x00\x00\x01" * 2
+            data[20:22] = local_port.to_bytes(2, "big")
+            data[22:24] = (1111).to_bytes(2, "big")
+            return Packet(1_000_000_000, 0, struct.pack("<I", 2) + bytes(data))
+        for client in ("steam", "purple"):
+            with BackendBridge(os.environ["ATREIA_BACKEND"], client) as backend:
+                router = ConnectionRouter(backend, 1111, server_ip="127.0.0.1", scope=scope)
+                self.assertIsNone(router.feed(loopback_packet(50001)))
+                snapshot = router.feed(loopback_packet(50000))
+                self.assertEqual(snapshot["targets"][0]["damage"], 50)
+                self.assertEqual(snapshot["compatibility"], "unverified")
+                self.assertIsNone(router.feed(loopback_packet(50000)))
+                self.assertEqual(router.payload_bytes, len(payload))
+
     def test_reset_preserves_tcp_connection_and_starts_new_totals(self):
         payload = bytes.fromhex("0f053878026400d007000032")
         for client in ("steam", "purple"):

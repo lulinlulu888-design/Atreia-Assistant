@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import PureWindowsPath
 import subprocess
+from connection_scope import ConnectionScope
 
 
 @dataclass(frozen=True)
@@ -13,6 +14,7 @@ class GameConnection:
     server_ip: str
     server_port: int
     client_hint: str
+    scope: ConnectionScope | None = None
 
 
 @dataclass(frozen=True)
@@ -29,7 +31,7 @@ class DiscoveryReport:
         if self.restricted_paths:
             message += " 部分进程路径读取受限，未作为已验证连接。"
         if self.loopback_connections:
-            message += " 发现本地回环连接，可能经过代理或加速器；当前采集模块不支持。"
+            message += " 发现本地回环连接，可能经过代理或加速器；需精确连接范围与 Npcap 回环接口，实战未验证。"
         if self.connections:
             message += " 请手动选择；检测不会启动采集。"
         else:
@@ -46,7 +48,8 @@ foreach ($game in @(Get-CimInstance Win32_Process -Filter "Name='AION2.exe'")) {
     $processes += [PSCustomObject]@{pid=[int]$game.ProcessId; executable=$game.ExecutablePath}
     foreach ($connection in @(Get-NetTCPConnection -State Established -OwningProcess $game.ProcessId -ErrorAction SilentlyContinue)) {
         $result += [PSCustomObject]@{pid=[int]$game.ProcessId; executable=$game.ExecutablePath;
-            server_ip=$connection.RemoteAddress; server_port=[int]$connection.RemotePort}
+            server_ip=$connection.RemoteAddress; server_port=[int]$connection.RemotePort;
+            local_ip=$connection.LocalAddress; local_port=[int]$connection.LocalPort}
     }
 }
 ConvertTo-Json -InputObject ([PSCustomObject]@{processes=@($processes); connections=@($result)}) -Compress -Depth 4
@@ -106,7 +109,30 @@ def parse_discovery(text):
             continue
         if address.is_loopback:
             loopbacks.add((record["pid"], str(address), record["server_port"]))
+        # Full endpoints permit generic local-proxy selection without guessing
+        # the client from a path Windows did not let us read. Legacy records
+        # without local endpoints remain subject to the old verified-path rule.
+        if "local_ip" not in record or "local_port" not in record:
+            continue
+        try:
+            scope = ConnectionScope(record["local_ip"], record["local_port"],
+                                    record["server_ip"], record["server_port"])
+        except ValueError:
+            continue
+        path = record.get("executable")
+        if path is None or path == "":
+            hint = "path_restricted"
+        elif isinstance(path, str) and PureWindowsPath(path).name.lower() == "aion2.exe":
+            components = [part.lower() for part in PureWindowsPath(path).parts]
+            hint = "steam" if "steamapps" in components and "common" in components else "unknown"
+        else:
+            continue
+        candidates = [c for c in candidates if (c.pid, c.server_ip, c.server_port) !=
+                      (record["pid"], scope.remote_ip, scope.remote_port) or c.scope is not None]
+        candidates.append(GameConnection(record["pid"], scope.remote_ip, scope.remote_port, hint, scope))
     restricted = sum(not isinstance(path, str) or not path for path in by_pid.values())
+    candidates = sorted(set(candidates), key=lambda c: (c.pid, c.server_ip, c.server_port,
+                        c.scope.local_port if c.scope else 0))
     return DiscoveryReport(candidates, len(by_pid), restricted, len(loopbacks))
 
 
