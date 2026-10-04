@@ -15,6 +15,7 @@ class HealthcheckTests(unittest.TestCase):
     def test_smoke_report_does_not_claim_live_compatibility(self):
         result = check_backend(os.environ["ATREIA_BACKEND"])
         self.assertEqual(result["synthetic_profiles"], ["steam", "purple"])
+        self.assertEqual(result["synthetic_scoped_loopback_profiles"], ["steam", "purple"])
         self.assertEqual(result["compatibility"], "unverified")
         self.assertFalse(result["real_game_tested"])
         self.assertFalse(result["packet_capture_started"])
