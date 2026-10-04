@@ -2,7 +2,7 @@ import json
 import unittest
 from unittest.mock import patch
 import subprocess
-from connections import parse_connections, find_game_connections, DISCOVERY_SCRIPT
+from connections import parse_connections, parse_discovery, find_game_connections, DISCOVERY_SCRIPT
 
 
 def connection(**overrides):
@@ -35,7 +35,7 @@ class ConnectionTests(unittest.TestCase):
     @patch("connections.os.name", "nt")
     @patch("connections.subprocess.run")
     def test_query_uses_fixed_read_only_script_and_timeout(self, run):
-        run.return_value = subprocess.CompletedProcess([], 0, b"[]", b"")
+        run.return_value = subprocess.CompletedProcess([], 0, b'{"processes":[],"connections":[]}', b"")
         self.assertEqual(find_game_connections(), [])
         arguments, options = run.call_args
         self.assertIn("-NonInteractive", arguments[0])
@@ -49,3 +49,25 @@ class ConnectionTests(unittest.TestCase):
         run.return_value = subprocess.CompletedProcess([], 1, b"", b"restricted")
         with self.assertRaisesRegex(RuntimeError, "无法读取"):
             find_game_connections()
+
+    def test_restricted_game_with_loopback_is_not_reported_absent(self):
+        report = parse_discovery(json.dumps(dict(
+            processes=[dict(pid=100, executable=None)],
+            connections=[connection(executable=None, server_ip="127.0.0.1", server_port=1111)])))
+        self.assertEqual(report.connections, [])
+        self.assertEqual((report.process_count, report.restricted_paths, report.loopback_connections), (1, 1, 1))
+        self.assertIn("读取受限", report.message())
+        self.assertIn("本地回环", report.message())
+        self.assertNotIn("未发现", report.message())
+
+    def test_process_without_connections_remains_visible(self):
+        report = parse_discovery(json.dumps(dict(processes=[dict(pid=100, executable=None)], connections=[])))
+        self.assertEqual(report.process_count, 1)
+        self.assertIn("不代表游戏未运行", report.message())
+        self.assertIn("未发现", parse_discovery('{"processes":[],"connections":[]}').message())
+
+    def test_inconsistent_process_report_rejected(self):
+        for processes in ([], [dict(pid=100, executable=None)], [dict(pid=True)],
+                          [dict(pid=100), dict(pid=100)]):
+            with self.assertRaises(ValueError):
+                parse_discovery(json.dumps(dict(processes=processes, connections=[connection()])))

@@ -15,17 +15,41 @@ class GameConnection:
     client_hint: str
 
 
+@dataclass(frozen=True)
+class DiscoveryReport:
+    connections: list
+    process_count: int
+    restricted_paths: int
+    loopback_connections: int
+
+    def message(self):
+        if not self.process_count:
+            return "未发现 AION2.exe 进程；请确认游戏已启动。检测不会启动采集。"
+        message = f"发现 {self.process_count} 个游戏同名进程，{len(self.connections)} 条可选连接。"
+        if self.restricted_paths:
+            message += " 部分进程路径读取受限，未作为已验证连接。"
+        if self.loopback_connections:
+            message += " 发现本地回环连接，可能经过代理或加速器；当前采集模块不支持。"
+        if self.connections:
+            message += " 请手动选择；检测不会启动采集。"
+        else:
+            message += " 没有可用连接不代表游戏未运行；检测不会启动采集。"
+        return message
+
+
 # Fixed script: no user text, process arguments, credentials or packet contents.
 DISCOVERY_SCRIPT = r"""
 $ErrorActionPreference = 'Stop'
 $result = @()
+$processes = @()
 foreach ($game in @(Get-CimInstance Win32_Process -Filter "Name='AION2.exe'")) {
+    $processes += [PSCustomObject]@{pid=[int]$game.ProcessId; executable=$game.ExecutablePath}
     foreach ($connection in @(Get-NetTCPConnection -State Established -OwningProcess $game.ProcessId -ErrorAction SilentlyContinue)) {
         $result += [PSCustomObject]@{pid=[int]$game.ProcessId; executable=$game.ExecutablePath;
             server_ip=$connection.RemoteAddress; server_port=[int]$connection.RemotePort}
     }
 }
-ConvertTo-Json -InputObject @($result) -Compress
+ConvertTo-Json -InputObject ([PSCustomObject]@{processes=@($processes); connections=@($result)}) -Compress -Depth 4
 """
 
 
@@ -57,7 +81,36 @@ def parse_connections(text):
     return sorted(candidates, key=lambda candidate: (candidate.pid, candidate.server_ip, candidate.server_port))
 
 
-def find_game_connections():
+def parse_discovery(text):
+    data = json.loads(text)
+    if not isinstance(data, dict):
+        raise ValueError("连接检测报告必须为对象")
+    processes, records = data.get("processes"), data.get("connections")
+    if not isinstance(processes, list) or len(processes) > 512:
+        raise ValueError("连接检测返回了无效或过多的进程")
+    by_pid = {}
+    for process in processes:
+        if not isinstance(process, dict) or type(process.get("pid")) is not int or process["pid"] <= 0:
+            raise ValueError("连接检测返回了无效进程")
+        if process["pid"] in by_pid:
+            raise ValueError("连接检测返回了重复进程")
+        by_pid[process["pid"]] = process.get("executable")
+    candidates = parse_connections(json.dumps(records))
+    loopbacks = set()
+    for record in records:
+        if record["pid"] not in by_pid or record.get("executable") != by_pid[record["pid"]]:
+            raise ValueError("连接检测的进程与连接不匹配")
+        try:
+            address = ipaddress.ip_address(record.get("server_ip", ""))
+        except ValueError:
+            continue
+        if address.is_loopback:
+            loopbacks.add((record["pid"], str(address), record["server_port"]))
+    restricted = sum(not isinstance(path, str) or not path for path in by_pid.values())
+    return DiscoveryReport(candidates, len(by_pid), restricted, len(loopbacks))
+
+
+def find_game_discovery():
     if os.name != "nt":
         raise RuntimeError("游戏连接检测目前仅支持 Windows")
     system_root = os.environ.get("SystemRoot", r"C:\Windows")
@@ -69,4 +122,8 @@ def find_game_connections():
         raise RuntimeError("无法读取游戏连接；可以继续手动填写 IP 和端口，不需要自动提权")
     if len(completed.stdout) > 256 * 1024:
         raise RuntimeError("连接检测结果超过大小限制")
-    return parse_connections(completed.stdout.decode("utf-8-sig"))
+    return parse_discovery(completed.stdout.decode("utf-8-sig"))
+
+
+def find_game_connections():
+    return find_game_discovery().connections

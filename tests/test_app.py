@@ -3,7 +3,7 @@ import copy
 import unittest
 import tkinter as tk
 from app import AssistantApp
-from connections import GameConnection
+from connections import GameConnection, DiscoveryReport
 
 
 @unittest.skipUnless(os.name == "nt" or os.environ.get("DISPLAY"), "GUI requires a display")
@@ -87,6 +87,16 @@ class AppTests(unittest.TestCase):
         self.assertEqual(self.app.server_ip.get(), "10.1.2.3")
         self.assertEqual(self.app.port.get(), "7777")
         self.assertEqual(self.app.client.get(), "Steam / Global")
+        self.assertFalse(self.app.running)
+        self.assertFalse(self.app.consent.get())
+
+    def test_discovery_diagnostics_do_not_offer_unsupported_capture(self):
+        self.app.events.put(("discovery", DiscoveryReport([], 1, 1, 3)))
+        self.app.poll()
+        self.assertIn("读取受限", self.app.status.get())
+        self.assertIn("本地回环", self.app.status.get())
+        self.assertFalse(self.app.connection_box["values"])
+        self.assertEqual(self.app.server_ip.get(), "")
         self.assertFalse(self.app.running)
         self.assertFalse(self.app.consent.get())
 

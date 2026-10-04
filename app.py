@@ -9,7 +9,7 @@ from tkinter import filedialog, messagebox, ttk
 import webbrowser
 from pipeline import BackendBridge, ConnectionRouter, replay_capture
 from capture_live import Npcap, capture_filter
-from connections import find_game_connections
+from connections import find_game_discovery
 
 
 class AssistantApp:
@@ -178,7 +178,7 @@ class AssistantApp:
         self.status.set("正在读取 AION2.exe 的已建立 TCP 连接；不会启动采集。")
         def discover():
             try:
-                self.notify(("connections", find_game_connections()))
+                self.notify(("discovery", find_game_discovery()))
             except Exception as error:
                 self.notify(("connections_error", str(error)))
         threading.Thread(target=discover, daemon=True).start()
@@ -290,19 +290,21 @@ class AssistantApp:
                 else:
                     self.status.set("开始新一场失败：" + event[1])
                 continue
-            if event[0] in ("connections", "connections_error"):
+            if event[0] in ("discovery", "connections", "connections_error"):
                 self.detecting = False
                 self.detect_button.configure(state="normal")
                 self.apply_button.configure(state="normal")
                 self.open_button.configure(state="normal")
                 self.live_button.configure(state="normal")
-                self.connections = event[1] if event[0] == "connections" else []
+                self.connections = (event[1].connections if event[0] == "discovery" else
+                    event[1] if event[0] == "connections" else [])
                 self.connection_box["values"] = tuple(
                     f'PID {candidate.pid} → {candidate.server_ip}:{candidate.server_port} · '
                     + ("Steam 路径" if candidate.client_hint == "steam" else "客户端需确认")
                     for candidate in self.connections)
                 self.connection_box.set("")
-                self.status.set(f"找到 {len(self.connections)} 条候选连接，请手动选择；检测不会启动采集。"
+                self.status.set(event[1].message() if event[0] == "discovery" else
+                    f"找到 {len(self.connections)} 条候选连接，请手动选择；检测不会启动采集。"
                     if event[0] == "connections" else "检测失败：" + event[1])
                 continue
             if event[0] == "snapshot":
