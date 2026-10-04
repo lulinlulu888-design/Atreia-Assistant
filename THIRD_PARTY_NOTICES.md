@@ -15,3 +15,7 @@
 Python 传输和统计模块为本项目新增代码。上游核心的测试结果不代表新项目或 Steam/PURPLE 实战已经验证。
 
 Npcap 不打包分发；用户需按其官网许可自行安装。Rust 传递依赖的许可应在二进制发布前完整盘点并包含所需通知。当前没有进行二进制发布。
+
+## 本地开发版打包工具
+
+`build-windows.ps1` 使用 `requirements-build.txt` 中固定版本的 PyInstaller 及构建依赖；只生成本地测试包，不发布二进制。PyInstaller 的许可与打包例外见 [官方许可说明](https://pyinstaller.org/en/stable/license.html)。该例外不替代本项目、Rust 依赖及随包 Python/Tcl/Tk 等运行时各自的许可要求。对外提供下载前仍需完成对应源码、运行时许可与通知文件审计；当前不声称已完成这一发布审计。

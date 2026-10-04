@@ -33,3 +33,14 @@ jobs:
       - name: End-to-end capture to backend tests (Linux)
         if: runner.os == 'Linux'
         run: ATREIA_BACKEND="$PWD/backend/target/debug/atreia-combat-backend" python -m unittest discover -s tests -v
+      - name: Frozen Windows development bundle smoke test
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./build-windows.ps1 -SkipBackendBuild -BackendPath (Join-Path $PWD 'backend/target/debug/atreia-combat-backend.exe')
+      - name: Store synthetic smoke report only (no binary publication)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-synthetic-smoke-report
+          path: dist/dev-*/synthetic-self-test.json
+          if-no-files-found: error

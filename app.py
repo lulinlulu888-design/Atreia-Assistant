@@ -430,7 +430,29 @@ class AssistantApp:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--backend", type=Path)
+    parser.add_argument("--self-test-report", type=Path,
+        help="Hidden synthetic bundle smoke test; does not capture game traffic")
     args = parser.parse_args()
+    if args.self_test_report:
+        from healthcheck import check_backend
+        root = None
+        result = {"status": "failed", "real_game_tested": False, "packet_capture_started": False}
+        try:
+            root = tk.Tk()
+            root.withdraw()
+            app = AssistantApp(root, args.backend)
+            result.update(check_backend(app.backend_executable()))
+            if app.consent.get() or app.running or app.npcap is not None:
+                raise RuntimeError("启动状态不能自动采集")
+            result["status"] = "passed"
+        except Exception as error:
+            result["error"] = str(error)
+        finally:
+            if root is not None:
+                root.destroy()
+        with args.self_test_report.open("x", encoding="utf-8") as report:
+            json.dump(result, report, ensure_ascii=False, indent=2)
+        raise SystemExit(0 if result["status"] == "passed" else 1)
     root = tk.Tk()
     root.withdraw()
     AssistantApp(root, args.backend)
