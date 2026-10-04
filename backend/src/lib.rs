@@ -23,6 +23,8 @@ pub struct Input {
     pub flow: String,
     pub timestamp_ms: i64,
     pub payload_hex: String,
+    #[serde(default)]
+    pub close: bool,
 }
 
 struct Flow {
@@ -38,6 +40,7 @@ pub struct Backend {
     dot_skills: HashSet<i32>,
     flows: HashMap<String, Flow>,
     last_timestamp: Option<i64>,
+    discarded_protocol_bytes: usize,
 }
 
 impl Backend {
@@ -53,6 +56,7 @@ impl Backend {
             dot_skills,
             flows: HashMap::new(),
             last_timestamp: None,
+            discarded_protocol_bytes: 0,
         })
     }
 
@@ -64,6 +68,18 @@ impl Backend {
             return Err("capture timestamps must be nonnegative and ordered".into());
         }
         let payload = decode_hex(&input.payload_hex)?;
+        if input.close {
+            if !payload.is_empty() {
+                return Err("close record must not contain payload".into());
+            }
+            if let Some(flow) = self.flows.remove(&input.flow) {
+                self.discarded_protocol_bytes = self
+                    .discarded_protocol_bytes
+                    .saturating_add(flow.pending.len());
+            }
+            // Lifecycle housekeeping must not extend combat duration.
+            return Ok(self.snapshot());
+        }
         if !self.flows.contains_key(&input.flow) && self.flows.len() >= MAX_FLOWS {
             return Err("too many flows; start a new backend session".into());
         }
@@ -144,6 +160,8 @@ impl Backend {
         json!({"client": self.client, "compatibility": "unverified",
             "status": if targets.is_empty() && healing.is_empty() { "no_combat_detected" } else { "combat_detected" },
             "targets": targets, "healing": healing,
+            "active_flows": self.flows.len(),
+            "discarded_protocol_bytes": self.discarded_protocol_bytes,
             "pending_bytes": self.flows.values().map(|f| f.pending.len()).sum::<usize>()})
     }
 }
@@ -181,6 +199,7 @@ mod tests {
             flow: "test".into(),
             timestamp_ms,
             payload_hex: bytes.iter().map(|b| format!("{b:02x}")).collect(),
+            close: false,
         }
     }
 
@@ -230,5 +249,46 @@ mod tests {
         assert!(backend.feed(bad).is_err());
         backend.feed(input(&[], 100)).unwrap();
         assert!(backend.feed(input(&[], 99)).is_err());
+    }
+
+    #[test]
+    fn closed_flows_release_capacity_and_keep_combat_totals() {
+        for client in ["steam", "purple"] {
+            let mut backend = Backend::new(client, HashSet::from([100])).unwrap();
+            backend.feed(input(&tick(2, 50), 1000)).unwrap();
+            for index in 0..100 {
+                let mut record = input(&tick(2, 50)[..4], 1001 + index);
+                record.flow = format!("connection-{index}");
+                backend.feed(record).unwrap();
+                let mut close = input(&[], 1001 + index);
+                close.flow = format!("connection-{index}");
+                close.close = true;
+                let snapshot = backend.feed(close).unwrap();
+                assert_eq!(snapshot["active_flows"], 1);
+                assert_eq!(snapshot["targets"][0]["damage"], 50);
+            }
+            assert_eq!(backend.snapshot()["discarded_protocol_bytes"], 400);
+        }
+    }
+
+    #[test]
+    fn active_flow_limit_and_invalid_close_remain_strict() {
+        let mut backend = Backend::new("steam", HashSet::new()).unwrap();
+        for index in 0..MAX_FLOWS {
+            let mut record = input(&[], 1000);
+            record.flow = index.to_string();
+            backend.feed(record).unwrap();
+        }
+        assert!(backend.feed(input(&[], 1000)).is_err());
+        let mut close = input(&[1], 1000);
+        close.flow = "0".into();
+        close.close = true;
+        assert!(backend.feed(close).is_err());
+        assert_eq!(backend.snapshot()["active_flows"], MAX_FLOWS);
+        let mut close = input(&[], 1000);
+        close.flow = "0".into();
+        close.close = true;
+        backend.feed(close).unwrap();
+        backend.feed(input(&[], 1000)).unwrap();
     }
 }

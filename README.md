@@ -28,7 +28,7 @@ python -m unittest discover -s tests -v
 
 `transport.py` 仅支持 classic PCAP（Ethernet/raw-IP），不支持 PCAPNG。记录截断会报错；TCP 重组按序号处理乱序、重传与回绕，遇到缺口等待，冲突或超过缓存上限报错。传输模块自身不进行实时抓包，不上传数据，也不把未知字节猜成伤害。
 
-已接通离线 PCAP → Ethernet/VLAN/IPv4 → TCP 载荷 → 单向按序重组 → Rust 后端 → 中文窗口，并用合成封包验证两种客户端入口与重传去重。IPv6 和 IP 分片尚不支持，会明确报错；没有把这一测试称作 AION2 实战兼容性验证。重连、FIN/RST 与缺口诊断已有基础处理；后端累计连接数有上限，长时间或大量重连需重新开始，不是生产级完整 TCP 实现。
+已接通离线 PCAP → Ethernet/VLAN/IPv4 → TCP 载荷 → 单向按序重组 → Rust 后端 → 中文窗口，并用合成封包验证两种客户端入口与重传去重。IPv6 和 IP 分片尚不支持，会明确报错；没有把这一测试称作 AION2 实战兼容性验证。重连、FIN/RST 会释放解析流，同时保留战斗总量；最多保留 32 条活跃流。保留最近 128 条已关闭连接标记防止延迟重传重复计数，同一连接地址再次使用需观察到新 SYN；漏掉连接建立或关闭仍可能影响统计，不是生产级完整 TCP 实现。
 
 ### 启动中文开发版窗口（Windows 64 位）
 
@@ -53,6 +53,8 @@ cargo run --manifest-path backend/Cargo.toml -- --client steam
 ```
 
 标准输入为逐行 JSON：`{"flow":"local-flow-1","timestamp_ms":1000,"payload_hex":"…"}`。载荷必须是已完成 TCP 重组的有序游戏字节流，不是整个网卡封包。输出为本地 JSON 快照，包含目标、玩家、技能伤害与治疗；不联网上传，不注入游戏。无可识别事件时输出 `no_combat_detected`，不能当作真实零伤害或兼容性已确认。`compatibility` 当前始终为 `unverified`。
+
+连接关闭时发送同格式的空载荷并增加 `"close":true`，释放对应解析流而不清空战斗数据，也不延长战斗时长。快照的 `active_flows`、`pending_bytes` 和 `discarded_protocol_bytes` 分别表示活跃流数、待解析字节与关闭时丢弃的残帧字节；这些诊断不能代替完整性验证。
 
 ### 客户端验证矩阵
 

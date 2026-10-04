@@ -8,9 +8,14 @@ from test_tcp_decode import ipv4
 class FakeBackend:
     def __init__(self):
         self.received = []
+        self.closed = []
 
     def feed(self, flow, timestamp, payload):
         self.received.append((flow, timestamp, payload))
+        return {"status": "no_combat_detected"}
+
+    def close_flow(self, flow, timestamp):
+        self.closed.append(flow)
         return {"status": "no_combat_detected"}
 
 
@@ -32,12 +37,38 @@ class RouterTests(unittest.TestCase):
             router.feed(Packet(0, 101, ipv4(b"", sequence - 1, 2)))
             router.feed(Packet(0, 101, ipv4(b"x", sequence)))
         self.assertNotEqual(backend.received[0][0], backend.received[1][0])
+        self.assertEqual(backend.closed, [backend.received[0][0]])
 
     def test_server_ip_is_checked_beyond_native_filter(self):
         backend = FakeBackend()
         router = ConnectionRouter(backend, 7777, server_ip="192.0.2.1")
         self.assertIsNone(router.feed(Packet(0, 101, ipv4())))
         self.assertEqual(backend.received, [])
+
+    def test_closed_stream_retransmission_is_not_counted_again(self):
+        backend = FakeBackend()
+        router = ConnectionRouter(backend, 7777)
+        router.feed(Packet(0, 101, ipv4(b"", 99, 2)))
+        final = Packet(0, 101, ipv4(b"abc", 100, 0x19))
+        router.feed(final)
+        self.assertIsNone(router.feed(final))
+        self.assertEqual(len(backend.received), 1)
+        self.assertEqual(len(backend.closed), 1)
+        router.feed(Packet(0, 101, ipv4(b"", 199, 2)))
+        router.feed(Packet(0, 101, ipv4(b"def", 200, 0x19)))
+        self.assertEqual(len(backend.received), 2)
+
+    def test_new_initiating_syn_retires_reverse_direction(self):
+        backend = FakeBackend()
+        router = ConnectionRouter(backend, 7777)
+        reverse = bytearray(ipv4(b"a", 500))
+        reverse[12:16], reverse[16:20] = reverse[16:20], reverse[12:16]
+        reverse[20:22], reverse[22:24] = reverse[22:24], reverse[20:22]
+        router.feed(Packet(0, 101, bytes(reverse)))
+        token = backend.received[0][0]
+        router.feed(Packet(0, 101, ipv4(b"", 99, 2)))
+        self.assertEqual(backend.closed, [token])
+        self.assertEqual(len(router.flows), 1)
 
     def test_midstream_and_closed_gaps_are_reported(self):
         router = ConnectionRouter(FakeBackend(), 7777)
@@ -51,6 +82,19 @@ class RouterTests(unittest.TestCase):
 
 @unittest.skipUnless(os.environ.get("ATREIA_BACKEND"), "requires built Rust backend")
 class BackendIntegrationTests(unittest.TestCase):
+    def test_many_closed_connections_do_not_exhaust_backend(self):
+        payload = bytes.fromhex("0f053878026400d007000032")
+        for client in ("steam", "purple"):
+            with BackendBridge(os.environ["ATREIA_BACKEND"], client) as backend:
+                router = ConnectionRouter(backend, 7777)
+                for index in range(40):
+                    sequence = 100 + index * 100
+                    router.feed(Packet(1_000_000_000, 101, ipv4(b"", sequence - 1, 2)))
+                    snapshot = router.feed(Packet(1_000_000_000, 101, ipv4(payload, sequence, 0x19)))
+                    self.assertEqual(snapshot["active_flows"], 0)
+                self.assertEqual(snapshot["targets"][0]["damage"], 2000)
+                self.assertEqual(snapshot["compatibility"], "unverified")
+
     def test_wire_capture_to_backend_for_both_clients(self):
         # Synthetic protocol record; explicitly not a real client capture.
         payload = bytes.fromhex("0f053878026400d007000032")

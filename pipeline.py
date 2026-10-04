@@ -44,11 +44,18 @@ class BackendBridge:
     def feed(self, flow, timestamp_ms, payload):
         if len(payload) > 65536:
             raise BackendError("载荷超过解析后端限制")
+        return self._request({"flow": flow, "timestamp_ms": timestamp_ms,
+                              "payload_hex": payload.hex()})
+
+    def close_flow(self, flow, timestamp_ms):
+        return self._request({"flow": flow, "timestamp_ms": timestamp_ms,
+                              "payload_hex": "", "close": True})
+
+    def _request(self, fields):
         with self._lock:
             if self._process.poll() is not None:
                 raise BackendError("解析后端已停止")
-            record = json.dumps({"flow": flow, "timestamp_ms": timestamp_ms,
-                                 "payload_hex": payload.hex()}).encode("utf-8") + b"\n"
+            record = json.dumps(fields).encode("utf-8") + b"\n"
             try:
                 self._process.stdin.write(record)
                 self._process.stdin.flush()
@@ -95,11 +102,25 @@ class ConnectionRouter:
         self.server_ip = str(ipaddress.IPv4Address(server_ip)) if server_ip is not None else None
         self.max_flows = max_flows
         self.flows = {}
+        self.closed_flows = {}
         self.generation = 0
         self.partial_streams = 0
         self.closed_gaps = 0
         self.segments = 0
         self.payload_bytes = 0
+
+    def retire(self, key, timestamp_ms):
+        state = self.flows.pop(key, None)
+        if state:
+            # Bounded tombstones prevent delayed FIN/data retransmissions from
+            # reopening a completed stream. A new SYN re-enables the tuple.
+            self.closed_flows[key] = None
+            if len(self.closed_flows) > 128:
+                self.closed_flows.pop(next(iter(self.closed_flows)))
+            if state[0]._pending:
+                self.closed_gaps += 1
+            return self.backend.close_flow(state[1], timestamp_ms)
+        return None
 
     def feed(self, packet):
         segment = decode_tcp(packet)
@@ -109,18 +130,27 @@ class ConnectionRouter:
             return None
         key = (segment.source, segment.destination)
         reverse = (segment.destination, segment.source)
-        if segment.flags & 4:  # RST: discard both directions, not their gaps.
-            for flow_key in (key, reverse):
-                state = self.flows.pop(flow_key, None)
-                if state and state[0]._pending:
-                    self.closed_gaps += 1
+        timestamp_ms = segment.timestamp_ns // 1_000_000
+        if segment.flags & 2:
+            self.closed_flows.pop(key, None)
+        elif key in self.closed_flows and not segment.flags & 4:
             return None
+        if segment.flags & 4:  # RST: discard both directions, not their gaps.
+            response = None
+            for flow_key in (key, reverse):
+                retired = self.retire(flow_key, timestamp_ms)
+                if retired is not None:
+                    response = retired
+            return response
         state = self.flows.get(key)
         if segment.flags & 2:
+            if not segment.flags & 0x10 and (state is None or state[2] != segment.sequence):
+                # A fresh initiating SYN replaces the entire connection,
+                # including stale server-to-client parser state.
+                self.retire(reverse, timestamp_ms)
             if state is not None and state[2] != segment.sequence:
-                if state[0]._pending:
-                    self.closed_gaps += 1
-                self.flows.pop(key)
+                self.retire(key, timestamp_ms)
+                self.closed_flows.pop(key, None)
                 state = None
         if state is None:
             if not segment.payload and not segment.flags & 2:
@@ -139,11 +169,9 @@ class ConnectionRouter:
         response = None
         if ordered:
             self.payload_bytes += len(ordered)
-            response = self.backend.feed(state[1], segment.timestamp_ns // 1_000_000, ordered)
+            response = self.backend.feed(state[1], timestamp_ms, ordered)
         if segment.flags & 1:  # FIN may carry the final payload.
-            if state[0]._pending:
-                self.closed_gaps += 1
-            self.flows.pop(key, None)
+            response = self.retire(key, timestamp_ms)
         return response
 
     def diagnostics(self):
