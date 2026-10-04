@@ -9,6 +9,8 @@ class Packet:
     timestamp_ns: int
     link_type: int
     data: bytes
+    # Npcap runs on little-endian Windows; offline PCAP supplies capture order.
+    null_byte_order: str = "<"
 
 
 @dataclass(frozen=True)
@@ -29,7 +31,7 @@ class TcpSegment:
 def decode_tcp(packet):
     """Extract IPv4/TCP; skip ARP/UDP, reject unsupported IPv6/fragments.
 
-    Ethernet, up to two VLAN tags, and raw IPv4 are supported. Checksums are
+    Ethernet, up to two VLAN tags, raw IPv4, and DLT_NULL IPv4 are supported. Checksums are
     deliberately not checked because capture may precede checksum offload.
     This extracts transport bytes only and never interprets game damage.
     """
@@ -52,6 +54,17 @@ def decode_tcp(packet):
         if protocol != 0x0800:
             return None
         data = data[offset:]
+    elif packet.link_type == 0:
+        if len(data) < 4:
+            raise ValueError("Truncated DLT_NULL header")
+        if packet.null_byte_order not in ("<", ">"):
+            raise ValueError("Invalid DLT_NULL byte order")
+        family, = struct.unpack(packet.null_byte_order + "I", data[:4])
+        if family == 24:
+            raise ValueError("IPv6 decoding not implemented")
+        if family != 2:
+            raise ValueError("Unsupported DLT_NULL address family")
+        data = data[4:]
     elif packet.link_type != 101:
         raise ValueError("Unsupported link type")
     if not data or data[0] >> 4 != 4:
@@ -79,7 +92,7 @@ def decode_tcp(packet):
 def read_pcap(stream):
     """Read classic PCAP records, rejecting partial or snaplen-truncated packets.
 
-    Ethernet (1) and raw IP (101) are supported; PCAPNG/loopback are not yet.
+    Ethernet (1), raw IP (101), and DLT_NULL (0) are supported; PCAPNG is not.
     Records contain link-layer bytes, NOT decoded AION2 combat events.
     """
     header = stream.read(24)
@@ -89,7 +102,7 @@ def read_pcap(stream):
         raise ValueError("Classic PCAP header required")
     endian, scale = formats[header[:4]]
     major, minor, _, _, snaplen, link = struct.unpack(endian + "HHIIII", header[4:])
-    if (major, minor) != (2, 4) or link not in (1, 101) or not 0 < snaplen <= 1024 * 1024:
+    if (major, minor) != (2, 4) or link not in (0, 1, 101) or not 0 < snaplen <= 1024 * 1024:
         raise ValueError("Unsupported PCAP metadata")
     while True:
         record = stream.read(16)
@@ -103,7 +116,7 @@ def read_pcap(stream):
         data = stream.read(captured)
         if len(data) != captured:
             raise ValueError("Truncated packet data")
-        yield Packet(seconds * 1_000_000_000 + fraction * scale, link, data)
+        yield Packet(seconds * 1_000_000_000 + fraction * scale, link, data, endian)
 
 
 class TcpStream:

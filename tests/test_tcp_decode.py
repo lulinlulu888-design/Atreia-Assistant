@@ -16,6 +16,25 @@ def ethernet(ip, vlan=False):
 
 
 class DecodeTests(unittest.TestCase):
+    def test_offline_null_header_uses_capture_byte_order(self):
+        for endian in ("<", ">"):
+            frame = struct.pack(endian + "I", 2) + ipv4()
+            data = struct.pack(endian + "IHHIIII", 0xA1B2C3D4, 2, 4, 0, 0, 65536, 0)
+            data += struct.pack(endian + "IIII", 1, 0, len(frame), len(frame)) + frame
+            packet, = read_pcap(io.BytesIO(data))
+            segment = decode_tcp(packet)
+            self.assertEqual(segment.payload, b"abc")
+            self.assertEqual(segment.destination, ("10.0.0.2", 7777))
+
+    def test_null_headers_fail_closed_for_unknown_family_and_truncation(self):
+        for data in (b"", bytes(3), struct.pack("<I", 24) + bytes(40),
+                     struct.pack("<I", 999) + ipv4(), struct.pack("<I", 2),
+                     struct.pack("<I", 2) + bytes(40)):
+            with self.assertRaises(ValueError):
+                decode_tcp(Packet(0, 0, data))
+        with self.assertRaisesRegex(ValueError, "byte order"):
+            decode_tcp(Packet(0, 0, struct.pack("<I", 2) + ipv4(), "invalid"))
+
     def test_ethernet_raw_ip_vlan_and_options(self):
         for options in (b"", bytes(4)):
             ip = ipv4(options=options)

@@ -27,7 +27,7 @@ class TransportTests(unittest.TestCase):
     def test_unsupported_and_snaplen_truncation(self):
         with self.assertRaises(ValueError):
             list(read_pcap(io.BytesIO(b"\x0a\x0d\x0d\x0a")))
-        for offset, value in ((20, 0), (36, 4), (32, 65537)):
+        for offset, value in ((20, 999), (36, 4), (32, 65537)):
             data = bytearray(capture())
             data[offset:offset + 4] = struct.pack("<I", value)
             with self.assertRaises(ValueError):
