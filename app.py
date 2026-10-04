@@ -83,7 +83,7 @@ class AssistantApp:
         live.pack(fill="x", pady=(0, 8))
         self.device_box = ttk.Combobox(live, state="readonly", width=29)
         self.device_box.pack(side="left")
-        self.refresh_button = ttk.Button(live, text="刷新网卡", command=self.refresh_devices)
+        self.refresh_button = ttk.Button(live, text="检测驱动/网卡", command=self.refresh_devices)
         self.refresh_button.pack(side="left", padx=6)
         ttk.Label(live, text="游戏服务器 IPv4").pack(side="left", padx=(8, 4))
         self.server_ip = tk.StringVar()
@@ -91,6 +91,12 @@ class AssistantApp:
         self.ip_box.pack(side="left", padx=6)
         self.live_button = ttk.Button(live, text="开始实时统计", command=self.start_live)
         self.live_button.pack(side="right")
+        setup = ttk.Frame(body)
+        setup.pack(fill="x", pady=(0, 8))
+        self.install_guide_button = ttk.Button(setup, text="Npcap 官网安装", command=self.open_npcap_guide)
+        self.install_guide_button.pack(side="left", padx=(0, 8))
+        ttk.Label(setup, text="首次使用：自行确认驱动安装许可及系统权限，完成后点“检测驱动/网卡”。",
+                  wraplength=690).pack(side="left")
         self.consent = tk.BooleanVar(value=False)
         self.consent_box = ttk.Checkbutton(body, text="我同意仅采集所选游戏连接并在本地分析，理解第三方工具及未验证版本的风险。",
             variable=self.consent)
@@ -158,14 +164,34 @@ class AssistantApp:
             return
         self.start_replay(path, executable, "steam" if self.client.get() == "Steam / Global" else "purple", port)
 
-    def refresh_devices(self):
+    def open_npcap_guide(self):
+        if self.running or self.detecting:
+            return
+        self.status.set("请在 Npcap 官网下载安装；许可和管理员提示需自行确认。安装后点“检测驱动/网卡”，不会自动开始采集。")
         try:
-            self.npcap = Npcap()
-            self.devices = self.npcap.devices()
+            if not webbrowser.open("https://npcap.com/#download"):
+                self.status.set("浏览器未能打开，请手动访问 https://npcap.com/#download；安装后点“检测驱动/网卡”。")
+        except Exception:
+            self.status.set("浏览器未能打开，请手动访问 https://npcap.com/#download；安装后点“检测驱动/网卡”。")
+
+    def refresh_devices(self):
+        if self.running or self.detecting:
+            return
+        self.npcap = None
+        self.devices = []
+        self.device_box["values"] = ()
+        self.device_box.set("")
+        self.consent.set(False)
+        try:
+            reader = Npcap()
+            devices = reader.devices()
+            self.npcap, self.devices = reader, devices
             self.device_box["values"] = tuple(f"{index + 1}. {description}" for index, (_, description) in enumerate(self.devices))
             self.device_box.set("")
-            self.status.set("请手动选择网卡并填写游戏服务器 IPv4；刷新网卡不会启动采集。")
+            self.status.set("Npcap 可加载。请手动选择网卡及游戏连接，再确认采集范围；检测不会启动采集。"
+                            if self.devices else "Npcap 可加载但未发现接口，请检查驱动与权限；尚未开始采集。")
         except Exception as error:
+            self.status.set("Npcap 检测失败；可点“Npcap 官网安装”，完成后重新检测。尚未开始采集。")
             messagebox.showerror("实时采集尚不可用", str(error), parent=self.root)
 
     def detect_connections(self):
@@ -238,7 +264,7 @@ class AssistantApp:
         self.client_box.configure(state="disabled")
         self.port_box.configure(state="disabled")
         self.stop_button.configure(state="normal")
-        for control in (self.device_box, self.ip_box, self.refresh_button, self.live_button, self.consent_box,
+        for control in (self.device_box, self.ip_box, self.refresh_button, self.install_guide_button, self.live_button, self.consent_box,
                         self.connection_box, self.detect_button, self.apply_button):
             control.configure(state="disabled")
         self.status.set("正在实时分析所选游戏连接；兼容性未验证。" if live_options else "正在离线解析；当前客户端兼容性仍为未验证……")
@@ -343,7 +369,7 @@ class AssistantApp:
                 self.reset_button.configure(state="disabled")
                 self.device_box.configure(state="readonly")
                 self.connection_box.configure(state="readonly")
-                for control in (self.ip_box, self.refresh_button, self.live_button, self.consent_box,
+                for control in (self.ip_box, self.refresh_button, self.install_guide_button, self.live_button, self.consent_box,
                                 self.detect_button, self.apply_button):
                     control.configure(state="normal")
                 self.report_state = "cancelled" if self.cancelled.is_set() else "error" if event[0] == "error" else "finished"

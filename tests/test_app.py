@@ -47,6 +47,36 @@ class AppTests(unittest.TestCase):
         self.assertIsNone(self.app.npcap)
         self.assertFalse(self.app.running)
 
+    def test_npcap_guide_only_opens_official_page(self):
+        with patch("app.webbrowser.open", return_value=True) as browser, patch("app.Npcap") as driver:
+            self.app.open_npcap_guide()
+        browser.assert_called_once_with("https://npcap.com/#download")
+        driver.assert_not_called()
+        self.assertIn("管理员提示需自行确认", self.app.status.get())
+        self.assertFalse(self.app.running)
+        self.assertFalse(self.app.consent.get())
+
+    def test_failed_driver_refresh_discards_stale_interface_and_consent(self):
+        self.app.npcap = Mock()
+        self.app.devices = [("old", "old")]
+        self.app.consent.set(True)
+        with patch("app.Npcap", side_effect=RuntimeError("missing")), patch("app.messagebox.showerror"):
+            self.app.refresh_devices()
+        self.assertIsNone(self.app.npcap)
+        self.assertFalse(self.app.devices)
+        self.assertFalse(self.app.device_box["values"])
+        self.assertFalse(self.app.consent.get())
+        self.assertFalse(self.app.running)
+
+    def test_driver_refresh_never_selects_interface_or_starts_capture(self):
+        with patch("app.Npcap") as factory:
+            factory.return_value.devices.return_value = [("fixture", "Synthetic")]
+            self.app.refresh_devices()
+            factory.return_value.packets.assert_not_called()
+        self.assertEqual(self.app.device_box.current(), -1)
+        self.assertIn("Npcap 可加载", self.app.status.get())
+        self.assertFalse(self.app.running)
+
     def test_completion_keeps_final_gap_diagnostics(self):
         self.app.events.put(("done", {"closed_gaps": 2, "pending_bytes": 4}))
         self.app.poll()
