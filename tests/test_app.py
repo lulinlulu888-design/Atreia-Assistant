@@ -2,6 +2,7 @@ import os
 import copy
 import unittest
 import tkinter as tk
+from tkinter import ttk
 from unittest.mock import patch, Mock
 from app import AssistantApp
 from connections import GameConnection, DiscoveryReport
@@ -76,6 +77,71 @@ class AppTests(unittest.TestCase):
         self.assertEqual(self.app.device_box.current(), -1)
         self.assertIn("Npcap 可加载", self.app.status.get())
         self.assertFalse(self.app.running)
+
+    def test_basic_ui_hides_debug_controls_and_styles_all_widgets(self):
+        self.assertFalse(self.app.advanced.winfo_manager())
+        self.assertIn("检查环境", self.app.detect_button["text"])
+        self.assertEqual(str(self.app.live_button["state"]), "disabled")
+        style = ttk.Style(self.root)
+        self.assertEqual(style.lookup("TButton", "background"), "#24344c")
+        self.assertEqual(style.lookup("Treeview.Heading", "background"), "#24344c")
+        self.app.toggle_advanced()
+        self.assertEqual(self.app.advanced.winfo_manager(), "pack")
+        self.app.toggle_advanced()
+        self.assertFalse(self.app.advanced.winfo_manager())
+
+    def test_guided_missing_driver_shows_next_step_without_modal_or_capture(self):
+        with patch("app.Npcap", side_effect=RuntimeError("missing")), \
+                patch("app.messagebox.showerror") as modal, patch.object(self.app, "detect_connections") as detect:
+            self.app.check_setup()
+        modal.assert_not_called()
+        detect.assert_not_called()
+        self.assertIn("安装采集组件", self.app.status.get())
+        self.assertFalse(self.app.consent.get())
+        self.assertFalse(self.app.running)
+
+    def test_guided_unique_loopback_selects_scope_but_never_consents_or_starts(self):
+        scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)
+        candidate = GameConnection(100, "127.0.0.1", 1111, "path_restricted", scope)
+        self.app.devices = [(r"\Device\NPF_Loopback", "Loopback")]
+        self.app.device_box["values"] = ("Loopback",)
+        self.app.guided_check = True
+        self.app.events.put(("discovery", DiscoveryReport([candidate], 1, 1, 1)))
+        self.app.poll()
+        self.assertEqual(self.app.selected_connection, candidate)
+        self.assertEqual(self.app.device_box.current(), 0)
+        self.assertIn("环境已就绪", self.app.status.get())
+        self.assertFalse(self.app.running)
+        self.assertFalse(self.app.consent.get())
+
+    def test_guided_multiple_connections_never_guess_combat_channel(self):
+        candidates = [GameConnection(100, "10.0.0.2", port, "unknown") for port in (7777, 8888)]
+        self.app.guided_check = True
+        self.app.events.put(("discovery", DiscoveryReport(candidates, 1, 0, 0)))
+        self.app.poll()
+        self.assertIsNone(self.app.selected_connection)
+        self.assertEqual(self.app.connection_box.current(), -1)
+        self.assertIn("尚不能确定战斗通道", self.app.status.get())
+        self.assertFalse(self.app.consent.get())
+
+    def test_start_button_requires_ready_scope_interface_and_manual_consent(self):
+        scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)
+        self.app.selected_connection = GameConnection(100, "127.0.0.1", 1111, "unknown", scope)
+        self.app.server_ip.set("127.0.0.1")
+        self.app.port.set("1111")
+        self.app.npcap = Mock()
+        self.app.devices = [(r"\Device\NPF_Loopback", "Loopback")]
+        self.app.device_box["values"] = ("Loopback",)
+        self.app.device_box.current(0)
+        self.app.update_live_state()
+        self.assertEqual(str(self.app.live_button["state"]), "disabled")
+        self.app.consent.set(True)
+        self.app.update_live_state()
+        self.assertEqual(str(self.app.live_button["state"]), "normal")
+        self.app.server_ip.set("127.0.0.2")
+        self.app.update_live_state()
+        self.assertEqual(str(self.app.live_button["state"]), "disabled")
+        self.app.npcap.packets.assert_not_called()
 
     def test_completion_keeps_final_gap_diagnostics(self):
         self.app.events.put(("done", {"closed_gaps": 2, "pending_bytes": 4}))
