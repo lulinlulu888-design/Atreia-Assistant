@@ -3,6 +3,7 @@ import copy
 import unittest
 import tkinter as tk
 from app import AssistantApp
+from connections import GameConnection
 
 
 @unittest.skipUnless(os.name == "nt" or os.environ.get("DISPLAY"), "GUI requires a display")
@@ -75,3 +76,16 @@ class AppTests(unittest.TestCase):
             self.assertIn(phrase, self.app.integrity.get())
         self.app.render({"targets": [], "healing": []}, {})
         self.assertEqual(self.app.integrity.get(), "")
+
+    def test_discovered_connection_is_manual_and_does_not_start_capture(self):
+        self.app.events.put(("connections", [GameConnection(100, "10.1.2.3", 7777, "unknown")]))
+        self.app.poll()
+        self.assertEqual(self.app.connection_box.current(), -1)
+        self.assertEqual(self.app.server_ip.get(), "")
+        self.app.connection_box.current(0)
+        self.app.apply_connection()
+        self.assertEqual(self.app.server_ip.get(), "10.1.2.3")
+        self.assertEqual(self.app.port.get(), "7777")
+        self.assertEqual(self.app.client.get(), "Steam / Global")
+        self.assertFalse(self.app.running)
+        self.assertFalse(self.app.consent.get())

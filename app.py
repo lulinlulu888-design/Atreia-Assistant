@@ -9,6 +9,7 @@ from tkinter import filedialog, messagebox, ttk
 import webbrowser
 from pipeline import BackendBridge, ConnectionRouter, replay_capture
 from capture_live import Npcap, capture_filter
+from connections import find_game_connections
 
 
 class AssistantApp:
@@ -24,6 +25,8 @@ class AssistantApp:
         self.row_skills = {}
         self.npcap = None
         self.devices = []
+        self.connections = []
+        self.detecting = False
         self.report_state = "not_started"
         root.title("亚特雷亚助手 · 战斗统计（开发版）")
         root.geometry("1040x700")
@@ -62,6 +65,14 @@ class AssistantApp:
         self.stop_button.pack(side="left", padx=5)
         ttk.Button(controls, text="汉化工具下载", command=lambda: webbrowser.open(
             "https://github.com/lulinlulu888-design/Aion2-Steam-CN/releases/latest")).pack(side="right")
+        detected = ttk.Frame(body)
+        detected.pack(fill="x", pady=(0, 8))
+        self.connection_box = ttk.Combobox(detected, state="readonly", width=62)
+        self.connection_box.pack(side="left", fill="x", expand=True)
+        self.detect_button = ttk.Button(detected, text="检测游戏连接", command=self.detect_connections)
+        self.detect_button.pack(side="left", padx=6)
+        self.apply_button = ttk.Button(detected, text="使用所选连接", command=self.apply_connection)
+        self.apply_button.pack(side="left")
         live = ttk.Frame(body)
         live.pack(fill="x", pady=(0, 8))
         self.device_box = ttk.Combobox(live, state="readonly", width=29)
@@ -149,6 +160,34 @@ class AssistantApp:
         except Exception as error:
             messagebox.showerror("实时采集尚不可用", str(error), parent=self.root)
 
+    def detect_connections(self):
+        if self.running or self.detecting:
+            return
+        self.detecting = True
+        self.detect_button.configure(state="disabled")
+        self.apply_button.configure(state="disabled")
+        self.open_button.configure(state="disabled")
+        self.live_button.configure(state="disabled")
+        self.status.set("正在读取 AION2.exe 的已建立 TCP 连接；不会启动采集。")
+        def discover():
+            try:
+                self.notify(("connections", find_game_connections()))
+            except Exception as error:
+                self.notify(("connections_error", str(error)))
+        threading.Thread(target=discover, daemon=True).start()
+
+    def apply_connection(self):
+        if self.running or self.detecting:
+            return
+        index = self.connection_box.current()
+        if not 0 <= index < len(self.connections):
+            self.status.set("请先检测并选择候选游戏连接，或手动填写 IP 和端口。")
+            return
+        candidate = self.connections[index]
+        self.server_ip.set(candidate.server_ip)
+        self.port.set(str(candidate.server_port))
+        self.status.set("已填入候选 IP/端口，请确认 Steam 或 PURPLE 客户端；尚未启动采集，连接可能不是战斗服务。")
+
     def start_live(self):
         if not self.consent.get():
             messagebox.showwarning("需要明确同意", "实时分析前请确认采集范围和风险。", parent=self.root)
@@ -168,7 +207,7 @@ class AssistantApp:
                           port, (device, self.server_ip.get()))
 
     def start_replay(self, path, executable, client, port, live_options=None):
-        if self.running:
+        if self.running or self.detecting:
             return
         self.running = True
         self.cancelled.clear()
@@ -180,7 +219,8 @@ class AssistantApp:
         self.client_box.configure(state="disabled")
         self.port_box.configure(state="disabled")
         self.stop_button.configure(state="normal")
-        for control in (self.device_box, self.ip_box, self.refresh_button, self.live_button, self.consent_box):
+        for control in (self.device_box, self.ip_box, self.refresh_button, self.live_button, self.consent_box,
+                        self.connection_box, self.detect_button, self.apply_button):
             control.configure(state="disabled")
         self.status.set("正在实时分析所选游戏连接；兼容性未验证。" if live_options else "正在离线解析；当前客户端兼容性仍为未验证……")
         threading.Thread(target=self.work, args=(path, executable, client, port, live_options), daemon=True).start()
@@ -222,6 +262,21 @@ class AssistantApp:
                 event = self.events.get_nowait()
             except queue.Empty:
                 break
+            if event[0] in ("connections", "connections_error"):
+                self.detecting = False
+                self.detect_button.configure(state="normal")
+                self.apply_button.configure(state="normal")
+                self.open_button.configure(state="normal")
+                self.live_button.configure(state="normal")
+                self.connections = event[1] if event[0] == "connections" else []
+                self.connection_box["values"] = tuple(
+                    f'PID {candidate.pid} → {candidate.server_ip}:{candidate.server_port} · '
+                    + ("Steam 路径" if candidate.client_hint == "steam" else "客户端需确认")
+                    for candidate in self.connections)
+                self.connection_box.set("")
+                self.status.set(f"找到 {len(self.connections)} 条候选连接，请手动选择；检测不会启动采集。"
+                    if event[0] == "connections" else "检测失败：" + event[1])
+                continue
             if event[0] == "snapshot":
                 latest = event
             else:
@@ -234,7 +289,9 @@ class AssistantApp:
                 self.port_box.configure(state="normal")
                 self.stop_button.configure(state="disabled")
                 self.device_box.configure(state="readonly")
-                for control in (self.ip_box, self.refresh_button, self.live_button, self.consent_box):
+                self.connection_box.configure(state="readonly")
+                for control in (self.ip_box, self.refresh_button, self.live_button, self.consent_box,
+                                self.detect_button, self.apply_button):
                     control.configure(state="normal")
                 self.report_state = "cancelled" if self.cancelled.is_set() else "error" if event[0] == "error" else "finished"
                 if event[0] == "done":
