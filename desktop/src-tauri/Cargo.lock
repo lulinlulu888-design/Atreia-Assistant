@@ -8,6 +8,7 @@ version = "2.0.48"
 dependencies = [
  "chrono",
  "discord-rich-presence",
+ "dunce",
  "flate2",
  "futures-util",
  "gtk",

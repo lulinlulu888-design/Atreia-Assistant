@@ -89,8 +89,9 @@ pub async fn open_combat(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 fn validate_target_root(root: &str) -> Result<PathBuf, String> {
-    let path = Path::new(root)
-        .canonicalize()
+    // .NET Framework rejects std::canonicalize's Windows verbatim prefix.
+    // Preserve canonical target validation while using legacy-compatible paths.
+    let path = dunce::canonicalize(Path::new(root))
         .map_err(|_| "游戏目录不存在")?;
     if !path.join("Aion2/Content").is_dir() {
         return Err("请选择包含 Aion2/Content 的游戏根目录。".into());
@@ -181,7 +182,7 @@ pub async fn localization_execute(
             return Ok(serde_json::json!({"ok":false,"cancelled":true,"operation":operation,"message":"已取消，未修改游戏。"}));
         }
         let mut command = Command::new(helper);
-        command.current_dir(&directory).arg(engine).arg(&operation).arg(root).arg(&client);
+        command.current_dir(dunce::simplified(&directory)).arg(dunce::simplified(&engine)).arg(&operation).arg(dunce::simplified(&root)).arg(&client);
         #[cfg(windows)] {
             use std::os::windows::process::CommandExt;
             command.creation_flags(0x08000000); // CREATE_NO_WINDOW; native engine dialogs remain visible
@@ -201,6 +202,16 @@ pub async fn localization_execute(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(windows)]
+    #[test]
+    fn game_root_does_not_pass_verbatim_prefix_to_framework() {
+        let root = std::env::temp_dir().join(format!("atreia-framework-path-{}", std::process::id()));
+        std::fs::create_dir_all(root.join("Aion2/Content")).unwrap();
+        let validated = validate_target_root(&root.to_string_lossy()).unwrap();
+        assert!(!validated.to_string_lossy().starts_with(r"\\?\"));
+        assert_eq!(validated.canonicalize().unwrap(), root.canonicalize().unwrap());
+        std::fs::remove_dir_all(root).unwrap();
+    }
     #[test]
     fn rejects_unknown_operation_and_invalid_roots_before_any_process() {
         assert!(validate_target(".", "steam", "execute").is_err());
