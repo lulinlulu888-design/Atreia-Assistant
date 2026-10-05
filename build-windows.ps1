@@ -28,12 +28,22 @@ $taskStamp = 'dev-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [Guid]::NewGu
 $taskDist = Join-Path $taskRoot "dist/$taskStamp"
 $taskWork = Join-Path $taskRoot "build/$taskStamp"
 $taskVendor = & (Join-Path $taskRoot 'prepare-windivert.ps1') -Destination (Join-Path $taskWork 'windivert')
+$taskRustLicenses = Join-Path $taskWork 'rust-licenses'
+& $taskPython (Join-Path $taskRoot 'audit_dependencies.py') --output $taskRustLicenses
+if ($LASTEXITCODE -ne 0) { throw 'Rust dependency notice collection failed.' }
+$taskLicenseReport = Get-Content -Raw -LiteralPath (Join-Path $taskRustLicenses 'dependencies.json') | ConvertFrom-Json
+foreach ($taskPackage in $taskLicenseReport.packages) {
+    if ($taskPackage.license_evidence -eq 'missing' -or $taskPackage.license_files.Count -eq 0) {
+        throw "Missing dependency license evidence: $($taskPackage.name). Review before building."
+    }
+}
 & $taskPython -m PyInstaller --onedir --windowed --name Atreia-Assistant-dev `
     --distpath $taskDist --workpath $taskWork --specpath $taskWork `
     --add-binary "${taskBackend}:bin" `
     --add-data "${taskRoot}/LICENSE:." `
     --add-data "${taskRoot}/THIRD_PARTY_NOTICES.md:." `
     --add-data "${taskVendor}:vendor/windivert" `
+    --add-data "${taskRustLicenses}:licenses/rust" `
     (Join-Path $taskRoot 'app.py')
 if ($LASTEXITCODE -ne 0) { throw 'Windows development bundle build failed.' }
 $taskExe = Join-Path $taskDist 'Atreia-Assistant-dev/Atreia-Assistant-dev.exe'
