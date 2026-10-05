@@ -1,4 +1,6 @@
 import json
+import csv
+import io
 import os
 from pathlib import Path
 import subprocess
@@ -75,6 +77,30 @@ class LocalizationEngineTests(unittest.TestCase):
                     patch("localization_engine.subprocess.run", return_value=response):
                 with self.assertRaises((ValueError, RuntimeError)):
                     self.engine.execute("install", self.game, True)
+
+    @unittest.skipUnless(os.environ.get("ATREIA_LOCALIZATION_COMPONENTS"), "requires staged official engine")
+    def test_native_running_game_guard_preserves_both_client_fixtures(self):
+        if os.name != "nt":
+            self.skipTest("requires a currently running Windows game")
+        processes = subprocess.run(
+            ["tasklist", "/FO", "CSV", "/NH", "/FI", "IMAGENAME eq AION2.exe"],
+            capture_output=True, check=True,
+        ).stdout.decode(errors="replace")
+        if not any(row and row[0].lower() == "aion2.exe"
+                   for row in csv.reader(io.StringIO(processes))):
+            self.skipTest("no currently running AION2 process")
+        engine = LocalizationEngine(os.environ["ATREIA_LOCALIZATION_COMPONENTS"])
+        def contents():
+            return {str(path.relative_to(self.game.root)): path.read_bytes()
+                    for path in self.game.root.rglob("*") if path.is_file()}
+        before = contents()
+        for client in ("steam", "purple"):
+            target = inspect_installation(self.game.root, client)
+            for operation in ("install", "restore"):
+                with self.subTest(client=client, operation=operation):
+                    with self.assertRaisesRegex(RuntimeError, "请先完全退出"):
+                        engine.execute(operation, target, consented=True)
+                    self.assertEqual(contents(), before)
 
     @unittest.skipUnless(os.environ.get("ATREIA_LOCALIZATION_COMPONENTS"), "requires staged official engine")
     def test_native_inspection_is_read_only_in_isolated_fixture(self):
