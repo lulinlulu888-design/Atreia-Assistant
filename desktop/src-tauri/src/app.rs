@@ -2077,7 +2077,16 @@ pub fn run() {
     }
 
     tauri::Builder::default()
-        .on_window_event(|_window, event| {
+        .on_window_event(|window, event| {
+            if matches!(event, tauri::WindowEvent::Destroyed) && window.label() == "main" {
+                let app = window.app_handle();
+                if let Some(control) = app.try_state::<crate::atreia_localization::CaptureControl>() {
+                    control.0.lock().stop();
+                }
+                if let Some(launcher) = app.get_webview_window("launcher") {
+                    let _ = launcher.show();
+                }
+            }
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 if crate::atreia_localization::is_busy() {
                     api.prevent_close();

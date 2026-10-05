@@ -78,6 +78,10 @@ pub async fn open_combat(app: tauri::AppHandle) -> Result<(), String> {
         }
         return Err("Npcap 未能启动，请检查驱动、网卡及安装时设置的权限。".into());
     }
+    if app.get_webview_window("main").is_none() {
+        app.state::<CaptureControl>().0.lock().stop();
+        return Err("统计窗口已关闭，采集已停止。".into());
+    }
     if let Some(window) = app.get_webview_window("launcher") {
         let _ = window.hide();
     }
