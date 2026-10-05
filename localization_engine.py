@@ -31,14 +31,14 @@ class LocalizationEngine:
     def execute(self, operation, installation, consented=False):
         if operation not in ("inspect", "install", "restore"):
             raise ValueError("未知汉化操作")
-        if installation.client != "steam":
-            raise ValueError("PURPLE 汉化安装尚未验证，不能套用 Steam 安装引擎")
+        if installation.client not in ("steam", "purple"):
+            raise ValueError("未知游戏客户端")
         if operation != "inspect" and consented is not True:
             raise ValueError("修改游戏文件之前需要明确确认")
         # Revalidate the selected directory and engine immediately before use.
         current = inspect_installation(installation.root, installation.client)
         verify_engine(self.engine)
-        args = [str(self.helper), str(self.engine), operation, str(current.root), "steam"]
+        args = [str(self.helper), str(self.engine), operation, str(current.root), current.client]
         options = {"capture_output": True, "creationflags": getattr(subprocess, "CREATE_NO_WINDOW", 0),
                    "cwd": str(self.directory)}
         # Read-only inspection can time out; transactional writes must not be

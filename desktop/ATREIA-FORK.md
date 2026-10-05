@@ -11,7 +11,9 @@
 不恢复上次留下的详情窗口到启动页上。
 
 新增游戏汉化入口，调用本项目的版本固定汉化桥接组件。该组件可选，
-不包含在源码中；不自动下载，不把 Steam 引擎用于 PURPLE。
+不包含在源码中，也不自动下载。两端共用经过版本和摘要核验的语言表编解码器，
+始终读取所选端的当前资源；保留键、顺序和运行时参数，不能直接套用另一端旧表。
+本地官方繁体补译按原英文文本 SHA-256 绑定，仅填补尚未翻译的文本。
 只有用户明确选择目标并确认后才执行安装/还原；原引擎保留备份及回滚。
 
 独立应用标识避免覆盖原 A2Tools 设置，不迁移旧工具设置。启动采集需
@@ -35,6 +37,13 @@ Windows CI 见 `.github/workflows/desktop.yml`，检查启动页测试、Rust �
 也可在根目录运行 `./build-desktop.ps1`；可选
 `-LocalizationEnginePath '完整路径/Aion2-Steam-CN-v2.4.0.exe'`
 会复用已有摘要校验及桥接编译流程，只加入本地测试组件。
+另外可提供 `-LocalizationDecoderPath '完整路径/oo2core_9_win64.dll'`
+及 `-LocalizationAdditionsPath '完整路径/localization-additions.json.gz'`。
+解压依赖只接受核准摘要；补译压缩数据嵌入本地桥接组件，不提交游戏文本到 Git。
+补译生成器为 `localization/build_official_additions.py`，输入必须是键集合一致的
+本地英文与繁体表；`localization/locale_codec.py` 可离线解码用户已有资源。
+维护工具依赖 blake3、cryptography、lz4 与 opencc-python-reimplemented，
+这些 Python 依赖不用于玩家安装流程。
 脚本不会启动应用、驱动或修改游戏。依赖和组件的发布审计仍需另行完成。
 这是迁移中的开发分支，不能把构建通过等同于游戏实测通过。
 Python/Tk 原实现保留在根目录，当前修改未替换其发布入口。

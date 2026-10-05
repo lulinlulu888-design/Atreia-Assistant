@@ -154,9 +154,9 @@ class AppTests(unittest.TestCase):
         self.assertFalse(self.app.localization_writing)
         self.app.localization_game.client = "purple"
         self.app.client.set("PURPLE")
-        with patch("app.messagebox.askyesno") as confirm:
+        with patch("app.messagebox.askyesno", return_value=False) as confirm:
             self.app.run_localization("install")
-        confirm.assert_not_called()
+        confirm.assert_called_once()
         self.app.localization_engine.execute.assert_not_called()
 
     def test_localization_result_does_not_end_capture_or_claim_cancelled_success(self):

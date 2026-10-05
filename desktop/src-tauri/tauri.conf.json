@@ -59,7 +59,7 @@
     "targets": ["msi"],
     "resources": [
       "../src/data",
-      "vendor/localization/*"
+      "vendor/localization/"
     ],
     "icon": [
       "icons/32x32.png",

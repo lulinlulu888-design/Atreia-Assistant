@@ -47,11 +47,12 @@ test('localization belongs to launcher, never to the combat overlay', () => {
   assert.ok(launcher.includes('atreiaLocalization.js'));
   assert.ok(!html.includes('<script src="/src/js/checkRelease.js'));
 });
-test('PURPLE permits a read-only compatibility check but not installation actions', () => {
+test('PURPLE is routed to the selected client and has installation actions', () => {
   const source=fs.readFileSync(path.join(__dirname,'../public/src/js/atreiaLocalization.js'),'utf8');
   const native=fs.readFileSync(path.join(__dirname,'../src-tauri/src/atreia_localization.rs'),'utf8');
-  assert.match(source, /inspect_localization_target/);
-  assert.match(source, /purple && operation !== "inspect"/);
+  assert.match(source, /const command = "localization_execute"/);
+  assert.ok(!source.includes('inspect_localization_target'));
+  assert.ok(!source.includes('purple && operation !== "inspect"'));
   assert.match(native, /pub fn inspect_localization_target/);
-  assert.match(native, /"supported": false/);
+  assert.match(native, /arg\(&client\)/);
 });

@@ -27,16 +27,23 @@ class LocalizationEngineTests(unittest.TestCase):
         data = {"operation": operation, "ok": ok, "message": "synthetic response", **extra}
         return subprocess.CompletedProcess([], 0, json.dumps(data).encode(), b"")
 
-    def test_writes_require_explicit_consent_and_purple_is_not_assumed_compatible(self):
+    def test_writes_require_explicit_consent_for_both_clients(self):
         with patch("localization_engine.subprocess.run") as runner:
             for operation in ("install", "restore"):
                 for consent in (False, 1, "yes"):
                     with self.assertRaises(ValueError):
                         self.engine.execute(operation, self.game, consent)
             purple = inspect_installation(self.game.root, "purple")
-            with self.assertRaisesRegex(ValueError, "PURPLE"):
-                self.engine.execute("install", purple, True)
+            with self.assertRaises(ValueError):
+                self.engine.execute("install", purple, False)
         runner.assert_not_called()
+
+    def test_purple_uses_selected_client_for_all_operations(self):
+        purple = inspect_installation(self.game.root, "purple")
+        for operation in ("inspect", "install", "restore"):
+            with patch("localization_engine.verify_engine"), patch("localization_engine.subprocess.run", return_value=self.response(operation)) as runner:
+                self.engine.execute(operation, purple, consented=operation != "inspect")
+            self.assertEqual(runner.call_args.args[0][-3:], [operation, str(purple.root), "purple"])
 
     def test_write_process_is_not_killed_on_timeout_and_has_exact_arguments(self):
         with patch("localization_engine.verify_engine") as verify, \
@@ -76,8 +83,8 @@ class LocalizationEngineTests(unittest.TestCase):
             return {str(path.relative_to(self.game.root)): path.read_bytes()
                     for path in self.game.root.rglob("*") if path.is_file()}
         before = contents()
-        response = engine.execute("inspect", self.game)
-        self.assertTrue(response["ok"])
-        self.assertEqual(response["engine_version"], "2.4.0")
-        self.assertEqual(response["state"], "not_installed")
+        # A synthetic directory is not a valid language package. Real decoding
+        # must reject it, rather than claiming compatibility from its layout.
+        with self.assertRaises(RuntimeError):
+            engine.execute("inspect", self.game)
         self.assertEqual(contents(), before)

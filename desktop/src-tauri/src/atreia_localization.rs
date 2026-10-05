@@ -102,14 +102,14 @@ fn validate_target(root: &str, client: &str, operation: &str) -> Result<PathBuf,
     if !["inspect", "install", "restore"].contains(&operation) {
         return Err("未知汉化操作".into());
     }
-    if client != "steam" {
-        return Err("PURPLE 汉化安装尚未验证，不能套用 Steam 引擎。".into());
+    if !["steam", "purple"].contains(&client) {
+        return Err("未知客户端。".into());
     }
     validate_target_root(root)
 }
 
 /// Read-only compatibility check used by the launcher before offering an action.
-/// In particular, it never invokes the Steam-only engine for a PURPLE install.
+/// A directory check does not replace the source-table checks performed by installation.
 #[tauri::command]
 pub fn inspect_localization_target(root: String, client: String) -> Result<Value, String> {
     let root = validate_target_root(&root)?;
@@ -127,9 +127,9 @@ pub fn inspect_localization_target(root: String, client: String) -> Result<Value
         })),
         "purple" => Ok(serde_json::json!({
             "ok": true,
-            "supported": false,
+            "supported": true,
             "root": root,
-            "message": "已检测到 PURPLE 游戏目录和本地化文本包。当前仅支持只读检测：Steam 汉化引擎尚未验证 PURPLE 的包与更新校验，安装和还原已禁用，不会修改游戏文件。"
+            "message": "已检测到 PURPLE 游戏目录和本地化文本包；安装时将读取当前英文语言表并核对键值，使用独立的本地备份支持还原。"
         })),
         _ => Err("未知客户端。".into()),
     }
@@ -177,11 +177,11 @@ pub async fn localization_execute(
             return Err("汉化组件缺失或校验不匹配。".into());
         }
         if operation != "inspect" && !crate::platform::dialog::ask_yes_no("确认游戏汉化操作",
-            &format!("操作：{}\n目标：{}\n客户端：Steam / Global\n\n请先退出游戏。该操作会修改语言文件，原引擎保留备份、兼容检查和回滚。确定继续吗？", operation, root.display())) {
+            &format!("操作：{}\n目标：{}\n客户端：{}\n\n请先退出游戏。该操作会修改语言文件，原引擎保留备份、兼容检查和回滚。确定继续吗？", operation, root.display(), client)) {
             return Ok(serde_json::json!({"ok":false,"cancelled":true,"operation":operation,"message":"已取消，未修改游戏。"}));
         }
         let mut command = Command::new(helper);
-        command.current_dir(&directory).arg(engine).arg(&operation).arg(root).arg("steam");
+        command.current_dir(&directory).arg(engine).arg(&operation).arg(root).arg(&client);
         #[cfg(windows)] {
             use std::os::windows::process::CommandExt;
             command.creation_flags(0x08000000); // CREATE_NO_WINDOW; native engine dialogs remain visible
@@ -202,20 +202,20 @@ pub async fn localization_execute(
 mod tests {
     use super::*;
     #[test]
-    fn rejects_unknown_operation_and_purple_before_any_process() {
+    fn rejects_unknown_operation_and_invalid_roots_before_any_process() {
         assert!(validate_target(".", "steam", "execute").is_err());
         assert!(validate_target(".", "purple", "install").is_err());
         assert!(validate_target(".", "steam", "install").is_err());
     }
 
     #[test]
-    fn a_valid_purple_layout_is_inspectable_but_not_installable() {
+    fn a_valid_purple_layout_is_inspectable_and_installable() {
         let root = std::env::temp_dir().join(format!("atreia-purple-{}", std::process::id()));
         std::fs::create_dir_all(root.join("Aion2/Content/Paks/L10N/Text")).unwrap();
         let path = root.to_string_lossy().into_owned();
         let result = inspect_localization_target(path.clone(), "purple".into()).unwrap();
-        assert_eq!(result["supported"], false);
-        assert!(validate_target(&path, "purple", "install").is_err());
+        assert_eq!(result["supported"], true);
+        assert!(validate_target(&path, "purple", "install").is_ok());
         std::fs::remove_dir_all(root).unwrap();
     }
     #[test]

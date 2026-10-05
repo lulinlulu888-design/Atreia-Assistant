@@ -221,7 +221,7 @@ class AssistantApp:
         tabs.add(healing_tab, text="治疗统计")
         tabs.add(localization_tab, text="游戏汉化")
         ttk.Label(localization_tab, text="简体中文 · 国服风味", style="Title.TLabel").pack(anchor="w", pady=(4, 8))
-        ttk.Label(localization_tab, text="Steam / Global 简体中文汉化 · PURPLE 安装暂未验证。",
+        ttk.Label(localization_tab, text="Steam / Global 与 PURPLE 简体中文汉化；安装后文字语言设为 English。",
                   wraplength=650).pack(anchor="w", pady=(0, 10))
         self.localization_status = tk.StringVar(value="先检测游戏目录；这里只读检查，不会修改游戏文件。")
         ttk.Label(localization_tab, textvariable=self.localization_status, wraplength=650).pack(anchor="w", pady=(0, 6))
@@ -265,8 +265,8 @@ class AssistantApp:
             self.localization_status.set("需要可用的汉化组件，并先检测或选择游戏目录。")
             return
         client = "steam" if self.client.get() == "Steam / Global" else "purple"
-        if game.client != client or client != "steam":
-            self.localization_status.set("请重新选择 Steam 目录；PURPLE 汉化安装尚未验证。")
+        if game.client != client:
+            self.localization_status.set("客户端选择已变化，请重新检测或选择对应游戏目录。")
             return
         if operation not in ("inspect", "install", "restore"):
             return
@@ -297,7 +297,7 @@ class AssistantApp:
         client = self.client.get()
         if client != "Steam / Global":
             self.localization_game = None
-            self.localization_status.set("PURPLE 目录请先手动选择；目前不会猜测安装位置，也未启用汉化安装。")
+            self.localization_status.set("PURPLE 目录请手动选择，再使用汉化组件检查、安装或还原。")
             return
         self.localization_busy = True
         self.localization_game = None

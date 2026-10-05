@@ -7,7 +7,7 @@
     Object.assign(dialog.style, {background:"#142230",color:"#eaf1f6",border:"1px solid #365163",borderRadius:"12px",width:"min(440px,90vw)",padding:"20px",fontFamily:"Microsoft YaHei UI, sans-serif"});
     const title = document.createElement("h3"); title.textContent = "游戏汉化";
     const client = document.createElement("select");
-    for (const [value,label] of [["steam","Steam / Global"],["purple","PURPLE（仅检测，安装未开放）"]]) {
+    for (const [value,label] of [["steam","Steam / Global"],["purple","PURPLE"]]) {
       const option = document.createElement("option"); option.value = value; option.textContent = label; client.append(option);
     }
     const root = document.createElement("input"); root.placeholder = "游戏根目录（包含 Aion2 文件夹）";
@@ -23,20 +23,20 @@
       operationButtons.push({operation, button});
       button.addEventListener("click", async () => {
         if (!root.value.trim()) { status.textContent = "请填写游戏目录。"; return; }
-        busy = true; actions.querySelectorAll("button").forEach(b => b.disabled = true); close.disabled = true;
+        busy = true; client.disabled = true; root.disabled = true; actions.querySelectorAll("button").forEach(b => b.disabled = true); close.disabled = true;
         status.textContent = "正在处理，请等待完成…";
         try {
-          const command = operation === "inspect" && client.value === "purple" ? "inspect_localization_target" : "localization_execute";
+          const command = "localization_execute";
           const result = await window.__TAURI__.core.invoke(command, {root:root.value.trim(),client:client.value,operation});
           status.textContent = result.message;
         } catch (error) { status.textContent = String(error); }
-        finally {busy = false; actions.querySelectorAll("button").forEach(b => b.disabled = false); close.disabled = false;}
+        finally {busy = false; client.disabled = false; root.disabled = false; actions.querySelectorAll("button").forEach(b => b.disabled = false); close.disabled = false;}
       }); actions.append(button);
     }
     const refreshActions = () => {
       const purple = client.value === "purple";
-      operationButtons.forEach(({operation, button}) => { button.disabled = purple && operation !== "inspect"; });
-      if (purple) status.textContent = "PURPLE 目前可安全检测目录；安装与还原尚未开放，不会使用 Steam 引擎修改游戏。";
+      operationButtons.forEach(({button}) => { button.disabled = busy; });
+      if (purple) status.textContent = "请先退出游戏，安装后将游戏文字语言设置为 English；支持更新及还原。";
       else status.textContent = "请先退出游戏。安装前备份，支持还原；本页不会启动战斗统计。";
     };
     client.addEventListener("change", refreshActions);

@@ -10,6 +10,25 @@ static class EngineBridge
 {
     const string EngineHash = "1D01A3AB4C9604296DA6B2265FD0A5A1247D628D31FD4AB02EB8BAC539340E58";
     const BindingFlags PrivateInstance = BindingFlags.NonPublic | BindingFlags.Instance;
+    const BindingFlags CodecFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance;
+
+    static string Inspect(object form, Assembly assembly, string root, string client)
+    {
+        string source = (string)form.GetType().GetMethod("FindSourcePak", PrivateInstance).Invoke(form, null);
+        if (source == null) throw new InvalidDataException("找不到当前版本的原始英文语言包。");
+        Type type = assembly.GetType("Aion2CNTool.CompatibilityEngine", true);
+        object codec = type.GetMethod("Load", CodecFlags).Invoke(null, null);
+        byte[] sourceBytes = (byte[])type.GetMethod("ReadPak", CodecFlags).Invoke(codec, new object[] {source, root});
+        byte[] translatedBytes;
+        using (Stream stream = assembly.GetManifestResourceStream("Aion2CNTool.Payload.L10NString.dat"))
+        using (var buffer = new MemoryStream()) { stream.CopyTo(buffer); translatedBytes = buffer.ToArray(); }
+        object current = type.GetMethod("Decode", CodecFlags).Invoke(codec, new object[] {sourceBytes});
+        object translated = type.GetMethod("Decode", CodecFlags).Invoke(codec, new object[] {translatedBytes});
+        int supplemented;
+        EquivalentTranslations.Merge(codec, current, translated, out supplemented);
+        int count = ((System.Collections.ICollection)current.GetType().GetField("Rows", CodecFlags).GetValue(current)).Count;
+        return "已验证 " + client + " 当前语言表：" + count + " 个键，额外补译 " + supplemented + " 条，编码回读及缺译检查通过。安装后请将游戏文字语言设置为 English。检测未修改游戏。";
+    }
 
     static string Hash(string path)
     {
@@ -35,9 +54,9 @@ static class EngineBridge
         string operation = args.Length > 1 ? args[1] : "invalid";
         try
         {
-            if (args.Length != 4 || args[3] != "steam" ||
+            if (args.Length != 4 || (args[3] != "steam" && args[3] != "purple") ||
                 (operation != "inspect" && operation != "install" && operation != "restore"))
-                throw new ArgumentException("仅支持已明确选择的 Steam 客户端及检测、安装、还原操作");
+                throw new ArgumentException("仅支持已明确选择的 Steam 或 PURPLE 客户端及检测、安装、还原操作");
             string engine = Path.GetFullPath(args[0]);
             string root = Path.GetFullPath(args[2]);
             if (!Directory.Exists(Path.Combine(root, @"Aion2\Content")))
@@ -54,8 +73,11 @@ static class EngineBridge
                 // updater. Its own compatibility/completion prompts remain
                 // human-controlled, and its transaction checks stay intact.
                 ((TextBox)type.GetField("steam", PrivateInstance).GetValue(form)).Text = root;
-                string method = operation == "inspect" ? "Inspect" : operation == "install" ? "Install" : "Restore";
-                type.GetMethod(method, PrivateInstance).Invoke(form, null);
+                int supplemented = 0;
+                string inspection = null;
+                if (operation == "install") supplemented = SupplementInstaller.Install(form, assembly, root);
+                else if (operation == "inspect") inspection = Inspect(form, assembly, root, args[3]);
+                else type.GetMethod("Restore", PrivateInstance).Invoke(form, null);
                 string state = State(root);
                 bool cancelled = operation == "install" &&
                     type.GetField("installedPayloadHash", PrivateInstance).GetValue(form) == null;
@@ -65,8 +87,8 @@ static class EngineBridge
                     throw new InvalidDataException("引擎返回后未检测到完成的还原状态");
                 Console.WriteLine(new JavaScriptSerializer().Serialize(new {
                     ok = !cancelled, cancelled = cancelled, operation = operation,
-                    engine_version = version, state = state,
-                    message = cancelled ? "已取消兼容汉化安装" : ((TextBox)type.GetField("log", PrivateInstance).GetValue(form)).Text
+                    engine_version = version, state = state, supplemented = supplemented,
+                    message = cancelled ? "已取消兼容汉化安装" : inspection ?? ("客户端：" + args[3] + "；额外补译：" + supplemented + " 条。\n" + ((TextBox)type.GetField("log", PrivateInstance).GetValue(form)).Text.Replace("新增和变化文本保留当前原文", "新增和变化文本已经过补译完整性检查"))
                 }));
                 return 0;
             }
