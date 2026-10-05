@@ -44,22 +44,23 @@ class AssistantApp:
         self.guided_check = False
         self.pending_auto_start = False
         self.advanced_visible = False
-        root.title("亚特雷亚助手 · 战斗统计（开发版）")
-        root.geometry("1060x780")
-        root.minsize(960, 680)
+        root.title("亚特雷亚助手")
+        dpi_scale = max(1.0, root.winfo_fpixels("1i") / 96)
+        root.geometry(f"{round(780 * dpi_scale)}x{round(620 * dpi_scale)}")
+        root.minsize(round(740 * dpi_scale), round(590 * dpi_scale))
         root.configure(background="#101827")
         root.protocol("WM_DELETE_WINDOW", self.close)
         style = ttk.Style(root)
         style.theme_use("clam")
         style.configure("TFrame", background="#101827")
         style.configure("TLabel", background="#101827", foreground="#d5e0ee", font=("Microsoft YaHei UI", 10))
-        style.configure("Title.TLabel", font=("Microsoft YaHei UI", 23, "bold"), foreground="#7ad9ee")
+        style.configure("Title.TLabel", font=("Microsoft YaHei UI", 18, "bold"), foreground="#e5d2a2")
         style.configure("Muted.TLabel", foreground="#92a4bf")
         style.configure("Card.TFrame", background="#182337")
         style.configure("Card.TLabel", background="#182337", foreground="#d5e0ee")
         style.configure("Empty.TLabel", background="#1c293c", foreground="#92a4bf")
         style.configure("Warning.TLabel", foreground="#f1c66e")
-        style.configure("TButton", font=("Microsoft YaHei UI", 10), padding=(14, 9),
+        style.configure("TButton", font=("Microsoft YaHei UI", 10), padding=(10, 6),
                         background="#24344c", foreground="#e4edf7", borderwidth=0,
                         lightcolor="#24344c", darkcolor="#24344c", bordercolor="#24344c")
         style.map("TButton", background=[("disabled", "#192438"), ("active", "#344b69")],
@@ -82,42 +83,64 @@ class AssistantApp:
         style.map("TCheckbutton", background=[("active", "#101827")],
                   foreground=[("disabled", "#62738b")])
         style.configure("TNotebook", background="#101827", borderwidth=0)
-        style.configure("TNotebook.Tab", background="#1c293c", foreground="#92a4bf", padding=(18, 10))
+        style.configure("TNotebook.Tab", background="#1c293c", foreground="#92a4bf", padding=(14, 7))
         style.map("TNotebook.Tab", background=[("selected", "#24344c")],
                   foreground=[("selected", "#7ad9ee")])
         style.configure("Vertical.TScrollbar", background="#34455d", troughcolor="#182337",
                         arrowcolor="#92a4bf", bordercolor="#182337")
-        style.configure("Treeview", background="#1c293c", fieldbackground="#1c293c", foreground="#e4edf7", rowheight=29)
-        style.configure("Treeview.Heading", font=("Microsoft YaHei UI", 10, "bold"), padding=9,
+        style.configure("Treeview", background="#1c293c", fieldbackground="#1c293c", foreground="#e4edf7", rowheight=25)
+        style.configure("Treeview.Heading", font=("Microsoft YaHei UI", 9, "bold"), padding=6,
                         background="#24344c", foreground="#aebed4", relief="flat")
         style.map("Treeview.Heading", background=[("active", "#344b69")])
         style.map("Treeview", background=[("selected", "#235367")], foreground=[("selected", "#ffffff")])
-        body = ttk.Frame(root, padding=20)
+        body = ttk.Frame(root, padding=14)
         body.pack(fill="both", expand=True)
         header = ttk.Frame(body)
         header.pack(fill="x")
+        crest = tk.Canvas(header, width=48, height=50, bg="#101827", highlightthickness=0)
+        crest.pack(side="left", padx=(0, 10))
+        # Original code-drawn wing/gem emblem, not an official game asset.
+        crest.create_oval(8, 7, 40, 43, outline="#587590", width=1)
+        for direction in (-1, 1):
+            for step in range(3):
+                crest.create_line(24 + direction * 4, 27 + step * 4,
+                                  24 + direction * (20 - step * 3), 10 + step * 4,
+                                  24 + direction * (13 - step * 2), 28 + step * 4,
+                                  fill="#7ad9ee", width=2)
+        crest.create_polygon(24, 13, 30, 25, 24, 39, 18, 25,
+                             fill="#1d4c64", outline="#e5d2a2", width=2)
+        crest.scale("all", 0, 0, dpi_scale, dpi_scale)
+        crest.configure(width=round(48 * dpi_scale), height=round(50 * dpi_scale))
         ttk.Label(header, text="亚特雷亚助手", style="Title.TLabel").pack(side="left")
-        ttk.Button(header, text="汉化工具下载", command=lambda: webbrowser.open(
-            "https://github.com/lulinlulu888-design/Aion2-Steam-CN/releases/latest")).pack(side="right")
-        ttk.Label(body, text="ATREIA ASSISTANT  /  战斗分析", style="Muted.TLabel").pack(anchor="w", pady=(3, 10))
-        self.compatibility = ttk.Label(body, text="开发预览 · 实战兼容性未验证，离线测试不代表实战效果。", style="Warning.TLabel")
-        self.compatibility.pack(anchor="w")
+        ttk.Label(header, text="ATREIA\n开发测试版", style="Muted.TLabel", justify="right").pack(side="right")
+        tk.Frame(body, height=1, bg="#756d56").pack(fill="x", pady=(8, 0))
+        self.compatibility = ttk.Label(body, text="战斗统计 · 当前客户端兼容性未验证", style="Warning.TLabel")
+        self.compatibility.pack(anchor="w", pady=(7, 0))
         controls = ttk.Frame(body)
-        controls.pack(fill="x", pady=14)
-        ttk.Label(controls, text="你的游戏").pack(side="left")
+        controls.pack(fill="x", pady=10)
         self.client = tk.StringVar(value="Steam / Global")
         self.client_box = ttk.Combobox(controls, textvariable=self.client,
-            values=("Steam / Global", "PURPLE"), state="readonly", width=17)
-        self.client_box.pack(side="left", padx=(8, 16))
-        self.detect_button = ttk.Button(controls, text="1  检查环境", command=self.check_setup)
-        self.detect_button.pack(side="left", padx=4)
+            values=("Steam / Global", "PURPLE"), state="readonly", width=16)
+        self.client_box.pack(side="left", padx=(0, 10))
         self.auto_start_button = ttk.Button(controls, text="开启战斗统计", style="Accent.TButton", command=self.begin_auto)
         self.auto_start_button.pack(side="left", padx=4)
         self.stop_button = ttk.Button(controls, text="停止", command=self.stop, state="disabled")
         self.stop_button.pack(side="left", padx=4)
-        self.advanced_button = ttk.Button(controls, text="高级设置 ▾", command=self.toggle_advanced)
+        self.advanced_button = ttk.Button(controls, text="设置", command=self.toggle_advanced)
         self.advanced_button.pack(side="right")
-        self.advanced = ttk.Frame(body, padding=12, style="Card.TFrame")
+        self.settings_window = tk.Toplevel(root)
+        self.settings_window.withdraw()
+        self.settings_window.title("亚特雷亚助手 · 设置与诊断")
+        self.settings_window.geometry(f"{round(820 * dpi_scale)}x{round(390 * dpi_scale)}")
+        self.settings_window.resizable(True, False)
+        self.settings_window.transient(root)
+        self.settings_window.protocol("WM_DELETE_WINDOW", self.toggle_advanced)
+        self.advanced = ttk.Frame(self.settings_window, padding=12, style="Card.TFrame")
+        tools = ttk.Frame(self.advanced, style="Card.TFrame")
+        tools.pack(fill="x", pady=(0, 12))
+        self.detect_button = ttk.Button(tools, text="检查环境", command=self.check_setup)
+        self.detect_button.pack(side="left")
+        ttk.Button(tools, text="以管理员权限重开", command=self.relaunch_admin).pack(side="right")
         settings = ttk.Frame(self.advanced, style="Card.TFrame")
         settings.pack(fill="x")
         ttk.Label(settings, text="TCP 端口", style="Card.TLabel").pack(side="left")
@@ -148,53 +171,57 @@ class AssistantApp:
         ttk.Button(live, text="重新检测游戏连接", command=self.detect_connections).pack(side="right")
         self.scope_summary = tk.StringVar(value="尚未确认连接范围。")
         ttk.Label(self.advanced, textvariable=self.scope_summary, style="Card.TLabel", wraplength=920).pack(anchor="w", pady=(8, 0))
-        setup = ttk.Frame(body)
-        setup.pack(fill="x", pady=(0, 8))
         self.install_guide_button = ttk.Button(self.advanced, text="安装 Npcap（备用手动采集）", command=self.open_npcap_guide)
         self.install_guide_button.pack(anchor="w", pady=(8, 0))
-        ttk.Button(setup, text="以管理员权限重开", command=self.relaunch_admin).pack(side="right")
-        ttk.Label(setup, text="一键统计使用内置采集组件；Windows 权限提示需自行确认。", style="Muted.TLabel",
-                  wraplength=690).pack(side="left")
         self.consent = tk.BooleanVar(value=False)
         self.consent_box = ttk.Checkbutton(self.advanced, text="我同意仅采集所选游戏连接并在本地分析，理解第三方工具及未验证版本的风险。",
             variable=self.consent, command=self.update_live_state)
         self.consent_box.pack(anchor="w", pady=(0, 8))
-        self.status = tk.StringVar(value="进入游戏后点“开启战斗统计”，程序会自动检查连接；不需要先填写 IP 或端口。")
-        ttk.Label(body, textvariable=self.status, wraplength=960).pack(anchor="w", pady=(0, 8))
+        self.status = tk.StringVar(value="进入游戏，点击开启统计。连接由助手自动识别。")
+        ttk.Label(body, textvariable=self.status, wraplength=730).pack(anchor="w", pady=(0, 6))
         self.integrity = tk.StringVar(value="")
-        ttk.Label(body, textvariable=self.integrity, style="Warning.TLabel", wraplength=960).pack(anchor="w", pady=(0, 6))
+        ttk.Label(body, textvariable=self.integrity, style="Warning.TLabel", wraplength=730).pack(anchor="w", pady=(0, 4))
         results = ttk.Frame(body)
         results.pack(fill="both", expand=True)
         footer = ttk.Frame(results)
         footer.pack(side="bottom", fill="x", pady=(10, 0))
         self.diagnostics = tk.StringVar(value="仅本地分析 · 不上传数据 · 不修改游戏")
-        ttk.Label(footer, textvariable=self.diagnostics, style="Muted.TLabel").pack(side="left")
+        ttk.Label(footer, textvariable=self.diagnostics, style="Muted.TLabel", wraplength=420).pack(side="left")
         self.export_button = ttk.Button(footer, text="导出报告", command=self.export_report, state="disabled")
         self.export_button.pack(side="right")
         self.reset_button = ttk.Button(footer, text="新的一场", command=self.reset_encounter, state="disabled")
         self.reset_button.pack(side="right", padx=6)
         tabs = ttk.Notebook(results)
         tabs.pack(fill="both", expand=True)
-        damage_tab, healing_tab = ttk.Frame(tabs), ttk.Frame(tabs)
+        damage_tab, healing_tab, localization_tab = ttk.Frame(tabs), ttk.Frame(tabs), ttk.Frame(tabs, padding=20)
         tabs.add(damage_tab, text="伤害与技能")
         tabs.add(healing_tab, text="治疗统计")
+        tabs.add(localization_tab, text="游戏汉化")
+        ttk.Label(localization_tab, text="简体中文 · 国服风味", style="Title.TLabel").pack(anchor="w", pady=(12, 10))
+        ttk.Label(localization_tab, text="汉化安装功能正在整合。当前可使用原版汉化工具。\nSteam / Global 可前往正式下载页；PURPLE 暂未验证。",
+                  wraplength=650).pack(anchor="w", pady=(0, 18))
+        ttk.Button(localization_tab, text="打开现有汉化工具下载页", command=lambda: webbrowser.open(
+            "https://github.com/lulinlulu888-design/Aion2-Steam-CN/releases/latest")).pack(anchor="w")
         self.damage = self.table(damage_tab,
-            ("目标", "玩家", "总伤害", "DPS", "贡献", "暴击命中率"), height=5)
+            ("目标", "玩家", "总伤害", "DPS", "贡献", "暴击命中率"), height=4)
         self.damage.bind("<<TreeviewSelect>>", self.select_player)
         ttk.Label(damage_tab, text="选中玩家查看技能分解；数字 ID 表示名称尚未识别。", padding=8).pack(anchor="w")
         self.skills = self.table(damage_tab, ("技能 ID", "持续伤害", "伤害", "命中次数", "暴击命中"), height=3)
         self.healing = self.table(healing_tab, ("玩家 ID", "技能 ID", "持续治疗", "治疗总量", "记录次数"), height=10)
-        self.empty_hint = ttk.Label(self.damage, text="等待战斗数据\n\n先检查环境并确认采集范围，再开始统计。", style="Empty.TLabel", justify="center")
+        self.empty_hint = ttk.Label(self.damage, text="等待战斗数据\n进入游戏后，点击开启统计", style="Empty.TLabel", justify="center")
         self.empty_hint.place(relx=.5, rely=.55, anchor="center")
         root.after(100, self.poll)
 
     def toggle_advanced(self):
         self.advanced_visible = not self.advanced_visible
         if self.advanced_visible:
-            self.advanced.pack(after=self.advanced_button.master, fill="x", pady=(0, 10))
+            self.advanced.pack(fill="both", expand=True)
+            self.settings_window.deiconify()
+            self.settings_window.lift()
         else:
+            self.settings_window.withdraw()
             self.advanced.pack_forget()
-        self.advanced_button.configure(text="收起高级设置 ▴" if self.advanced_visible else "高级设置 ▾")
+        self.advanced_button.configure(text="收起设置" if self.advanced_visible else "设置")
 
     def check_setup(self):
         if self.running or self.detecting:
@@ -221,7 +248,7 @@ class AssistantApp:
             self.status.set("内置采集组件未就绪：" + str(error))
             return
         if not self.is_admin():
-            self.status.set("请点“以管理员权限重开”并自行确认 Windows 提示，然后再点开启统计。")
+            self.status.set("请在设置中点“以管理员权限重开”，确认 Windows 提示后再开启统计。")
             return
         self.pending_auto_start = True
         self.detect_connections()
@@ -306,7 +333,7 @@ class AssistantApp:
         tree = ttk.Treeview(frame, columns=columns, show="headings", height=height)
         for column in columns:
             tree.heading(column, text=column)
-            tree.column(column, width=120, minwidth=70, anchor="center")
+            tree.column(column, width=105, minwidth=60, anchor="center")
         scroll = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
         tree.configure(yscrollcommand=scroll.set)
         scroll.pack(side="right", fill="y")

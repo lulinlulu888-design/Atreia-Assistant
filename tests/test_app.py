@@ -80,11 +80,22 @@ class AppTests(unittest.TestCase):
 
     def test_basic_ui_hides_debug_controls_and_styles_all_widgets(self):
         self.assertFalse(self.app.advanced.winfo_manager())
-        self.assertIn("检查环境", self.app.detect_button["text"])
-        self.assertEqual(str(self.app.live_button["state"]), "disabled")
         style = ttk.Style(self.root)
         self.assertEqual(style.lookup("TButton", "background"), "#24344c")
         self.assertEqual(style.lookup("Treeview.Heading", "background"), "#24344c")
+
+    def test_compact_window_keeps_settings_out_of_statistics_layout(self):
+        self.root.update_idletasks()
+        scale = max(1.0, self.root.winfo_fpixels("1i") / 96)
+        self.assertEqual(self.app.settings_window.state(), "withdrawn")
+        self.assertEqual(self.app.advanced.master, self.app.settings_window)
+        self.assertIn(f"{round(780 * scale)}x{round(620 * scale)}", self.root.geometry())
+        self.assertLessEqual(self.root.winfo_reqwidth(), round(780 * scale))
+        self.assertLessEqual(self.root.winfo_reqheight(), round(620 * scale))
+        self.assertEqual(str(self.app.auto_start_button["state"]), "normal")
+        self.assertFalse(self.app.consent.get())
+        self.assertIn("检查环境", self.app.detect_button["text"])
+        self.assertEqual(str(self.app.live_button["state"]), "disabled")
         self.app.toggle_advanced()
         self.assertEqual(self.app.advanced.winfo_manager(), "pack")
         self.app.toggle_advanced()
