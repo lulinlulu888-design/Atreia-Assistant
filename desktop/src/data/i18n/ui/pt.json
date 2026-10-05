@@ -1,0 +1,389 @@
+{
+  "header": {
+    "title": "A2Tools DPS Meter",
+    "display": {
+      "dps": "DPS",
+      "total": "DAN",
+      "ariaDps": "Mostrando DPS",
+      "ariaDamage": "Mostrando dano total",
+      "both": "AMBOS",
+      "ariaBoth": "Mostrando DPS e dano total"
+    }
+  },
+  "details": {
+    "header": "Detalhes",
+    "title": "Detalhes de {name}",
+    "tooltip": "O dano ao longo do tempo não entra nas taxas totais de crítico, duplo, perfeito, ataque pelas costas ou aparar.",
+    "settings": {
+      "ariaLabel": "Abrir as configurações de detalhes"
+    },
+    "panelBackground": "Fundo do painel",
+    "fontSize": {
+      "label": "Tamanho da fonte"
+    },
+    "iconSize": {
+      "label": "Tamanho dos ícones de habilidade"
+    },
+    "screenshots": {
+      "label": "Capturas de tela",
+      "includeMeter": "Incluir o medidor principal",
+      "saveToFolder": "Salvar capturas em uma pasta"
+    },
+    "columns": {
+      "label": "Colunas de habilidades"
+    },
+    "screenshot": {
+      "ariaLabel": "Copiar captura para a área de transferência",
+      "captured": "Captura feita",
+      "savedToClipboard": "Copiada para a área de transferência"
+    },
+    "sort": {
+      "recent": "Recente",
+      "time": "Tempo",
+      "damage": "Dano"
+    },
+    "skills": {
+      "skill": "Habilidade",
+      "skillTooltip": "Nome da habilidade",
+      "hits": "Usos",
+      "hitsTooltip": "Usos",
+      "dmg": "Dan",
+      "dmgTooltip": "Dano",
+      "dmgPct": "D%",
+      "dmgPctTooltip": "Dano %",
+      "crit": "Crít",
+      "critTooltip": "Crítico %",
+      "parry": "Apa",
+      "parryTooltip": "Aparar %",
+      "perfect": "Perf",
+      "perfectTooltip": "Perfeito %",
+      "double": "Dup",
+      "doubleTooltip": "Duplo %",
+      "back": "Cost",
+      "backTooltip": "Ataque pelas costas %",
+      "frontal": "Frnt",
+      "frontalTooltip": "Frontal %",
+      "powershard": "FP",
+      "powershardTooltip": "Fragmento de poder %",
+      "regen": "Reg",
+      "regenTooltip": "Regeneração por roubo de vida",
+      "multiHit": "GM%",
+      "multiHitTooltip": "Golpes múltiplos %",
+      "multiHitDamage": "DGM",
+      "multiHitDamageTooltip": "Dano de golpes múltiplos",
+      "minDmg": "Mín",
+      "minDmgTooltip": "Dano mínimo",
+      "avgDmg": "Méd",
+      "avgDmgTooltip": "Dano médio",
+      "maxDmg": "Máx",
+      "maxDmgTooltip": "Dano máximo"
+    },
+    "stats": {
+      "totalDamage": "Dano total",
+      "contribution": "Contribuição",
+      "hits": "Golpes",
+      "critRate": "Taxa de crítico",
+      "perfectRate": "Taxa de perfeito",
+      "doubleRate": "Taxa de duplo",
+      "backRate": "Taxa de ataque pelas costas",
+      "parryRate": "Taxa de aparar",
+      "combatTime": "Tempo de combate",
+      "selfHealing": "Autocura",
+      "multiHitDamage": "Dano de golpes múltiplos",
+      "multiHitHits": "Golpes múltiplos",
+      "maxHp": "HP máx."
+    },
+    "titleFor": "de",
+    "titleVs": "contra",
+    "fightVs": "Combate contra",
+    "all": "Tudo",
+    "history": {
+      "allPlayers": "Todos os jogadores"
+    },
+    "dpsChart": "Gráfico de DPS",
+    "historyBtn": "Histórico",
+    "timeline": "Linha do tempo"
+  },
+  "history": {
+    "title": "Histórico de combates",
+    "empty": "Nenhum combate de chefe registrado ainda.",
+    "delete": "Excluir",
+    "showTraining": "Mostrar treino",
+    "hideTraining": "Ocultar treino",
+    "showTrainingBattles": "Mostrar combates de treino",
+    "hideTrainingBattles": "Ocultar combates de treino",
+    "trainBadge": "Treino",
+    "liveBadge": "Ao vivo",
+    "filterBoss": "Nome do chefe...",
+    "filterPlayer": "Classe do jogador...",
+    "filterDate": "Data (AAAA-MM-DD)...",
+    "viewList": "Visualização em lista",
+    "viewDungeon": "Agrupar por masmorra",
+    "viewGrouped": "Agrupar por chefe",
+    "fightCount": "{n} combates",
+    "fightCountOne": "1 combate",
+    "previewUpload": "Pré-visualizar envio",
+    "previewUploadTip": "Escreve o que o compartilhamento deste combate enviaria. Nada é enviado.",
+    "previewWorking": "Criando a pré-visualização…",
+    "previewDone": "{slice} KB gravados ({sent} KB compactados — o que um envio transmitiria). {kept} de {seen} pacotes mantidos, {blinded} nomes ocultados. Nada foi enviado. Salvo em {dir}",
+    "openWorld": "Mundo aberto"
+  },
+  "settings": {
+    "title": "Configurações",
+    "lockedPort": "Dispositivo/porta detectados",
+    "resetDetection": "Redefinir",
+    "characterName": "Nome#ID",
+    "characterNamePlaceholder": "Digite o nome do seu personagem",
+    "pinMeToTop": "Sempre me mostrar no topo",
+    "slimMode": "Modo compacto",
+    "meterLayout": {
+      "label": "Layout do medidor",
+      "beta": "Beta UI",
+      "betaSlim": "Beta compacto",
+      "classic": "Interface clássica",
+      "classicSlim": "Clássica compacta"
+    },
+    "detailsMonitor": {
+      "label": "Mostrar detalhes no monitor",
+      "off": "Desligado",
+      "primary": "principal",
+      "missing": "Esse monitor não está conectado.",
+      "single": "Apenas um monitor detectado — conecte um segundo para usar isto.",
+      "badge": "Monitor",
+      "side": {
+        "left": "esquerda",
+        "right": "direita",
+        "above": "acima",
+        "below": "abaixo"
+      }
+    },
+    "appearance": "Aparência",
+    "connection": "Conexão",
+    "diagnostics": "Diagnóstico",
+    "device": {
+      "label": "Dispositivo de captura",
+      "autoDetect": "Detecção automática"
+    },
+    "advanced": "Avançado",
+    "bossLogs": "Ativar registros por chefe",
+    "saveRawPackets": "Ativar registro de pacotes",
+    "resetAllSettings": "Redefinir todas as configurações",
+    "bold": {
+      "label": "Negrito",
+      "names": "Nomes",
+      "dps": "DPS"
+    },
+    "showPing": "Mostrar ping",
+    "showTotalDps": "Mostrar DPS/DAN total",
+    "roundDps": "Arredondar DPS",
+    "autoHideMeter": "Ocultar o medidor automaticamente",
+    "showSuspendBtn": "Mostrar botão de pausa",
+    "showLockBtn": "Mostrar botão de bloqueio (clicar através)",
+    "playerLimit": {
+      "label": "Máx. de jogadores exibidos"
+    },
+    "debugLogging": "Ativar registro de depuração",
+    "quit": "Sair",
+    "discord": {
+      "title": "Discord",
+      "activity": "Mostrar no Discord o que estou jogando",
+      "activityHint": "Enquanto o AION2 estiver aberto, seu status do Discord mostra o nome do seu personagem, classe, nível e servidor, e o chefe que você está enfrentando. Isso passa pelo aplicativo do Discord neste computador; não é preciso conta."
+    },
+    "version": "Versão",
+    "theme": {
+      "label": "Tema",
+      "options": {
+        "aion2": "AION2",
+        "asmodian": "Asmodian",
+        "cogni": "Cogni",
+        "elyos": "Elyos",
+        "ember": "Ember",
+        "fera": "Fera",
+        "frost": "Frost",
+        "natura": "Natura",
+        "obsidian": "Obsidian",
+        "varian": "Varian"
+      }
+    },
+    "language": {
+      "label": "Idioma"
+    },
+    "windowOpacity": {
+      "label": "Opacidade da janela principal"
+    },
+    "meterOpacity": {
+      "label": "Opacidade das barras"
+    },
+    "bossNameSize": {
+      "label": "Tamanho do nome do alvo"
+    },
+    "targetWindow": {
+      "label": "Intervalo de tempo do alvo",
+      "options": {
+        "5s": "5 segundos",
+        "10s": "10 segundos",
+        "15s": "15 segundos",
+        "20s": "20 segundos",
+        "30s": "30 segundos"
+      }
+    },
+    "targetSelection": {
+      "label": "Seleção de alvo (experimental)",
+      "options": {
+        "mostDamage": "Mais dano (atual)",
+        "mostRecent": "Danificado mais recentemente",
+        "lastHitByMe": "Último atingido por mim",
+        "allTargets": "Todos os alvos combinados"
+      }
+    },
+    "allTargetsWindow": {
+      "label": "Intervalo de todos os alvos",
+      "options": {
+        "30s": "30 segundos",
+        "1m": "1 minuto",
+        "2m": "2 minutos",
+        "3m": "3 minutos",
+        "5m": "5 minutos"
+      }
+    },
+    "meterSettings": "Configurações do medidor",
+    "keybinds": "Atalhos de teclado",
+    "keybind": {
+      "reload": "Recarregar dados",
+      "toggle": "Mostrar/ocultar janela",
+      "pressKeys": "Pressione as teclas...",
+      "needModifiers": "São necessários 2+ modificadores",
+      "lock": "Bloquear/desbloquear sobreposição"
+    },
+    "defaultMeterMode": {
+      "label": "Modo padrão"
+    },
+    "trainingMode": {
+      "label": "Alvo do modo treino",
+      "options": {
+        "all": "Todos",
+        "highestDamage": "Maior dano"
+      }
+    },
+    "showSupporterColors": "Mostrar cores dos apoiadores",
+    "showSupporterColorsHint": "Os nomes dos apoiadores aparecem em dourado. Apenas estético — não altera nenhum número.",
+    "account": {
+      "title": "Conta A2 Tools",
+      "signedOut": "Não conectado",
+      "signedIn": "Conectado como {name}",
+      "hint": "Entre para sincronizar personagens e configurações com o a2tools.app.",
+      "connect": "Entrar",
+      "signOut": "Sair da conta",
+      "codePrompt": "Aprove este código no seu navegador:",
+      "codeHint": "A página já deve ter aberto. O código expira em 10 minutos.",
+      "working": "Aguardando aprovação…",
+      "failed": "Falha ao entrar: {error}",
+      "supporter": "Apoiador"
+    },
+    "sendLogs": {
+      "hint": "Envia seus 3 logs de pacotes mais recentes ao desenvolvedor, para um relatório de bug.",
+      "button": "Enviar logs ao dev",
+      "confirm": "Enviar seus 3 logs de pacotes mais recentes ao desenvolvedor do A2 Tools?\n\nLogs de pacotes são o tráfego bruto do jogo gravado enquanto o registro de pacotes estava ligado, incluindo nomes de personagens. Só o desenvolvedor pode abri-los, e eles são apagados após 30 dias.",
+      "sending": "Enviando...",
+      "sent": "Enviado. Seu código de relatório é {code}: passe para o desenvolvedor no Discord.",
+      "failed": "Não foi possível enviar: {error}"
+    }
+  },
+  "support": {
+    "button": "Me apoie",
+    "title": "Apoie o autor no Ko-fi",
+    "titleWechat": "Apoie o autor no WeChat",
+    "label": {
+      "wechat": "WeChat"
+    },
+    "copy": {
+      "btc": "Endereço BTC copiado",
+      "eth": "Endereço ETH copiado",
+      "usdc": "Endereço USDC copiado"
+    },
+    "aria": {
+      "afdian": "Abrir o Afdian",
+      "kofi": "Abrir o Ko-fi",
+      "close": "Fechar a janela de apoio",
+      "wechat": "Mostrar o QR code do WeChat",
+      "paypal": "Abrir o PayPal",
+      "btc": "Copiar o endereço BTC",
+      "eth": "Copiar o endereço ETH",
+      "usdc": "Copiar o endereço USDC"
+    }
+  },
+  "battleTime": {
+    "analysing": "Monitorando dados...",
+    "idle": "Ocioso",
+    "notRunning": "AION2 não está em execução",
+    "suspended": "Aplicativo pausado",
+    "waitingBoss": "Aguardando um chefe"
+  },
+  "meter": {
+    "identifyingPlayer": "#{id}",
+    "dpsSuffix": "/s"
+  },
+  "skills": {
+    "fallback": "Habilidade {code}",
+    "dot": "{name} - DoT"
+  },
+  "update": {
+    "title": "Nova atualização disponível",
+    "install": "Instalar agora",
+    "notes": "Notas da versão",
+    "manual": "Instalação manual",
+    "later": "Atualizar depois",
+    "text": "Uma nova atualização está disponível!\n\nVersão atual: {current}\nÚltima versão: {latest}",
+    "installing": "Instalando a atualização...",
+    "downloadError": "Falha no download. Tente novamente ou instale manualmente."
+  },
+  "connection": {
+    "auto": "Auto",
+    "detecting": "Detectando a conexão do AION2...",
+    "loopback": "Loopback local"
+  },
+  "target": {
+    "all": "Todos os alvos",
+    "identifying": "Identificando você...",
+    "train": "Boneco de treino",
+    "boss": "Alvos chefe"
+  },
+  "classes": {
+    "GLADIATOR": "Gladiador",
+    "TEMPLAR": "Templário",
+    "RANGER": "Arqueiro",
+    "ASSASSIN": "Assassino",
+    "SORCERER": "Mago",
+    "CLERIC": "Clérigo",
+    "ELEMENTALIST": "Espiritualista",
+    "CHANTER": "Encantador",
+    "FIGHTER": "Lutador"
+  },
+  "dungeon": {
+    "difficulty": {
+      "exploration": "Exploração",
+      "normal": "Normal",
+      "hard": "Difícil",
+      "level": "Nível {n}"
+    }
+  },
+  "presence": {
+    "level": "Nv. {level}",
+    "fighting": "Enfrentando {boss}",
+    "inGame": "Em jogo",
+    "elyos": "Elyos",
+    "asmodian": "Asmodianos",
+    "korea": "Coreia",
+    "taiwan": "Taiwan",
+    "tierExpedition": "Expedição",
+    "tierConquestNormal": "Conquista (normal)",
+    "tierConquestHard": "Conquista (difícil)"
+  },
+  "discordPromo": {
+    "title": "Novo: atividade no Discord",
+    "text": "Mostre aos amigos no seu status do Discord seu personagem, classe, nível e servidor, e o chefe ou a masmorra em que você está.",
+    "hint": "Usa o app do Discord deste PC; não precisa de conta. Você pode mudar isso a qualquer momento nas Configurações.",
+    "done": "Concluir",
+    "close": "Fechar"
+  }
+}

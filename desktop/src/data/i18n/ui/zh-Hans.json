@@ -1,0 +1,396 @@
+{
+  "header": {
+    "title": "A2Tools DPS Meter",
+    "display": {
+      "dps": "DPS",
+      "total": "DMG",
+      "ariaDps": "显示 DPS",
+      "ariaDamage": "显示总伤害",
+      "both": "两者",
+      "ariaBoth": "显示 DPS 和总伤害"
+    }
+  },
+  "details": {
+    "header": "详情",
+    "title": "{name} 详情",
+    "tooltip": "持续伤害（DOT）不计入总暴击、双重、完美、背击或格挡比例。",
+    "settings": {
+      "ariaLabel": "打开详情设置"
+    },
+    "panelBackground": "面板背景",
+    "fontSize": {
+      "label": "字体大小"
+    },
+    "iconSize": {
+      "label": "技能图标大小"
+    },
+    "screenshots": {
+      "label": "截图",
+      "includeMeter": "包含主 DPS 计量器",
+      "saveToFolder": "将截图保存到文件夹"
+    },
+    "columns": {
+      "label": "技能列"
+    },
+    "screenshot": {
+      "ariaLabel": "将截图保存到剪贴板",
+      "captured": "已捕获截图",
+      "savedToClipboard": "已保存到剪贴板"
+    },
+    "sort": {
+      "recent": "最近",
+      "time": "时间",
+      "damage": "伤害"
+    },
+    "skills": {
+      "skill": "技能",
+      "skillTooltip": "技能名称",
+      "hits": "施放",
+      "hitsTooltip": "施放次数",
+      "dmg": "伤害",
+      "dmgTooltip": "伤害量",
+      "dmgPct": "伤%",
+      "dmgPctTooltip": "伤害 %",
+      "crit": "暴击",
+      "critTooltip": "暴击 %",
+      "parry": "格挡",
+      "parryTooltip": "格挡 %",
+      "perfect": "完美",
+      "perfectTooltip": "完美 %",
+      "double": "双重",
+      "doubleTooltip": "双重 %",
+      "back": "背击",
+      "backTooltip": "背击 %",
+      "frontal": "正面",
+      "frontalTooltip": "正面攻击 %",
+      "powershard": "碎片",
+      "powershardTooltip": "能量碎片 %",
+      "regen": "回复",
+      "regenTooltip": "吸血回复量",
+      "multiHit": "MH%",
+      "multiHitTooltip": "多段打击 %",
+      "multiHitDamage": "MHD",
+      "multiHitDamageTooltip": "额外伤害",
+      "minDmg": "最小",
+      "minDmgTooltip": "最小伤害",
+      "avgDmg": "平均",
+      "avgDmgTooltip": "平均伤害",
+      "maxDmg": "最大",
+      "maxDmgTooltip": "最大伤害"
+    },
+    "stats": {
+      "totalDamage": "总伤害",
+      "contribution": "贡献度",
+      "critRate": "暴击率",
+      "perfectRate": "完美率",
+      "doubleRate": "双重率",
+      "backRate": "背击率",
+      "parryRate": "格挡率",
+      "combatTime": "战斗时间",
+      "multiHitDamage": "额外伤害",
+      "multiHitHits": "多段打击",
+      "maxHp": "最大HP",
+      "hits": "命中次数",
+      "selfHealing": "自我治疗"
+    },
+    "titleFor": "针对",
+    "titleVs": "vs",
+    "fightVs": "战斗 vs",
+    "all": "全部",
+    "history": {
+      "allPlayers": "全体玩家"
+    },
+    "dpsChart": "DPS 图表",
+    "historyBtn": "历史",
+    "timeline": "时间轴"
+  },
+  "history": {
+    "title": "战斗历史",
+    "empty": "尚无BOSS战斗记录。",
+    "delete": "删除",
+    "showTraining": "显示训练",
+    "hideTraining": "隐藏训练",
+    "showTrainingBattles": "显示训练战斗",
+    "hideTrainingBattles": "隐藏训练战斗",
+    "trainBadge": "训练",
+    "liveBadge": "进行中",
+    "filterBoss": "Boss名称...",
+    "filterPlayer": "玩家职业...",
+    "filterDate": "日期 (YYYY-MM-DD)...",
+    "viewList": "列表视图",
+    "viewDungeon": "按副本分组",
+    "viewGrouped": "按首领分组",
+    "fightCount": "{n} 场",
+    "fightCountOne": "1 场",
+    "previewUpload": "预览上传内容",
+    "previewUploadTip": "把分享这场战斗时会上传的内容写成文件。不会发送。",
+    "previewWorking": "正在生成预览…",
+    "previewDone": "已写入 {slice} KB（压缩后 {sent} KB，即实际上传大小）。在 {seen} 个数据包中保留 {kept} 个，已遮蔽 {blinded} 个名称。没有上传任何内容。保存于 {dir}",
+    "uploadTip": "将这场战斗上传到 a2tools.app 并获取分享链接",
+    "uploadOpen": "在 a2tools.app 打开这场战斗的记录",
+    "uploadWorking": "上传中…",
+    "uploadDonePublic": "已上传。链接已复制：{url}",
+    "uploadDonePrivate": "已以私密方式上传。链接已复制：{url}",
+    "openWorld": "野外"
+  },
+  "settings": {
+    "title": "设置",
+    "lockedPort": "检测到的设备/端口",
+    "resetDetection": "重置检测",
+    "characterName": "Name#ID",
+    "characterNamePlaceholder": "输入你的角色名称",
+    "pinMeToTop": "将我置顶",
+    "slimMode": "精简模式",
+    "meterLayout": {
+      "label": "仪表布局",
+      "beta": "Beta 界面",
+      "betaSlim": "Beta 精简",
+      "classic": "经典界面",
+      "classicSlim": "经典精简"
+    },
+    "detailsMonitor": {
+      "label": "在显示器上显示详情",
+      "off": "关闭",
+      "primary": "主屏",
+      "missing": "该显示器未连接。",
+      "single": "仅检测到一个显示器 — 请连接第二块屏幕。",
+      "badge": "显示器",
+      "side": {
+        "left": "左侧",
+        "right": "右侧",
+        "above": "上方",
+        "below": "下方"
+      }
+    },
+    "appearance": "外观",
+    "connection": "连接",
+    "diagnostics": "诊断",
+    "device": {
+      "label": "抓包网卡",
+      "autoDetect": "自动检测"
+    },
+    "advanced": "高级",
+    "bossLogs": "启用每场Boss日志",
+    "saveRawPackets": "启用数据包日志",
+    "resetAllSettings": "重置所有设置",
+    "bold": {
+      "label": "加粗",
+      "names": "名称",
+      "dps": "DPS"
+    },
+    "showPing": "显示延迟",
+    "showTotalDps": "显示总DPS/DMG",
+    "roundDps": "DPS取整",
+    "autoHideMeter": "自动隐藏面板",
+    "showSuspendBtn": "显示暂停按钮",
+    "showLockBtn": "显示锁定按钮（点击穿透）",
+    "playerLimit": {
+      "label": "最大显示人数"
+    },
+    "debugLogging": "启用调试日志",
+    "quit": "退出",
+    "discord": {
+      "title": "Discord",
+      "activity": "在 Discord 显示我正在玩的内容",
+      "activityHint": "AION2 打开时，你的 Discord 状态会显示角色名、职业、等级、服务器，以及正在对战的首领。通过这台电脑上的 Discord 应用显示，不需要账号。"
+    },
+    "version": "版本",
+    "theme": {
+      "label": "主题",
+      "options": {
+        "aion2": "AION2",
+        "asmodian": "魔族",
+        "cogni": "认知",
+        "elyos": "天族",
+        "ember": "余烬",
+        "fera": "菲拉",
+        "frost": "霜冻",
+        "natura": "自然",
+        "obsidian": "黑曜",
+        "varian": "瓦里安"
+      }
+    },
+    "language": {
+      "label": "语言"
+    },
+    "windowOpacity": {
+      "label": "主窗口不透明度"
+    },
+    "meterOpacity": {
+      "label": "计量条不透明度"
+    },
+    "bossNameSize": {
+      "label": "目标名称大小"
+    },
+    "targetWindow": {
+      "label": "目标时间范围",
+      "options": {
+        "5s": "5秒",
+        "10s": "10秒",
+        "15s": "15秒",
+        "20s": "20秒",
+        "30s": "30秒"
+      }
+    },
+    "targetSelection": {
+      "label": "目标选择（实验性）",
+      "options": {
+        "mostDamage": "最高伤害（当前）",
+        "mostRecent": "最近受伤目标",
+        "lastHitByMe": "我最近攻击的目标",
+        "allTargets": "所有目标合并"
+      }
+    },
+    "allTargetsWindow": {
+      "label": "所有目标时间窗口",
+      "options": {
+        "30s": "30秒",
+        "1m": "1分钟",
+        "2m": "2分钟",
+        "3m": "3分钟",
+        "5m": "5分钟"
+      }
+    },
+    "meterSettings": "计量设置",
+    "keybinds": "快捷键",
+    "keybind": {
+      "reload": "重新加载数据",
+      "toggle": "显示/隐藏窗口",
+      "pressKeys": "请按下按键...",
+      "needModifiers": "需要2个以上修饰键",
+      "lock": "锁定/解锁悬浮窗"
+    },
+    "defaultMeterMode": {
+      "label": "默认计量模式"
+    },
+    "trainingMode": {
+      "label": "训练模式",
+      "options": {
+        "all": "全部",
+        "highestDamage": "最高伤害"
+      }
+    },
+    "showSupporterColors": "显示赞助者颜色",
+    "showSupporterColorsHint": "赞助者的名字显示为金色。仅为外观，不会改变任何数值。",
+    "account": {
+      "title": "A2 Tools 账号",
+      "signedOut": "未登录",
+      "signedIn": "已登录：{name}",
+      "hint": "登录后可将角色与设置同步到 a2tools.app。",
+      "connect": "登录",
+      "signOut": "退出登录",
+      "codePrompt": "请在浏览器中确认此代码：",
+      "codeHint": "页面应该已经打开。代码将在 10 分钟后失效。",
+      "working": "等待确认…",
+      "failed": "登录失败：{error}",
+      "supporter": "赞助者",
+      "autoUpload": "自动上传首领战",
+      "autoUploadHint": "首领战结束时会以你在 a2tools.app 选择的公开设置上传到你的账号。其他玩家的名称会被遮蔽。木桩战斗不会上传。"
+    },
+    "sendLogs": {
+      "hint": "将最新的 3 个数据包日志发送给开发者，用于反馈问题。",
+      "button": "发送日志给开发者",
+      "confirm": "要将最新的 3 个数据包日志发送给 A2 Tools 开发者吗？\n\n数据包日志是开启数据包记录期间录下的原始游戏通信，包含角色名称。只有开发者能打开，并会在 30 天后删除。",
+      "sending": "发送中...",
+      "sent": "已发送。你的反馈代码是 {code}，请在 Discord 上告诉开发者。",
+      "failed": "无法发送：{error}"
+    }
+  },
+  "support": {
+    "button": "支持我一下",
+    "title": "在爱发电支持作者",
+    "titleWechat": "在微信支持作者",
+    "label": {
+      "wechat": "微信"
+    },
+    "copy": {
+      "btc": "已复制 BTC 地址",
+      "eth": "已复制 ETH 地址",
+      "usdc": "已复制 USDC 地址"
+    },
+    "aria": {
+      "afdian": "打开爱发电",
+      "kofi": "打开 Ko-fi",
+      "close": "关闭支持弹窗",
+      "wechat": "显示微信二维码",
+      "paypal": "打开 PayPal",
+      "btc": "复制 BTC 地址",
+      "eth": "复制 ETH 地址",
+      "usdc": "复制 USDC 地址"
+    }
+  },
+  "battleTime": {
+    "analysing": "正在监控数据...",
+    "idle": "空闲",
+    "notRunning": "AION2 not running",
+    "suspended": "应用已暂停",
+    "waitingBoss": "等待首领"
+  },
+  "meter": {
+    "identifyingPlayer": "#{id}",
+    "dpsSuffix": "/秒"
+  },
+  "skills": {
+    "fallback": "技能 {code}",
+    "dot": "{name} - DOT"
+  },
+  "update": {
+    "title": "有新更新",
+    "install": "立即安装",
+    "notes": "更新说明",
+    "manual": "手动安装",
+    "later": "稍后更新",
+    "text": "有新更新可用！\n\n当前版本：{current}\n最新版本：{latest}",
+    "installing": "正在安装更新...",
+    "downloadError": "下载失败。请重试或手动安装。"
+  },
+  "connection": {
+    "auto": "自动",
+    "detecting": "Detecting AION2 connection...",
+    "loopback": "本地回环"
+  },
+  "target": {
+    "all": "所有目标",
+    "identifying": "正在识别你...",
+    "train": "训练用稻草人",
+    "boss": "首领目标"
+  },
+  "classes": {
+    "GLADIATOR": "剑圣",
+    "TEMPLAR": "守护圣",
+    "RANGER": "弓圣",
+    "ASSASSIN": "杀圣",
+    "SORCERER": "魔道圣",
+    "CLERIC": "治愈圣",
+    "ELEMENTALIST": "精灵圣",
+    "CHANTER": "护法圣",
+    "FIGHTER": "拳圣"
+  },
+  "dungeon": {
+    "difficulty": {
+      "exploration": "探索",
+      "normal": "普通",
+      "hard": "困难",
+      "level": "第 {n} 阶"
+    }
+  },
+  "presence": {
+    "level": "Lv {level}",
+    "fighting": "正在挑战 {boss}",
+    "inGame": "游戏中",
+    "elyos": "天族",
+    "asmodian": "魔族",
+    "korea": "韩国",
+    "taiwan": "台湾",
+    "tierExpedition": "远征",
+    "tierConquestNormal": "征服（普通）",
+    "tierConquestHard": "征服（困难）"
+  },
+  "discordPromo": {
+    "title": "新功能：Discord 状态显示",
+    "text": "在 Discord 状态中向好友显示你的角色、职业、等级、服务器，以及所在的首领战或副本。",
+    "hint": "通过这台电脑上的 Discord 应用显示，不需要账号。可随时在设置中更改。",
+    "done": "完成",
+    "close": "关闭"
+  }
+}

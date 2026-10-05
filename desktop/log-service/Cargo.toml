@@ -1,0 +1,25 @@
+[package]
+name = "a2tools-log-service"
+version = "0.1.0"
+edition = "2024"
+description = "Re-derives an uploaded fight from its Evidence Slice, with the meter's own parser"
+license = "GPL-3.0"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# The meter itself, without Tauri: the parser, the combat aggregation and
+# rederive. That this compiles is what CI's `parser-wasm` job protects.
+a2tools-dps-meter = { path = "../src-tauri", default-features = false }
+worker = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Pure-Rust inflate; no C toolchain on wasm32.
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1

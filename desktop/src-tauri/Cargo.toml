@@ -1,0 +1,139 @@
+[package]
+name = "a2tools-dps-meter"
+version = "2.0.48"
+description = "A2Tools DPS Meter - AION 2 real-time DPS overlay"
+authors = ["taengu"]
+edition = "2024"
+# Required because this crate declares more than one binary: without it
+# `cargo run` (and therefore `npm run tauri dev`) cannot tell which one is the
+# app and refuses to start.
+default-run = "a2tools-dps-meter"
+
+[lib]
+name = "a2tools_dps_meter_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[features]
+# Everything that cannot exist on wasm32. The parser core is deliberately not in
+# here: the log service re-derives an uploaded fight by compiling this crate to
+# `wasm32-unknown-unknown` and running the same parser the client ran, so a
+# dependency creeping across this line breaks that guarantee.
+#
+#   cargo check --no-default-features --target wasm32-unknown-unknown
+#
+# is the check that enforces it.
+default = ["desktop"]
+desktop = [
+    "dep:tauri",
+    "dep:tauri-build",
+    "dep:tauri-plugin-opener",
+    "dep:tauri-plugin-process",
+    "dep:libloading",
+    "dep:tokio",
+    "dep:tracing-subscriber",
+    "dep:reqwest",
+    "dep:futures-util",
+    "dep:urlencoding",
+    "dep:flate2",
+    "dep:discord-rich-presence",
+    # Linux only (see the target section below); ignored elsewhere.
+    "dep:secret-service",
+    "dep:gtk",
+    "dep:webkit2gtk",
+    "dep:x11-dl",
+]
+
+# Both binaries are declared rather than left to auto-discovery, so adding the
+# second one cannot quietly change which target `tauri build` bundles.
+[[bin]]
+name = "a2tools-dps-meter"
+path = "src/main.rs"
+required-features = ["desktop"]
+
+# The transparency tool from docs/PRIVACY.md: reads an Evidence Slice back and
+# prints what is in it. Kept outside src/bin/, which .gitignore excludes for
+# scratch debug binaries — this one has to ship in the public repo to be worth
+# anything.
+[[bin]]
+name = "a2t-probe"
+path = "tools/a2t_probe.rs"
+required-features = ["desktop"]
+
+[[bin]]
+name = "a2t-roster"
+path = "tools/a2t_roster.rs"
+required-features = ["desktop"]
+
+[[bin]]
+name = "a2t-derive"
+path = "tools/a2t_derive.rs"
+required-features = ["desktop"]
+
+[[bin]]
+name = "a2t-inspect"
+path = "tools/a2t_inspect.rs"
+required-features = ["desktop"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [], optional = true }
+
+[dependencies]
+tauri = { version = "2", features = [], optional = true }
+tauri-plugin-opener = { version = "2", optional = true }
+tauri-plugin-process = { version = "2", optional = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+libloading = { version = "0.8", optional = true }
+lz4_flex = "0.11"
+tokio = { version = "1", features = ["full"], optional = true }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
+chrono = { version = "0.4", features = ["serde"] }
+parking_lot = "0.12"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "stream"], optional = true }
+# Discord activity ("playing AION2 as a level 29 Cleric on Kaisinel"), over the
+# local Discord client's IPC socket. Opt-in; see presence.rs.
+discord-rich-presence = { version = "1.1", optional = true }
+futures-util = { version = "0.3", optional = true }
+urlencoding = { version = "2", optional = true }
+sha2 = "0.11.0"
+flate2 = { version = "1.1.10", optional = true }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_Graphics_Gdi",
+    "Win32_System_DataExchange",
+    "Win32_System_Memory",
+    "Win32_System_SystemInformation",
+    "Win32_Security",
+    # DPAPI, for encrypting the account token at rest.
+    "Win32_Security_Cryptography",
+    "Win32_System_Threading",
+    # Screenshots: the folder picker (IFileOpenDialog) and the Pictures folder.
+    "Win32_System_Com",
+    "Win32_UI_Shell",
+    "Win32_UI_Shell_Common",
+] }
+
+# Desktop-only, so optional and enabled by `desktop`: the log service builds
+# this crate without it and must not pull them in.
+#
+# The desktop keyring (KWallet, GNOME Keyring) for the account token, over the
+# Secret Service D-Bus API. async-io matches the zbus the opener plugin
+# already brings in, so this adds no second D-Bus stack.
+[target.'cfg(target_os = "linux")'.dependencies]
+secret-service = { version = "5.2", features = ["rt-async-io-crypto-rust"], optional = true }
+# Native dialogs (the update prompt, errors). The same GTK Tauri runs on.
+gtk = { version = "0.18", optional = true }
+# Screenshots: WebKit's snapshot of the meter's page. Same version and feature
+# as Tauri's own, so it is the one copy.
+webkit2gtk = { version = "2", features = ["v2_40"], optional = true }
+# The pointer's position under XWayland, for the click-through lock. Loads
+# libX11 at run time; already in the tree through tao.
+x11-dl = { version = "2.21", optional = true }
+
+[dev-dependencies]
+flate2 = "1"

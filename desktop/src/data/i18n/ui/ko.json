@@ -1,0 +1,396 @@
+{
+  "header": {
+    "title": "A2Tools DPS Meter",
+    "display": {
+      "dps": "DPS",
+      "total": "DMG",
+      "ariaDps": "DPS 표시 중",
+      "ariaDamage": "총 피해 표시 중",
+      "both": "둘 다",
+      "ariaBoth": "DPS와 총 피해 표시 중"
+    }
+  },
+  "details": {
+    "header": "상세",
+    "title": "{name} 상세",
+    "tooltip": "지속 피해(DOT) 타격은 총 치명타, 더블, 퍼펙트, 백어택, 패리 비율에 포함되지 않습니다.",
+    "settings": {
+      "ariaLabel": "상세 설정 열기"
+    },
+    "panelBackground": "패널 배경",
+    "fontSize": {
+      "label": "글꼴 크기"
+    },
+    "iconSize": {
+      "label": "스킬 아이콘 크기"
+    },
+    "screenshots": {
+      "label": "스크린샷",
+      "includeMeter": "메인 DPS 미터 포함",
+      "saveToFolder": "스크린샷을 폴더에 저장"
+    },
+    "columns": {
+      "label": "스킬 열"
+    },
+    "screenshot": {
+      "ariaLabel": "클립보드에 스크린샷 저장",
+      "captured": "스크린샷 캡처됨",
+      "savedToClipboard": "클립보드에 저장됨"
+    },
+    "sort": {
+      "recent": "최근",
+      "time": "시간",
+      "damage": "피해"
+    },
+    "skills": {
+      "skill": "스킬",
+      "skillTooltip": "스킬 이름",
+      "hits": "시전",
+      "hitsTooltip": "시전 횟수",
+      "dmg": "피해",
+      "dmgTooltip": "피해량",
+      "dmgPct": "피%",
+      "dmgPctTooltip": "피해 %",
+      "crit": "치명",
+      "critTooltip": "치명타 %",
+      "parry": "패리",
+      "parryTooltip": "패리 %",
+      "perfect": "퍼펙",
+      "perfectTooltip": "퍼펙트 %",
+      "double": "더블",
+      "doubleTooltip": "더블 %",
+      "back": "백",
+      "backTooltip": "백어택 %",
+      "frontal": "정면",
+      "frontalTooltip": "정면 공격 %",
+      "powershard": "샤드",
+      "powershardTooltip": "파워샤드 %",
+      "regen": "회복",
+      "regenTooltip": "흡혈 회복량",
+      "multiHit": "MH%",
+      "multiHitTooltip": "다중타 %",
+      "multiHitDamage": "MHD",
+      "multiHitDamageTooltip": "다중타 피해",
+      "minDmg": "최소",
+      "minDmgTooltip": "최소 피해",
+      "avgDmg": "평균",
+      "avgDmgTooltip": "평균 피해",
+      "maxDmg": "최대",
+      "maxDmgTooltip": "최대 피해"
+    },
+    "stats": {
+      "totalDamage": "총 피해",
+      "contribution": "기여도",
+      "critRate": "치명타율",
+      "perfectRate": "퍼펙트율",
+      "doubleRate": "더블율",
+      "backRate": "백어택율",
+      "parryRate": "패리율",
+      "combatTime": "전투 시간",
+      "multiHitDamage": "다중타 피해",
+      "multiHitHits": "다중타",
+      "maxHp": "최대 HP",
+      "hits": "타격",
+      "selfHealing": "자가 회복"
+    },
+    "titleFor": "대상",
+    "titleVs": "vs",
+    "fightVs": "전투 vs",
+    "all": "전체",
+    "history": {
+      "allPlayers": "전체 플레이어"
+    },
+    "dpsChart": "DPS 차트",
+    "historyBtn": "기록",
+    "timeline": "타임라인"
+  },
+  "history": {
+    "title": "전투 기록",
+    "empty": "아직 기록된 보스 전투가 없습니다.",
+    "delete": "삭제",
+    "showTraining": "훈련 표시",
+    "hideTraining": "훈련 숨기기",
+    "showTrainingBattles": "훈련 전투 표시",
+    "hideTrainingBattles": "훈련 전투 숨기기",
+    "trainBadge": "훈련",
+    "liveBadge": "진행 중",
+    "filterBoss": "보스 이름...",
+    "filterPlayer": "플레이어 클래스...",
+    "filterDate": "날짜 (YYYY-MM-DD)...",
+    "viewList": "목록 보기",
+    "viewDungeon": "던전별 묶기",
+    "viewGrouped": "보스별 그룹",
+    "fightCount": "{n}회",
+    "fightCountOne": "1회",
+    "previewUpload": "업로드 미리보기",
+    "previewUploadTip": "이 전투를 공유하면 무엇이 올라가는지 파일로 남깁니다. 전송하지 않습니다.",
+    "previewWorking": "미리보기를 만드는 중…",
+    "previewDone": "{slice} KB를 저장했습니다(압축 시 {sent} KB — 실제 업로드 크기). 패킷 {seen}개 중 {kept}개를 남기고 이름 {blinded}개를 가렸습니다. 아무것도 업로드하지 않았습니다. 저장 위치: {dir}",
+    "uploadTip": "이 전투를 a2tools.app에 업로드하고 공유 링크 받기",
+    "uploadOpen": "a2tools.app에서 이 전투 기록 열기",
+    "uploadWorking": "업로드 중…",
+    "uploadDonePublic": "업로드 완료. 링크 복사됨: {url}",
+    "uploadDonePrivate": "비공개로 업로드됨. 링크 복사됨: {url}",
+    "openWorld": "필드"
+  },
+  "settings": {
+    "title": "설정",
+    "lockedPort": "감지된 장치/포트",
+    "resetDetection": "감지 초기화",
+    "characterName": "Name#ID",
+    "characterNamePlaceholder": "캐릭터 이름 입력",
+    "pinMeToTop": "내 캐릭터를 맨 위에 고정",
+    "slimMode": "슬림 모드",
+    "meterLayout": {
+      "label": "미터 레이아웃",
+      "beta": "베타 UI",
+      "betaSlim": "베타 슬림",
+      "classic": "클래식 UI",
+      "classicSlim": "클래식 슬림"
+    },
+    "detailsMonitor": {
+      "label": "상세 정보를 표시할 모니터",
+      "off": "끕",
+      "primary": "기본",
+      "missing": "해당 디스플레이가 연결되어 있지 않습니다.",
+      "single": "디스플레이가 하나만 감지되었습니다 — 두 번째 화면을 연결하세요.",
+      "badge": "모니터",
+      "side": {
+        "left": "왼쪽",
+        "right": "오른쪽",
+        "above": "위",
+        "below": "아래"
+      }
+    },
+    "appearance": "외관",
+    "connection": "연결",
+    "diagnostics": "진단",
+    "device": {
+      "label": "캡처 장치",
+      "autoDetect": "자동 감지"
+    },
+    "advanced": "고급",
+    "bossLogs": "보스별 로그 활성화",
+    "saveRawPackets": "패킷 로깅 활성화",
+    "resetAllSettings": "모든 설정 초기화",
+    "bold": {
+      "label": "굵게",
+      "names": "이름",
+      "dps": "DPS"
+    },
+    "showPing": "핑 표시",
+    "showTotalDps": "총 DPS/DMG 표시",
+    "roundDps": "DPS 반올림",
+    "autoHideMeter": "미터 자동 숨기기",
+    "showSuspendBtn": "일시정지 버튼 표시",
+    "showLockBtn": "잠금 버튼 표시 (클릭 통과)",
+    "playerLimit": {
+      "label": "최대 표시 인원"
+    },
+    "debugLogging": "디버그 로그 활성화",
+    "quit": "종료",
+    "discord": {
+      "title": "디스코드",
+      "activity": "디스코드에 플레이 중인 정보 표시",
+      "activityHint": "AION2가 실행 중일 때 디스코드 상태에 캐릭터 이름, 직업, 레벨, 서버와 싸우고 있는 보스를 표시합니다. 이 컴퓨터의 디스코드 앱을 통해 표시되며 계정은 필요하지 않습니다."
+    },
+    "version": "버전",
+    "theme": {
+      "label": "테마",
+      "options": {
+        "aion2": "AION2",
+        "asmodian": "아스모디안",
+        "cogni": "코그니",
+        "elyos": "엘리오스",
+        "ember": "엠버",
+        "fera": "페라",
+        "frost": "프로스트",
+        "natura": "나투라",
+        "obsidian": "옵시디언",
+        "varian": "바리안"
+      }
+    },
+    "language": {
+      "label": "언어"
+    },
+    "windowOpacity": {
+      "label": "메인 창 불투명도"
+    },
+    "meterOpacity": {
+      "label": "미터 바 불투명도"
+    },
+    "bossNameSize": {
+      "label": "대상 이름 크기"
+    },
+    "targetWindow": {
+      "label": "대상 시간 범위",
+      "options": {
+        "5s": "5초",
+        "10s": "10초",
+        "15s": "15초",
+        "20s": "20초",
+        "30s": "30초"
+      }
+    },
+    "targetSelection": {
+      "label": "대상 선택 (실험적)",
+      "options": {
+        "mostDamage": "가장 큰 피해(현재)",
+        "mostRecent": "최근 피해 대상",
+        "lastHitByMe": "내가 최근에 공격한 대상",
+        "allTargets": "모든 대상 합산"
+      }
+    },
+    "allTargetsWindow": {
+      "label": "모든 대상 집계 시간",
+      "options": {
+        "30s": "30초",
+        "1m": "1분",
+        "2m": "2분",
+        "3m": "3분",
+        "5m": "5분"
+      }
+    },
+    "meterSettings": "미터 설정",
+    "keybinds": "단축키",
+    "keybind": {
+      "reload": "데이터 새로고침",
+      "toggle": "창 표시/숨기기",
+      "pressKeys": "키를 누르세요...",
+      "needModifiers": "수정자 2개 이상 필요",
+      "lock": "오버레이 잠금/해제"
+    },
+    "defaultMeterMode": {
+      "label": "기본 미터 모드"
+    },
+    "trainingMode": {
+      "label": "훈련 모드",
+      "options": {
+        "all": "전체",
+        "highestDamage": "최대 피해"
+      }
+    },
+    "showSupporterColors": "후원자 색상 표시",
+    "showSupporterColorsHint": "후원자의 이름이 금색으로 표시됩니다. 표시 전용이며 수치에는 전혀 영향을 주지 않습니다.",
+    "account": {
+      "title": "A2 Tools 계정",
+      "signedOut": "로그인되어 있지 않습니다",
+      "signedIn": "{name}(으)로 로그인됨",
+      "hint": "로그인하면 캐릭터와 설정이 a2tools.app과 동기화됩니다.",
+      "connect": "로그인",
+      "signOut": "로그아웃",
+      "codePrompt": "브라우저에서 이 코드를 승인하세요:",
+      "codeHint": "페이지가 이미 열렸을 것입니다. 코드는 10분 후 만료됩니다.",
+      "working": "승인을 기다리는 중…",
+      "failed": "로그인 실패: {error}",
+      "supporter": "후원자",
+      "autoUpload": "보스전 자동 업로드",
+      "autoUploadHint": "보스전이 끝나면 a2tools.app에서 선택한 공개 설정으로 계정에 업로드됩니다. 다른 플레이어의 이름은 가려집니다. 허수아비 전투는 업로드되지 않습니다."
+    },
+    "sendLogs": {
+      "hint": "버그 신고를 위해 최근 패킷 로그 3개를 개발자에게 보냅니다.",
+      "button": "개발자에게 로그 보내기",
+      "confirm": "최근 패킷 로그 3개를 A2 Tools 개발자에게 보낼까요?\n\n패킷 로그는 패킷 기록이 켜져 있는 동안 기록된 게임 통신 원본이며, 캐릭터 이름이 포함됩니다. 개발자만 열어볼 수 있으며 30일 후 삭제됩니다.",
+      "sending": "보내는 중...",
+      "sent": "보냈습니다. 신고 코드는 {code}입니다. Discord에서 개발자에게 알려주세요.",
+      "failed": "보내지 못했습니다: {error}"
+    }
+  },
+  "support": {
+    "button": "지원하기",
+    "title": "Support the author on Ko-fi",
+    "titleWechat": "Support the author on WeChat",
+    "label": {
+      "wechat": "WeChat"
+    },
+    "copy": {
+      "btc": "BTC 주소가 복사되었습니다",
+      "eth": "ETH 주소가 복사되었습니다",
+      "usdc": "USDC 주소가 복사되었습니다"
+    },
+    "aria": {
+      "afdian": "爱发电 열기",
+      "kofi": "Ko-fi 열기",
+      "close": "후원 모달 닫기",
+      "wechat": "WeChat QR 코드 보기",
+      "paypal": "PayPal 열기",
+      "btc": "BTC 주소 복사",
+      "eth": "ETH 주소 복사",
+      "usdc": "USDC 주소 복사"
+    }
+  },
+  "battleTime": {
+    "analysing": "데이터 모니터링 중...",
+    "idle": "대기 중",
+    "notRunning": "AION2 not running",
+    "suspended": "앱 일시정지됨",
+    "waitingBoss": "보스 대기 중"
+  },
+  "meter": {
+    "identifyingPlayer": "#{id}",
+    "dpsSuffix": "/초"
+  },
+  "skills": {
+    "fallback": "스킬 {code}",
+    "dot": "{name} - DOT"
+  },
+  "update": {
+    "title": "새 업데이트 사용 가능",
+    "install": "지금 설치",
+    "notes": "릴리스 노트",
+    "manual": "수동 설치",
+    "later": "나중에 업데이트",
+    "text": "새 업데이트가 있습니다!\n\n현재 버전: {current}\n최신 버전: {latest}",
+    "installing": "업데이트 설치 중...",
+    "downloadError": "다운로드 실패. 다시 시도하거나 수동으로 설치하세요."
+  },
+  "connection": {
+    "auto": "자동",
+    "detecting": "Detecting AION2 connection...",
+    "loopback": "로컬 루프백"
+  },
+  "target": {
+    "all": "모든 대상",
+    "identifying": "사용자를 식별하는 중...",
+    "train": "훈련용 허수아비",
+    "boss": "보스 대상"
+  },
+  "classes": {
+    "GLADIATOR": "검성",
+    "TEMPLAR": "수호성",
+    "RANGER": "궁성",
+    "ASSASSIN": "살성",
+    "SORCERER": "마도성",
+    "CLERIC": "치유성",
+    "ELEMENTALIST": "정령성",
+    "CHANTER": "호법성",
+    "FIGHTER": "권성"
+  },
+  "dungeon": {
+    "difficulty": {
+      "exploration": "탐험",
+      "normal": "일반",
+      "hard": "매우 어려움",
+      "level": "{n}단계"
+    }
+  },
+  "presence": {
+    "level": "Lv {level}",
+    "fighting": "{boss} 전투 중",
+    "inGame": "게임 중",
+    "elyos": "천족",
+    "asmodian": "마족",
+    "korea": "한국",
+    "taiwan": "대만",
+    "tierExpedition": "원정",
+    "tierConquestNormal": "정복 (일반)",
+    "tierConquestHard": "정복 (어려움)"
+  },
+  "discordPromo": {
+    "title": "새 기능: 디스코드 상태 표시",
+    "text": "디스코드 상태에 캐릭터, 직업, 레벨, 서버와 지금 있는 보스나 던전을 친구들에게 보여 줍니다.",
+    "hint": "이 컴퓨터의 디스코드 앱을 사용하며 계정은 필요하지 않습니다. 설정에서 언제든 바꿀 수 있습니다.",
+    "done": "확인",
+    "close": "닫기"
+  }
+}

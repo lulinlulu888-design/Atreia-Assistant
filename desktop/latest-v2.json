@@ -1,0 +1,12 @@
+{
+  "version": "2.0.48",
+  "msiUrl": "https://cdn.a2tools.app/A2Tools-DPS-Meter_2.0.48_x64_en-US.msi",
+  "archUrl": "https://cdn.a2tools.app/linux/a2tools-dps-meter-2.0.48-1-x86_64.pkg.tar.zst",
+  "debUrl": "https://cdn.a2tools.app/linux/a2tools-dps-meter_2.0.48_amd64.deb",
+  "rpmUrl": "https://cdn.a2tools.app/linux/a2tools-dps-meter-2.0.48-1.x86_64.rpm",
+  "releaseNotesUrl": "https://github.com/taengu/A2Tools-DPS-Meter/releases/tag/v2.0.48",
+  "msiSha256": "d7d97b05d0690fe50eb0133480522c8f71941977cf7cde29f7072dda2a1a81c8",
+  "archSha256": "8db5f61d27a6178f9b4ca5ff53dbac8163b003d57661ea3a343046ce327b950e",
+  "debSha256": "5019a555cf487cd24e9c3ce4d563bac2872718380d2c1408cd261decd02ef0a0",
+  "rpmSha256": "062cec0dff14d3a20bf52d19701803451260da0d067437da2243434cff9a155d"
+}

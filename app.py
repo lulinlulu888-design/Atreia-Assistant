@@ -15,7 +15,6 @@ from pipeline import BackendBridge, ConnectionRouter, ScopedConnectionRouter, re
 from capture_live import Npcap, capture_filter
 from connections import find_game_discovery
 from auto_capture import AutoCapturePlan, prepare_auto_capture
-from capture_windivert import WinDivertReader
 from localization_paths import discover_steam, windows_steam_roots, inspect_installation
 from localization_engine import LocalizationEngine
 from overlay import CombatOverlay
@@ -84,7 +83,8 @@ class AssistantApp:
         style.configure("TEntry", fieldbackground="#1c293c", foreground="#e4edf7",
                         insertcolor="#e4edf7", bordercolor="#34455d", padding=6)
         style.configure("TCombobox", fieldbackground="#1c293c", background="#24344c",
-                        foreground="#e4edf7", arrowcolor="#7ad9ee", bordercolor="#34455d", padding=6)
+                        foreground="#e4edf7", arrowcolor="#7ad9ee", bordercolor="#1c293c",
+                        lightcolor="#1c293c", darkcolor="#1c293c", borderwidth=0, padding=6)
         style.map("TCombobox", fieldbackground=[("readonly", "#1c293c"), ("disabled", "#192438")],
                   foreground=[("disabled", "#62738b"), ("readonly", "#e4edf7")],
                   selectbackground=[("readonly", "#1c293c")], selectforeground=[("readonly", "#e4edf7")])
@@ -94,13 +94,18 @@ class AssistantApp:
                         font=("Microsoft YaHei UI", 9))
         style.map("TCheckbutton", background=[("active", "#101827")],
                   foreground=[("disabled", "#62738b")])
-        style.configure("TNotebook", background="#101827", borderwidth=0)
-        style.configure("TNotebook.Tab", background="#1c293c", foreground="#92a4bf", padding=(14, 6))
+        style.configure("TNotebook", background="#101827", borderwidth=0,
+                        bordercolor="#101827", lightcolor="#101827", darkcolor="#101827")
+        style.configure("TNotebook.Tab", background="#1c293c", foreground="#92a4bf", padding=(14, 6),
+                        borderwidth=0, bordercolor="#101827", lightcolor="#101827", darkcolor="#101827")
         style.map("TNotebook.Tab", background=[("selected", "#24344c")],
                   foreground=[("selected", "#e5d2a2")])
         style.configure("Vertical.TScrollbar", background="#34455d", troughcolor="#182337",
-                        arrowcolor="#92a4bf", bordercolor="#182337")
-        style.configure("Treeview", background="#1c293c", fieldbackground="#1c293c", foreground="#e4edf7", rowheight=25)
+                        arrowcolor="#92a4bf", bordercolor="#182337", lightcolor="#182337", darkcolor="#182337", borderwidth=0)
+        style.layout("Vertical.TScrollbar", [("Vertical.Scrollbar.trough", {"sticky": "ns", "children": [
+            ("Vertical.Scrollbar.thumb", {"expand": "1", "sticky": "nswe"})]})])
+        style.layout("Treeview", [("Treeview.treearea", {"sticky": "nswe"})])
+        style.configure("Treeview", background="#1c293c", fieldbackground="#1c293c", foreground="#e4edf7", rowheight=25, borderwidth=0, relief="flat")
         style.configure("Treeview.Heading", font=("Microsoft YaHei UI", 9, "bold"), padding=6,
                         background="#24344c", foreground="#aebed4", relief="flat")
         style.map("Treeview.Heading", background=[("active", "#344b69")])
@@ -187,7 +192,7 @@ class AssistantApp:
         ttk.Button(live, text="重新检测游戏连接", command=self.detect_connections).pack(side="right")
         self.scope_summary = tk.StringVar(value="尚未确认连接范围。")
         ttk.Label(self.advanced, textvariable=self.scope_summary, style="Card.TLabel", wraplength=920).pack(anchor="w", pady=(8, 0))
-        self.install_guide_button = ttk.Button(self.advanced, text="安装 Npcap（备用手动采集）", command=self.open_npcap_guide)
+        self.install_guide_button = ttk.Button(self.advanced, text="Npcap 官方安装", command=self.open_npcap_guide)
         self.install_guide_button.pack(anchor="w", pady=(8, 0))
         self.consent = tk.BooleanVar(value=False)
         self.consent_box = ttk.Checkbutton(self.advanced, text="我同意仅采集所选游戏连接并在本地分析，理解第三方工具及未验证版本的风险。",
@@ -332,13 +337,8 @@ class AssistantApp:
     def check_setup(self):
         if self.running or self.detecting:
             return
-        self.windivert = None
         self.consent.set(False)
-        try:
-            self.windivert = WinDivertReader(Path(__file__).resolve().parent / "vendor/windivert")
-        except Exception as error:
-            self.pending_auto_start = False
-            self.status.set("内置采集组件未就绪：" + str(error))
+        if not self.prepare_npcap():
             return
         self.guided_check = True
         self.detect_connections()
@@ -347,17 +347,28 @@ class AssistantApp:
         if self.running or self.detecting:
             return
         self.consent.set(False)
-        self.windivert = None
-        try:
-            self.windivert = WinDivertReader(Path(__file__).resolve().parent / "vendor/windivert")
-        except Exception as error:
-            self.status.set("内置采集组件未就绪：" + str(error))
-            return
-        if not self.is_admin():
-            self.status.set("请在设置中点“以管理员权限重开”，确认 Windows 提示后再开启统计。")
+        if not self.prepare_npcap():
             return
         self.pending_auto_start = True
         self.detect_connections()
+
+    def prepare_npcap(self):
+        """Load installed Npcap and list interfaces; never open a capture."""
+        self.windivert = None
+        self.pending_auto_start = False
+        self.npcap = None
+        self.devices = []
+        self.device_box.set("")
+        self.device_box["values"] = ()
+        try:
+            reader = Npcap()
+            devices = reader.devices()
+            self.npcap, self.devices = reader, devices
+            self.device_box["values"] = tuple(description or name for name, description in devices)
+            return True
+        except Exception as error:
+            self.status.set("Npcap 未就绪：" + str(error) + "。请在设置中打开官方安装页，安装后重新检测。")
+            return False
 
     @staticmethod
     def is_admin():
@@ -391,8 +402,7 @@ class AssistantApp:
 
     def confirm_auto_start(self, report):
         try:
-            plan = prepare_auto_capture(report, self.devices,
-                                        provider="windivert" if self.windivert is not None else "npcap")
+            plan = prepare_auto_capture(report, self.devices, provider="npcap")
             executable = self.backend_executable()
         except (ValueError, FileNotFoundError) as error:
             self.status.set(str(error))
@@ -404,8 +414,7 @@ class AssistantApp:
                 "\n第三方工具风险及真实游戏兼容性尚未验证。")
         if plan.identity_restricted:
             text += "\n程序路径读取受限，请确认所选 Steam/PURPLE 客户端正确。"
-        if plan.device == "windivert":
-            text += "\n将启用随包 WinDivert 驱动，仅复制接收封包，不阻断或重发流量。"
+        text += "\n通过已安装的 Npcap 只读采集；不会加载 WinDivert 或发送封包。"
         if not messagebox.askyesno("确认开启战斗统计", text + "\n精确范围可在高级设置查看。\n\n确认采集这些游戏连接并开始？", parent=self.root):
             self.consent.set(False)
             self.status.set("已取消，没有开始采集。")
@@ -885,12 +894,7 @@ def main():
             result.update(check_backend(app.backend_executable()))
             result["localization_engine_check"] = (
                 check_localization(app.localization_engine) if app.localization_engine else "not_bundled")
-            if getattr(sys, "frozen", False):
-                from connection_scope import ConnectionScope
-                reader = WinDivertReader(Path(__file__).resolve().parent / "vendor/windivert")
-                reader.validate_filter((ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111),
-                                        ConnectionScope("10.0.0.1", 50001, "10.0.0.2", 7777)))
-                result["windivert_dll_filter_check"] = "passed_without_driver_open"
+            result.update(capture_provider="npcap", npcap_bundled=False, driver_opened=False)
             if app.consent.get() or app.running or app.npcap is not None:
                 raise RuntimeError("启动状态不能自动采集")
             result["status"] = "passed"

@@ -1,0 +1,14 @@
+.atreiaDialog { color-scheme: dark; font-size: 13px; box-shadow: 0 18px 60px #0006; }
+.atreiaDialog::backdrop { background: #050b13aa; backdrop-filter: blur(3px); }
+.atreiaDialog h3 { margin: 0 0 16px; font-size: 18px; font-weight: 600; }
+.atreiaDialog input, .atreiaDialog select { font: inherit; color: #dfeaf4; background: #0d1925; border: 1px solid #334b60; border-radius: 7px; padding: 9px 10px; outline: none; }
+.atreiaDialog select { min-width: 185px; }
+.atreiaDialog input:focus, .atreiaDialog select:focus { border-color: #79cbd4; box-shadow: 0 0 0 2px #79cbd41c; }
+.atreiaDialog p { line-height: 1.7; color: #9fb4c6; }
+.atreiaDialog button { font: inherit; padding: 8px 12px; border: 1px solid #365064; border-radius: 7px; color: #dce8f2; background: #203447; cursor: pointer; }
+.atreiaDialog button:hover { background: #2c495f; }
+.atreiaDialog button:focus-visible { outline: 2px solid #8fdae0; outline-offset: 2px; }
+.atreiaDialog button.primary { background: #66c7cd; border-color: #66c7cd; color: #08212b; font-weight: 600; }
+.atreiaDialog button.primary:hover { background: #8cdde1; }
+.atreiaDialog button.ghost { background: transparent; color: #91a8ba; }
+.atreiaDialog button:disabled { opacity: .5; cursor: wait; }

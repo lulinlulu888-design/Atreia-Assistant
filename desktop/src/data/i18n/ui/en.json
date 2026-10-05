@@ -1,0 +1,401 @@
+{
+  "header": {
+    "title": "A2Tools DPS Meter",
+    "display": {
+      "dps": "DPS",
+      "total": "DMG",
+      "ariaDps": "Showing DPS",
+      "ariaDamage": "Showing total damage",
+      "both": "BOTH",
+      "ariaBoth": "Showing DPS and total damage"
+    }
+  },
+  "details": {
+    "hoverTooltip": {
+      "loading": "Loading...",
+      "empty": "No skill data for this fight",
+      "error": "Could not load skills"
+    },
+    "header": "Details",
+    "title": "{name} Details",
+    "tooltip": "Damage over time hits are not included in total crit, double, perfect, back attack, or parry ratios.",
+    "settings": {
+      "ariaLabel": "Open details settings"
+    },
+    "panelBackground": "Panel background",
+    "fontSize": {
+      "label": "Font size"
+    },
+    "iconSize": {
+      "label": "Skill icon size"
+    },
+    "screenshots": {
+      "label": "Screenshots",
+      "includeMeter": "Include main DPS meter",
+      "saveToFolder": "Save screenshots to folder"
+    },
+    "columns": {
+      "label": "Skill columns"
+    },
+    "screenshot": {
+      "ariaLabel": "Save screenshot to clipboard",
+      "captured": "Captured Screenshot",
+      "savedToClipboard": "Saved to clipboard"
+    },
+    "sort": {
+      "recent": "Recent",
+      "time": "Time",
+      "damage": "Damage"
+    },
+    "skills": {
+      "skill": "Skill",
+      "skillTooltip": "Skill Name",
+      "hits": "Casts",
+      "hitsTooltip": "Casts",
+      "dmg": "Dmg",
+      "dmgTooltip": "Damage",
+      "dmgPct": "D%",
+      "dmgPctTooltip": "Damage %",
+      "crit": "Crit",
+      "critTooltip": "Crit %",
+      "parry": "Par",
+      "parryTooltip": "Parry %",
+      "perfect": "Per",
+      "perfectTooltip": "Perfect %",
+      "double": "Dbl",
+      "doubleTooltip": "Double %",
+      "back": "Back",
+      "backTooltip": "Back Attack %",
+      "frontal": "Front",
+      "frontalTooltip": "Frontal %",
+      "powershard": "PS",
+      "powershardTooltip": "PowerShard %",
+      "regen": "Reg",
+      "regenTooltip": "Life-steal Regen",
+      "multiHit": "MH%",
+      "multiHitTooltip": "Multi-hit %",
+      "multiHitDamage": "MHD",
+      "multiHitDamageTooltip": "Multi-hit Damage",
+      "minDmg": "Min",
+      "minDmgTooltip": "Min Damage",
+      "avgDmg": "Avg",
+      "avgDmgTooltip": "Avg Damage",
+      "maxDmg": "Max",
+      "maxDmgTooltip": "Max Damage"
+    },
+    "stats": {
+      "totalDamage": "Total Damage",
+      "contribution": "Contribution",
+      "hits": "Hits",
+      "critRate": "Crit Rate",
+      "perfectRate": "Perfect Rate",
+      "doubleRate": "Double Rate",
+      "backRate": "Back Attack Rate",
+      "parryRate": "Parry Rate",
+      "combatTime": "Combat Time",
+      "selfHealing": "Self-Healing",
+      "multiHitDamage": "Multi-Hit Damage",
+      "multiHitHits": "Multi-Hits",
+      "maxHp": "Max HP"
+    },
+    "titleFor": "for",
+    "titleVs": "vs",
+    "fightVs": "Fight vs",
+    "all": "All",
+    "history": {
+      "allPlayers": "All Players"
+    },
+    "dpsChart": "DPS Chart",
+    "historyBtn": "History",
+    "timeline": "Timeline"
+  },
+  "history": {
+    "title": "Battle History",
+    "empty": "No boss fights recorded yet.",
+    "delete": "Delete",
+    "showTraining": "Show Training",
+    "hideTraining": "Hide Training",
+    "showTrainingBattles": "Show Training Battles",
+    "hideTrainingBattles": "Hide Training Battles",
+    "trainBadge": "Training",
+    "liveBadge": "Live",
+    "filterBoss": "Boss name...",
+    "filterPlayer": "Player class...",
+    "filterDate": "Date (YYYY-MM-DD)...",
+    "viewList": "List view",
+    "viewDungeon": "Group by dungeon",
+    "viewGrouped": "Group by boss",
+    "fightCount": "{n} fights",
+    "fightCountOne": "1 fight",
+    "previewUpload": "Preview upload",
+    "previewUploadTip": "Write what sharing this fight would upload. Nothing is sent.",
+    "previewWorking": "Building the preview…",
+    "previewDone": "Wrote {slice} KB ({sent} KB compressed — what an upload would send). Kept {kept} of {seen} packets, blinded {blinded} names. Nothing was uploaded. Saved to {dir}",
+    "uploadTip": "Upload this fight to a2tools.app and get a link to share",
+    "uploadOpen": "Open this fight's log on a2tools.app",
+    "uploadWorking": "Uploading…",
+    "uploadDonePublic": "Uploaded. Link copied: {url}",
+    "uploadDonePrivate": "Uploaded as private. Link copied: {url}",
+    "openWorld": "Open world"
+  },
+  "settings": {
+    "title": "Settings",
+    "lockedPort": "Detected device/port",
+    "resetDetection": "Reset",
+    "characterName": "Name#ID",
+    "characterNamePlaceholder": "Enter your character name",
+    "pinMeToTop": "Always show me at the top",
+    "slimMode": "Slim mode",
+    "meterLayout": {
+      "label": "Meter layout",
+      "beta": "Beta UI",
+      "betaSlim": "Beta Slim",
+      "classic": "Classic UI",
+      "classicSlim": "Classic Slim"
+    },
+    "detailsMonitor": {
+      "label": "Show Details on monitor",
+      "off": "Off",
+      "primary": "primary",
+      "missing": "That display is not connected.",
+      "single": "Only one display detected — connect a second screen to use this.",
+      "badge": "Monitor",
+      "side": {
+        "left": "left",
+        "right": "right",
+        "above": "above",
+        "below": "below"
+      }
+    },
+    "appearance": "Appearance",
+    "connection": "Connection",
+    "diagnostics": "Diagnostics",
+    "device": {
+      "label": "Capture device",
+      "autoDetect": "Auto-detect"
+    },
+    "advanced": "Advanced",
+    "bossLogs": "Enable per-boss logs",
+    "saveRawPackets": "Enable packet logging",
+    "resetAllSettings": "Reset all settings",
+    "bold": {
+      "label": "Bold",
+      "names": "Names",
+      "dps": "DPS"
+    },
+    "showPing": "Show ping",
+    "showTotalDps": "Show total DPS/DMG",
+    "roundDps": "Round DPS",
+    "autoHideMeter": "Auto-hide meter",
+    "showSuspendBtn": "Show suspend button",
+    "showLockBtn": "Show lock button (click-through)",
+    "playerLimit": {
+      "label": "Max players shown"
+    },
+    "debugLogging": "Enable debug logging",
+    "quit": "Quit",
+    "discord": {
+      "title": "Discord",
+      "activity": "Show what I'm playing in Discord",
+      "activityHint": "While AION2 is open, your Discord status shows your character's name, class, level and server, and the boss you are fighting. It goes through the Discord app on this computer; no account is needed."
+    },
+    "version": "Version",
+    "theme": {
+      "label": "Theme",
+      "options": {
+        "aion2": "AION2",
+        "asmodian": "Asmodian",
+        "cogni": "Cogni",
+        "elyos": "Elyos",
+        "ember": "Ember",
+        "fera": "Fera",
+        "frost": "Frost",
+        "natura": "Natura",
+        "obsidian": "Obsidian",
+        "varian": "Varian"
+      }
+    },
+    "language": {
+      "label": "Language"
+    },
+    "windowOpacity": {
+      "label": "Main window opacity"
+    },
+    "meterOpacity": {
+      "label": "Meter bar opacity"
+    },
+    "bossNameSize": {
+      "label": "Target name size"
+    },
+    "targetWindow": {
+      "label": "Target time range",
+      "options": {
+        "5s": "5 seconds",
+        "10s": "10 seconds",
+        "15s": "15 seconds",
+        "20s": "20 seconds",
+        "30s": "30 seconds"
+      }
+    },
+    "targetSelection": {
+      "label": "Target selection (experimental)",
+      "options": {
+        "mostDamage": "Most damage (current)",
+        "mostRecent": "Most recently damaged",
+        "lastHitByMe": "Last hit by me",
+        "allTargets": "All targets combined"
+      }
+    },
+    "allTargetsWindow": {
+      "label": "All Targets time range",
+      "options": {
+        "30s": "30 seconds",
+        "1m": "1 minute",
+        "2m": "2 minutes",
+        "3m": "3 minutes",
+        "5m": "5 minutes"
+      }
+    },
+    "meterSettings": "Meter Settings",
+    "keybinds": "Keybinds",
+    "keybind": {
+      "reload": "Reload data",
+      "toggle": "Show/Hide window",
+      "pressKeys": "Press keys...",
+      "needModifiers": "Need 2+ modifiers",
+      "lock": "Lock/unlock overlay"
+    },
+    "defaultMeterMode": {
+      "label": "Default mode"
+    },
+    "trainingMode": {
+      "label": "Training Mode target",
+      "options": {
+        "all": "All",
+        "highestDamage": "Highest Damage"
+      }
+    },
+    "showSupporterColors": "Show supporter colours",
+    "showSupporterColorsHint": "Supporters' names render gold. Cosmetic only — it never changes any number.",
+    "account": {
+      "title": "A2 Tools Account",
+      "signedOut": "Not signed in",
+      "signedIn": "Signed in as {name}",
+      "hint": "Sign in to sync characters and settings with a2tools.app.",
+      "connect": "Sign in",
+      "signOut": "Sign out",
+      "codePrompt": "Approve this code in your browser:",
+      "codeHint": "The page should have opened already. The code expires in 10 minutes.",
+      "working": "Waiting for approval…",
+      "failed": "Sign-in failed: {error}",
+      "supporter": "Supporter",
+      "autoUpload": "Upload boss fights automatically",
+      "autoUploadHint": "When a boss fight ends it is uploaded to your account, with the visibility you chose on a2tools.app. Other players stay masked. Training dummies are never uploaded."
+    },
+    "sendLogs": {
+      "hint": "Sends your 3 newest packet logs to the developer, for a bug report.",
+      "button": "Send logs to dev",
+      "confirm": "Send your 3 newest packet logs to the A2 Tools developer?\n\nPacket logs are raw game traffic recorded while packet logging was on, including character names. Only the developer can open them, and they are deleted after 30 days.",
+      "sending": "Sending...",
+      "sent": "Sent. Your report code is {code}: give it to the developer on Discord.",
+      "failed": "Could not send: {error}"
+    }
+  },
+  "support": {
+    "button": "Support Me",
+    "title": "Support the author on Ko-fi",
+    "titleWechat": "Support the author on WeChat",
+    "label": {
+      "wechat": "WeChat"
+    },
+    "copy": {
+      "btc": "BTC address copied",
+      "eth": "ETH address copied",
+      "usdc": "USDC address copied"
+    },
+    "aria": {
+      "afdian": "Open Afdian",
+      "kofi": "Open Ko-fi",
+      "close": "Close support modal",
+      "wechat": "Show WeChat QR code",
+      "paypal": "Open PayPal",
+      "btc": "Copy BTC address",
+      "eth": "Copy ETH address",
+      "usdc": "Copy USDC address"
+    }
+  },
+  "battleTime": {
+    "analysing": "Monitoring data...",
+    "idle": "Idle",
+    "notRunning": "AION2 not running",
+    "suspended": "App suspended",
+    "waitingBoss": "Waiting for a boss"
+  },
+  "meter": {
+    "identifyingPlayer": "#{id}",
+    "dpsSuffix": "/s"
+  },
+  "skills": {
+    "fallback": "Skill {code}",
+    "dot": "{name} - DOT"
+  },
+  "update": {
+    "title": "New update available",
+    "install": "Install Now",
+    "notes": "Release Notes",
+    "manual": "Manual Install",
+    "later": "Update Later",
+    "text": "A new update is available!\n\nCurrent version: {current}\nLatest version: {latest}",
+    "installing": "Installing update...",
+    "downloadError": "Download failed. Please try again or install manually."
+  },
+  "connection": {
+    "auto": "Auto",
+    "detecting": "Detecting AION2 connection...",
+    "loopback": "Local Loopback"
+  },
+  "target": {
+    "all": "All Targets",
+    "identifying": "Identifying you...",
+    "train": "Training Scarecrow",
+    "boss": "Boss Targets"
+  },
+  "classes": {
+    "GLADIATOR": "Gladiator",
+    "TEMPLAR": "Templar",
+    "RANGER": "Ranger",
+    "ASSASSIN": "Assassin",
+    "SORCERER": "Sorcerer",
+    "CLERIC": "Cleric",
+    "ELEMENTALIST": "Spiritmaster",
+    "CHANTER": "Chanter",
+    "FIGHTER": "Brawler"
+  },
+  "dungeon": {
+    "difficulty": {
+      "exploration": "Exploration",
+      "normal": "Normal",
+      "hard": "Hard",
+      "level": "Level {n}"
+    }
+  },
+  "presence": {
+    "level": "Lv {level}",
+    "fighting": "Fighting {boss}",
+    "inGame": "In game",
+    "elyos": "Elyos",
+    "asmodian": "Asmodian",
+    "korea": "Korea",
+    "taiwan": "Taiwan",
+    "tierExpedition": "Expedition",
+    "tierConquestNormal": "Conquest (Normal)",
+    "tierConquestHard": "Conquest (Hard)"
+  },
+  "discordPromo": {
+    "title": "New: Discord activity",
+    "text": "Let friends see your character, class, level and server, and the boss or dungeon you're in, right in your Discord status.",
+    "hint": "Uses the Discord app on this PC; no account needed. You can change this any time in Settings.",
+    "done": "Done",
+    "close": "Close"
+  }
+}

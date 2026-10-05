@@ -1,0 +1,7098 @@
+/* Atreia local-only fork: retain upstream markup but do not advertise disabled services. */
+.atreiaUpstreamServices, .historyUploadBtn, .discordPromo { display: none !important; }
+
+@keyframes a2toolsPulse {
+  0% { transform: scale(0.85); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes a2toolsShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+:root {
+  /* Bars */
+  --row-fill: #5fbf87;
+  --isUser-fill: #6aa6ff;
+  --meter-fill-opacity: 0.8;
+
+  /* Status */
+  --warning-fill: #f2b94f;
+  --error-fill: #e06b6b;
+
+  /* DPS numbers */
+  --dps: #dff5ea;
+  --dps-text: #dff5ea;
+
+  /* General text */
+  --text-color: #ffffff;
+  --text-shadow:
+          0 0 1px rgba(0, 0, 0, 0.98),
+          0 1px 1px rgba(0, 0, 0, 0.98),
+          0 2px 3px rgba(0, 0, 0, 0.88),
+          0 4px 10px rgba(0, 0, 0, 0.55);
+
+  /* Stronger, “always readable” DPS shadow */
+  --dps-shadow:
+          0 0 1px rgba(0,0,0,0.96),
+          0 1px 2px rgba(0,0,0,0.78),
+          0 2px 8px rgba(0,0,0,0.58),
+          0 0 12px var(--panel-border);
+
+  /* Player name / primary label shadow (Ember-grade readability) */
+  --player-name-shadow:
+          -1px  0   0 rgba(0,0,0,0.85),
+          1px  0   0 rgba(0,0,0,0.85),
+          0   -1px 0 rgba(0,0,0,0.85),
+          0    1px 0 rgba(0,0,0,0.85),
+          0    2px 3px rgba(0,0,0,0.70),
+          0    4px 8px rgba(0,0,0,0.45);
+
+  --rounded-lg: 12px;
+  --rounded: 10px;
+  --rounded-sm: 8px;
+  --rounded-xs: 6px;
+
+  --panel-border: rgba(255, 255, 255, 0.12);
+  --panel-bg: rgba(12, 22, 40, 0.92);
+  --panel-field-bg: rgba(0, 0, 0, 0.35);
+  --title: rgba(235, 245, 255, 0.95);
+  --indicator-combat: #5fcaff;
+  --indicator-end: #7b6dff;
+  --indicator-wait: #ffb86b;
+  --indicator-idle: #7f8a9a;
+  --font: 16px;
+  --details-bg-opacity: 0.8;
+  --cjk-font-stack: "Microsoft YaHei UI", "Microsoft JhengHei UI", "PingFang SC", "PingFang TC", "Noto Sans SC", "Noto Sans TC", "Heiti SC", "SimHei", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+
+  /* dmgFill bar background — alpha baked in to avoid compositing layers */
+  --dmg-fill-bg: rgba(106, 166, 255, 0.8);
+
+  /* Fallbacks to resolve IDE warnings */
+  --details-skill-name-width: 144px;
+  --tooltip-skill-icon-size: 20px;
+  --window-opacity: 0.4;
+}
+
+:root[data-theme="aion2"] {
+  --row-fill: #5a47b0;
+  --isUser-fill: #4fb6ff;
+  --dmg-fill-bg: rgba(79, 182, 255, 0.8);
+
+  --warning-fill: #f2b45a;
+  --error-fill: #e85b7f;
+
+  --dps: #cfe9ff;
+  --dps-text: #cfe9ff;
+
+  --panel-border: rgba(140, 180, 255, 0.22);
+  --title: rgba(225, 235, 255, 0.98);
+
+  --text-shadow:
+          0 0 1px rgba(140,180,255,0.42),
+          0 1px 1px rgba(140,180,255,0.32),
+          0 2px 3px rgba(0,0,0,0.45),
+          0 6px 14px rgba(100,140,255,0.24);
+
+  --player-name-shadow:
+          -1px  0   0 rgba(0,0,0,0.95),
+          1px  0   0 rgba(0,0,0,0.95),
+          0   -1px 0 rgba(0,0,0,0.95),
+          0    1px 0 rgba(0,0,0,0.95),
+          0    3px 6px rgba(0,0,0,0.8),
+          0    6px 12px rgba(0,0,0,0.6);
+}
+
+:root[data-theme="ember"] {
+  --row-fill: #d9772a;
+  --isUser-fill: #ff6f4f;
+  --dmg-fill-bg: rgba(255, 111, 79, 0.8);
+
+  --warning-fill: #f5c16c;
+  --error-fill: #e84b5f;
+
+  --dps: #ffe6c9;
+  --dps-text: #ffe6c9;
+
+  --panel-border: rgba(255, 200, 150, 0.22);
+  --title: rgba(255, 240, 220, 0.98);
+
+  --text-shadow:
+          0 0 1px rgba(255,180,120,0.48),
+          0 1px 1px rgba(255,160,100,0.36),
+          0 2px 3px rgba(0,0,0,0.45),
+          0 6px 14px rgba(255,120,80,0.26);
+}
+
+:root[data-theme="frost"] {
+  --row-fill: #5fa3b5;
+  --isUser-fill: #8fd3ff;
+  --dmg-fill-bg: rgba(143, 211, 255, 0.8);
+
+  --warning-fill: #f2c97d;
+  --error-fill: #e56b6b;
+
+  --dps: #eaf7ff;
+  --dps-text: #eaf7ff;
+
+  --panel-border: rgba(180, 220, 255, 0.22);
+  --title: rgba(235, 245, 255, 0.98);
+
+  --text-shadow:
+          0 0 1px rgba(180,220,255,0.52),
+          0 1px 1px rgba(160,210,255,0.38),
+          0 2px 3px rgba(0,0,0,0.4),
+          0 6px 14px rgba(120,200,255,0.26);
+}
+
+:root[data-theme="natura"] {
+  --row-fill: #4f9b6a;
+  --isUser-fill: #7be3a2;
+  --dmg-fill-bg: rgba(123, 227, 162, 0.8);
+
+  --warning-fill: #f0c36d;
+  --error-fill: #e06666;
+
+  --dps: #e9f7ef;
+  --dps-text: #e9f7ef;
+
+  --panel-border: rgba(160, 220, 190, 0.22);
+  --title: rgba(230, 245, 235, 0.98);
+
+  --text-shadow:
+          0 0 1px rgba(160,220,190,0.48),
+          0 1px 1px rgba(140,200,170,0.38),
+          0 2px 3px rgba(0,0,0,0.45),
+          0 6px 14px rgba(120,200,160,0.24);
+}
+
+:root[data-theme="asmodian"] {
+  --row-fill: #6a4a8a;
+  --isUser-fill: #b064ff;
+  --dmg-fill-bg: rgba(176, 100, 255, 0.8);
+
+  --warning-fill: #ffb65a;
+  --error-fill: #ff4f7a;
+
+  --dps: #f6f0ff;
+  --dps-text: #f6f0ff;
+
+  --panel-border: rgba(200, 150, 255, 0.26);
+  --title: rgba(245, 235, 255, 0.98);
+
+  --text-shadow:
+          0 0 1px rgba(200,150,255,0.42),
+          0 1px 1px rgba(200,150,255,0.32),
+          0 2px 3px rgba(0,0,0,0.45),
+          0 6px 14px rgba(176,100,255,0.24);
+
+  --dps-shadow:
+          0 0 1px rgba(0,0,0,0.96),
+          0 1px 2px rgba(0,0,0,0.80),
+          0 2px 8px rgba(0,0,0,0.60),
+          0 0 14px rgba(176,100,255,0.36);
+}
+
+:root[data-theme="varian"] {
+  --row-fill: #a2862b;
+  --isUser-fill: #ffe062;
+  --dmg-fill-bg: rgba(255, 224, 98, 0.8);
+
+  --warning-fill: #ffe991;
+  --error-fill: #ef5f5f;
+
+  --dps: #fff7d1;
+  --dps-text: #fff7d1;
+
+  --panel-border: rgba(255, 230, 140, 0.3);
+  --title: rgba(255, 252, 235, 0.98);
+
+  --text-shadow:
+          0 0 1px rgba(255,230,140,0.48),
+          0 1px 1px rgba(255,220,120,0.38),
+          0 2px 3px rgba(0,0,0,0.50),
+          0 6px 14px rgba(255,224,98,0.22);
+
+  --dps-shadow:
+          0 0 1px rgba(0,0,0,0.96),
+          0 1px 2px rgba(0,0,0,0.82),
+          0 2px 8px rgba(0,0,0,0.55),
+          0 0 10px rgba(255,230,140,0.30);
+
+  --player-name-shadow:
+          -1px  0   0 rgba(0,0,0,0.92),
+          1px  0   0 rgba(0,0,0,0.92),
+          0   -1px 0 rgba(0,0,0,0.92),
+          0    1px 0 rgba(0,0,0,0.92),
+          0    3px 6px rgba(0,0,0,0.80);
+}
+
+:root[data-theme="fera"] {
+  --row-fill: #7a2f3a;
+  --isUser-fill: #c84a5a;
+  --dmg-fill-bg: rgba(200, 74, 90, 0.8);
+  --warning-fill: #f0c36a;
+  --error-fill: #ff5a6d;
+  --dps: #fff0f2;
+  --dps-text: #fff0f2;
+  --panel-border: rgba(255, 120, 140, 0.22);
+  --title: rgba(255, 235, 238, 0.98);
+}
+
+:root[data-theme="cogni"] {
+  --row-fill: #2f567a;
+  --isUser-fill: #4fb3ff;
+  --dmg-fill-bg: rgba(79, 179, 255, 0.8);
+  --warning-fill: #f2c24f;
+  --error-fill: #e35b6f;
+  --dps: #eef8ff;
+  --dps-text: #eef8ff;
+  --panel-border: rgba(120, 190, 255, 0.22);
+  --title: rgba(235, 246, 255, 0.98);
+}
+
+:root[data-theme="elyos"] {
+  --row-fill: #9bbef6;
+  --isUser-fill: #4a9cff;
+  --dmg-fill-bg: rgba(74, 156, 255, 0.8);
+
+  --warning-fill: #ffd98b;
+  --error-fill: #f36f8a;
+
+  --text-color: #f8fbff;
+  --dps: #d7ecff;
+  --dps-text: #d7ecff;
+
+  --panel-border: rgba(150, 210, 255, 0.7);
+  --title: rgba(244, 252, 255, 0.98);
+
+  --text-shadow:
+          0 0 1px rgba(0,0,0,0.95),
+          0 1px 2px rgba(0,0,0,0.9),
+          0 2px 6px rgba(0,0,0,0.8);
+
+  --dps-shadow:
+          0 0 1px rgba(0,0,0,0.95),
+          0 1px 2px rgba(0,0,0,0.9),
+          0 2px 6px rgba(0,0,0,0.8);
+
+  --player-name-shadow:
+          -1px  0   0 rgba(0,0,0,0.95),
+          1px  0   0 rgba(0,0,0,0.95),
+          0   -1px 0 rgba(0,0,0,0.95),
+          0    1px 0 rgba(0,0,0,0.95),
+          0    3px 6px rgba(0,0,0,0.8),
+          0    0  12px rgba(140,205,255,0.4);
+}
+
+:root[data-theme="obsidian"] {
+  --row-fill: #3f3f46;
+  --isUser-fill: #6fd3ff;
+  --dmg-fill-bg: rgba(111, 211, 255, 0.8);
+  --warning-fill: #f2b84f;
+  --error-fill: #e35d5d;
+  --dps: #f5f5f5;
+  --dps-text: #f5f5f5;
+  --panel-border: rgba(200, 200, 200, 0.18);
+  --title: rgba(245, 245, 245, 0.98);
+}
+
+@keyframes detailsFlash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.0);
+    border-color: var(--panel-border);
+  }
+  35% {
+    box-shadow: 0 0 18px 2px rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.0);
+    border-color: var(--panel-border);
+  }
+}
+
+@font-face {
+  font-family: "UI";
+  src:
+          local("Pretendard"),
+          local("Pretendard Variable"),
+          local("Pretendard-Regular");
+  unicode-range: U+0000-00FF, U+0100-024F;
+}
+
+/* Default (EN / fallback): Pretendard first */
+html, body {
+  font-family: "Pretendard", "Segoe UI", Arial, sans-serif;
+  background: transparent;
+  margin: 0;
+  padding: 0;
+}
+/* Prevent scrollbars from appearing without clipping absolute-positioned panels */
+html {
+  scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar {
+  display: none; /* Chrome/Edge */
+}
+
+/* noinspection CssNoGenericFontName */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Korean */
+html:lang(ko), html:lang(ko) body {
+  font-family:
+          "Spoqa Han Sans Neo",
+          "Spoqa Han Sans",
+          "Pretendard",
+          "Malgun Gothic",        /* common KR on Windows */
+          "Apple SD Gothic Neo",  /* macOS */
+          sans-serif;
+}
+
+/* Chinese - Simplified */
+html:lang(zh-CN), html:lang(zh-CN) body,
+html:lang(zh-Hans), html:lang(zh-Hans) body {
+  font-family:
+          "Microsoft YaHei UI",
+          "Microsoft YaHei",
+          "PingFang SC",
+          "Heiti SC",
+          "SimHei",
+          "Pretendard",
+          "Segoe UI",
+          sans-serif;
+}
+
+/* Chinese - Traditional */
+html:lang(zh-TW), html:lang(zh-TW) body,
+html:lang(zh-Hant), html:lang(zh-Hant) body {
+  font-family:
+          "PingFang TC",
+          "Microsoft JhengHei UI",
+          "Microsoft YaHei UI",
+          sans-serif;
+}
+
+.container {
+  position: relative;
+}
+/* ============================================================
+   MAIN METER WINDOW
+   ------------------------------------------------------------
+   Read as an instrument, not a chart. Three rules drive the whole
+   layout:
+
+   1. Numbers lead. The DPS readout is the top of the type scale;
+      names identify, bars quantify, ranks order.
+   2. Text never sits on a colour slab. The bar is a tint behind the
+      row and ends in a lit edge, so the row stays legible over any
+      terrain and at any window opacity.
+   3. One chrome row at each end. The header states what is being
+      measured, the footer states the run — nothing floats.
+   ============================================================ */
+
+:root {
+  --hud-bg: 9, 13, 24;
+  --hud-hairline: rgba(255, 255, 255, 0.07);
+  --hud-row-bg: rgba(255, 255, 255, 0.035);
+
+  --hud-name: rgba(255, 255, 255, 0.95);
+  --hud-num: #ffffff;
+  --hud-sub: rgba(255, 255, 255, 0.45);
+  --hud-faint: rgba(255, 255, 255, 0.3);
+
+  /* DIN-lineage grotesque that ships with Windows 10/11. Instrument
+     dials and gauges use this shape for a reason: it stays legible
+     small, its figures are unambiguous, and it reads as telemetry
+     rather than as another game UI panel. Latin only, which is why
+     player names keep the CJK-capable stack below. */
+  --hud-tech: "Bahnschrift", "DIN Alternate", "Segoe UI Variable Display",
+    "Segoe UI", sans-serif;
+  --hud-ident: "Pretendard", "Spoqa Han Sans Neo", "Segoe UI", sans-serif;
+
+  --hud-row-h: 30px;
+  --hud-gap: 3px;
+  /* User-adjustable in Settings; the value here is the design default. */
+  --boss-name-size: 15px;
+}
+
+/* ---------- shell ---------- */
+
+.meter {
+  width: 380px;
+  min-width: 300px;
+  min-height: 30px;
+  position: relative;
+  border-radius: var(--rounded);
+  background: rgba(var(--hud-bg), var(--window-opacity));
+  border: 1px solid rgba(255, 255, 255, min(0.14, calc(var(--window-opacity) * 0.2)));
+  box-shadow: 0 8px 28px rgba(0, 0, 0, calc(var(--window-opacity) * 0.45));
+}
+.meter.flash {
+  animation: detailsFlash 1s ease-out;
+}
+
+body.linuxOverlay .meter {
+  box-shadow: none;
+}
+
+/* ---------- header ---------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px 6px;
+}
+
+/* Was an 88px AION 2 wordmark — a quarter of the window width spent on
+   branding, with "copy screenshot" hidden behind a hover state on it.
+   Now an ordinary icon button in the control group: same action, named,
+   discoverable, 15px. */
+.header .bossIcon {
+  order: 2;
+  flex: 0 0 auto;
+  position: relative;
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+.header .bossIcon:hover { color: #fff; }
+.header .bossIcon img { display: none; }
+.header .bossIconOverlay {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  background: none;
+  color: inherit;
+  pointer-events: none;
+}
+.header .bossIconOverlay svg { width: 15px; height: 15px; }
+
+.header .bossNames {
+  order: 1;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  height: auto;
+}
+
+/* The boss name labels the readout, so it is set as a label: tracked
+   caps in the technical face, never louder than the numbers below. */
+.header .bossNames .bossName {
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-size: var(--boss-name-size, 15px);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--title);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.15;
+}
+.header .bossNames .bossName:lang(ko),
+.header .bossNames .bossName:lang(zh-CN),
+.header .bossNames .bossName:lang(zh-Hans),
+.header .bossNames .bossName:lang(zh-TW),
+.header .bossNames .bossName:lang(zh-Hant) {
+  font-family: var(--cjk-font-stack);
+  font-weight: 600;
+  /* CJK glyphs are full-width and never uppercased, so they need a touch
+     more size than the tracked Latin caps to read at the same weight. */
+  font-size: calc(var(--boss-name-size, 15px) * 1.05);
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.header .headerBtns {
+  order: 3;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+}
+.header .headerBtns .headerBtn {
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 120ms ease;
+}
+.header .headerBtns .headerBtn svg { width: 15px; height: 15px; }
+.header .headerBtns .headerBtn:hover { color: #fff; }
+.header .headerBtns.hasSuspendBtn { gap: 6px; }
+.header .headerBtns .suspendBtn { color: rgba(255, 255, 255, 0.55); }
+.header .headerBtns .suspendBtn.isSuspended { color: #ff6b6b; }
+
+/* ---------- boss HP: the waterline ---------- */
+
+/* Full-bleed band under the header. Edge to edge, square corners: it
+   reads as the horizon of the instrument rather than as a widget
+   parked inside the title row, and it costs 14px instead of stacking
+   a second line into the header. */
+.bossHpBar {
+  position: relative;
+  height: 14px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.45);
+  border-top: 1px solid var(--hud-hairline);
+  border-bottom: 1px solid var(--hud-hairline);
+}
+.bossHpFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  background: linear-gradient(180deg, #47d47d 0%, #2ea75f 100%);
+  opacity: var(--meter-fill-opacity, 0.8);
+  transition: width 320ms cubic-bezier(0.22, 1, 0.36, 1), background 300ms ease;
+}
+.bossHpFill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 2px;
+  background: #d8ffe8;
+  box-shadow: 0 0 7px 1px rgba(120, 255, 175, 0.7);
+}
+.bossHpBar.isMid .bossHpFill { background: linear-gradient(180deg, #f0bb52 0%, #cf912c 100%); }
+.bossHpBar.isMid .bossHpFill::after { background: #fff0d0; box-shadow: 0 0 7px 1px rgba(255, 200, 110, 0.7); }
+.bossHpBar.isLow .bossHpFill { background: linear-gradient(180deg, #f06a6a 0%, #c93c3c 100%); }
+.bossHpBar.isLow .bossHpFill::after { background: #ffdcdc; box-shadow: 0 0 7px 1px rgba(255, 120, 120, 0.75); }
+
+/* Percent left, absolute HP right. A centred label sat exactly where
+   the fill edge crosses, which is what made the old one unreadable at
+   mid HP; split to the two ends, neither can be bisected. */
+.bossHpText {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 4px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+}
+.bossHpText .bossHpAmt { color: rgba(255, 255, 255, 0.72); }
+
+/* ---------- player rows ---------- */
+
+.list {
+  display: grid;
+  gap: var(--hud-gap);
+  padding: 0 8px;
+}
+.list.hasRows { padding: 7px 8px; }
+
+.list .item {
+  position: relative;
+  height: var(--hud-row-h);
+  padding: 0 8px 0 6px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--hud-row-bg);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.list .item:hover { background: rgba(255, 255, 255, 0.075); }
+.list.dragInteracting .item { pointer-events: none; }
+
+/* The bar spans the whole row: at 100% it has to look 100% full, and a
+   reserved gutter made a solo player's bar read as roughly three-quarters.
+   The figures stay legible via the scrim on .dps below rather than by
+   keeping the bar away from them. */
+.list .item .fillTrack {
+  position: absolute;
+  inset: 0;
+}
+
+/* The bar is a tint behind the row, never a slab under the text.
+   --bar is re-pointed per row state; everything else reads from it. */
+.list .item .fill {
+  --bar: var(--row-fill);
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  opacity: var(--meter-fill-opacity, 0.8);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--bar) 30%, transparent) 0%,
+    color-mix(in srgb, var(--bar) 62%, transparent) 100%
+  );
+  transition: width 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* The lit edge is the part you actually read at a glance. When the tint
+   washes out over bright terrain or at low panel opacity, the edge still
+   says exactly where the bar ends — six of them stack into a skyline
+   you can take in without focusing on the window. */
+.list .item .fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 2px;
+  background: color-mix(in srgb, var(--bar) 35%, white);
+  box-shadow: 0 0 9px 1px color-mix(in srgb, var(--bar) 75%, transparent);
+}
+.list .item.isUser .fill { --bar: var(--isUser-fill); }
+.list .item.warning .fill { --bar: var(--warning-fill); }
+.list .item.error .fill { --bar: var(--error-fill); }
+
+/* Your own row carries a lit rail on the left, so you can find yourself
+   without reading a name. */
+.list .item.isUser::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  z-index: 2;
+  background: var(--isUser-fill);
+  box-shadow: 0 0 8px 1px color-mix(in srgb, var(--isUser-fill) 70%, transparent);
+}
+
+.list .item .fill::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 40%;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-100%);
+}
+.list .item.hoverRippleOnce .fill::before {
+  opacity: 1;
+  animation: meterBarHoverRipple 900ms ease-out;
+}
+
+.list .item .content {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Rank is ladder position by damage, not row order — with "pin me to
+   top" on, your row moves but your rank does not lie. */
+.list .item .rank {
+  flex: 0 0 auto;
+  min-width: 13px;
+  text-align: right;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 600, "wdth" 75;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--hud-faint);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+.list .item.isRankOne .rank { color: rgba(255, 255, 255, 0.8); }
+
+.list .item .classIcon {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.list .item .classIcon .classIconImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+}
+
+/* Sized to its text, not to the free space, so the combat power that follows
+   sits against the name instead of being pushed out to the readout. Still
+   shrinks (and ellipsises) first when the row runs out of room. */
+.list .item .name {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-family: var(--hud-ident);
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--hud-name);
+  text-shadow: var(--player-name-shadow, var(--text-shadow));
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.list .item .name.isCjk {
+  font-family: var(--cjk-font-stack);
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+/* The readout: top of the type scale, tabular so digits do not dance
+   between frames. The gradient scrim keeps wide figures like "106,406/s"
+   readable where the bar runs behind them, and bleeds to the row edge via
+   the negative margin so it never shows a seam. */
+.list .item .dps {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  /* Holds the readout against the right edge now that the name no longer grows
+     to fill the row. Independent of the combat power, which is absent for
+     anyone outside your party. */
+  margin-left: auto;
+  margin-right: -8px;
+  padding: 0 8px 0 18px;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--hud-bg), 0) 0%,
+    rgba(var(--hud-bg), 0.7) 42%,
+    rgba(var(--hud-bg), 0.82) 100%
+  );
+  font-family: var(--hud-tech);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 6px rgba(0, 0, 0, 0.7);
+}
+.list .item .dps > p {
+  margin: 0;
+  font-variation-settings: "wght" 700, "wdth" 87.5;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--hud-num);
+}
+/* Share of party damage. Brighter than the other secondary text on the row:
+   it is a number people read at a glance mid-fight, and at 11px over the
+   moving bar the muted --hud-sub grey was hard to pick out. */
+.list .item .dps .dpsContribution {
+  font-variation-settings: "wght" 600, "wdth" 75;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.88);
+  min-width: 34px;
+  text-align: right;
+}
+
+/* Party combat power in thousands ("864k"), sat between the name and the
+   readout. Cyan sets it apart
+   as a different kind of number from the white DPS figure — it is reference
+   information about the player, not something that moves during a fight — and
+   it holds its own width so the name ellipsis never fights it for space. Only
+   rendered for players the party roster packet covers. */
+.list .item .combatPower {
+  flex: 0 0 auto;
+  /* Pulls back against the row's 7px flex gap so the figure reads as part of
+     the name rather than as the leading edge of the DPS readout. */
+  margin-left: -3px;
+  font-family: var(--hud-tech);
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: "wght" 600, "wdth" 75;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  /* The cyan the game itself uses for combat power, so the number reads as the
+     same stat players already know from the character sheet. */
+  color: #78f2fb;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
+  /* Optical centring against the name. The row centres flex items by their
+     boxes, but the name is Pretendard and this is Bahnschrift at a smaller
+     size, and the two fonts put their baselines at different fractions of the
+     box — measured live, that left this number's cap-height midpoint 1.5px
+     above the name's. Nudged rather than baseline-aligned so it centres on the
+     name instead of sitting on its baseline. `relative` keeps it out of layout. */
+  position: relative;
+  top: 1.5px;
+}
+/* A CJK name renders from a different font stack at a different size, which
+   moves the target: measured, the same nudge overshoots by 1px there. The
+   combat power is always the name's next sibling, so it can be corrected
+   per-row without the JS having to know. */
+.list .item .name.isCjk + .combatPower {
+  top: 0.5px;
+}
+.meter.slim .list .item .combatPower {
+  font-size: 9px;
+  /* Same correction at the slim type scale (11.5px name / 9px figure). */
+  top: 1px;
+}
+.meter.slim .list .item .name.isCjk + .combatPower {
+  top: 0.5px;
+}
+
+.meter .item.isIdentifying .content .name {
+  font-size: 13px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--hud-sub);
+}
+body.mainPlayerNamesBold .meter .item .content .name { font-weight: 700; }
+body.mainPlayerNamesBold .meter .item .content .name.isCjk { font-weight: 700; }
+body.mainPlayerDpsBold .meter .item .content .dps > p {
+  font-variation-settings: "wght" 800, "wdth" 87.5;
+}
+
+/* ---------- footer ---------- */
+
+/* One real row. This used to be three absolutely-positioned fragments
+   — timer, totals, mode buttons — overlapping in the bottom 20px and
+   colliding with the resize handle. */
+.meterFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  height: 24px;
+  padding: 0 22px 0 10px;
+  border-top: 1px solid var(--hud-hairline);
+  /* Matches the shell radius rather than relying on overflow:hidden — the
+     settings / details / history panels are absolutely positioned outside
+     the meter box and clipping the shell would hide them. */
+  border-radius: 0 0 var(--rounded) var(--rounded);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.battleTime {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  position: static;
+  padding: 0;
+  margin: 0;
+  min-width: 64px;
+  flex: 1 1 0;
+}
+.battleTime.isVisible { display: flex; margin-right: auto; }
+.battleTime .status {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  flex: 0 0 auto;
+  position: relative;
+}
+.battleTime.state-fighting .status { background: var(--indicator-combat); }
+.battleTime.state-fighting .status::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 999px;
+  background: var(--indicator-combat);
+  opacity: 0.3;
+  animation: hudBeacon 1.6s ease-in-out infinite;
+}
+.battleTime.state-grace .status { background: var(--indicator-wait); }
+.battleTime.state-ended .status { background: var(--indicator-end); }
+.battleTime.state-idle .status { background: var(--indicator-idle); }
+.battleTime .tick {
+  flex: 0 0 auto;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.8);
+}
+.battleTime .analysisStatus {
+  min-width: 0;
+  flex: 1 1 auto;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 400, "wdth" 87.5;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meterTotalBar {
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  align-items: baseline;
+  gap: 5px;
+  padding: 0;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-variant-numeric: tabular-nums;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.62);
+}
+.meterTotalBar .meterTotalDps { color: rgba(255, 255, 255, 0.82); }
+.meterTotalBar .meterTotalDmg { color: rgba(255, 255, 255, 0.5); }
+.meterTotalBar .meterTotalSep { color: rgba(255, 255, 255, 0.18); }
+
+.footerBtns {
+  position: static;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+/* Mode switches read as chips: small, quiet, obviously pressable, and
+   wide enough that TARGET → BOSS → TRAIN → ALL never shifts the row. */
+.footerBtns .footerBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: 16px;
+  padding: 0 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.62);
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 700, "wdth" 75;
+  font-size: 10px;
+  letter-spacing: 0.09em;
+  line-height: 1;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.footerBtns .targetModeBtn { min-width: 44px; }
+.footerBtns .metricToggleBtn { min-width: 30px; }
+.footerBtns .footerBtn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.footerBtns .footerBtn:focus-visible {
+  outline: 2px solid var(--isUser-fill);
+  outline-offset: 1px;
+}
+.footerBtns .collapseBtn {
+  width: 18px;
+  min-width: 0;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+}
+.footerBtns .collapseBtn svg { width: 13px; height: 13px; }
+
+.resizeHandle {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 12px;
+  height: 12px;
+  cursor: se-resize;
+  opacity: 0.4;
+}
+.resizeHandle::before {
+  content: "";
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba(255, 255, 255, 0.7);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.7);
+}
+
+@keyframes hudBeacon {
+  0%, 100% { opacity: 0.32; transform: scale(1); }
+  50% { opacity: 0.08; transform: scale(1.55); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .battleTime.state-fighting .status::after { animation: none; }
+  .list .item .fill,
+  .bossHpFill { transition: none; }
+}
+
+/* ---------- slim ---------- */
+
+.meter.slim { --hud-row-h: 22px; --hud-gap: 2px; }
+.meter.slim .header { padding: 5px 8px 4px; gap: 7px; }
+.meter.slim .header .bossIcon,
+.meter.slim .header .bossIconOverlay svg { width: 13px; height: 13px; }
+.meter.slim .header .bossNames .bossName {
+  font-size: calc(var(--boss-name-size, 15px) * 0.85);
+  letter-spacing: 0.1em;
+}
+.meter.slim .header .headerBtns .headerBtn,
+.meter.slim .header .headerBtns .headerBtn svg { width: 13px; height: 13px; }
+.meter.slim .bossHpBar { height: 10px; }
+.meter.slim .bossHpText { font-size: 8.5px; padding: 0 6px; }
+.meter.slim .list { padding: 0 6px; }
+.meter.slim .list.hasRows { padding: 5px 6px; }
+.meter.slim .list .item { padding: 0 6px 0 4px; }
+.meter.slim .list .item .content { gap: 5px; }
+.meter.slim .list .item .rank { min-width: 11px; font-size: 9px; }
+.meter.slim .list .item .classIcon { width: 15px; height: 15px; }
+.meter.slim .list .item .name { font-size: 11.5px; }
+.meter.slim .list .item .name.isCjk { font-size: 11px; }
+.meter.slim .list .item .dps { gap: 5px; margin-right: -6px; padding: 0 6px 0 14px; }
+.meter.slim .list .item .dps > p { font-size: 12.5px; }
+.meter.slim .list .item .dps .dpsContribution { font-size: 9px; min-width: 28px; }
+.meter.slim .meterFooter { height: 19px; padding: 0 19px 0 8px; }
+.meter.slim .pingDisplay { font-size: 10px; }
+.meter.slim .pingDisplay .pingIcon { width: 11px; height: 11px; }
+.meter.slim .battleTime .tick { font-size: 10px; }
+.meter.slim .battleTime .analysisStatus { font-size: 10px; }
+.meter.slim .meterTotalBar { font-size: 9.5px; }
+.meter.slim .footerBtns .footerBtn { height: 14px; padding: 0 5px; font-size: 8.5px; }
+.meter.slim .footerBtns .targetModeBtn { min-width: 38px; }
+.meter.slim .footerBtns .metricToggleBtn { min-width: 26px; }
+.meter.slim .footerBtns .collapseBtn { width: 15px; }
+.meter.slim .footerBtns .collapseBtn svg { width: 11px; height: 11px; }
+.meter.slim .resizeHandle { width: 10px; height: 10px; }
+
+
+/* ============================================================
+   SETTINGS PANEL
+   ------------------------------------------------------------
+   Same instrument language as the meter window: Bahnschrift for
+   anything technical, tracked caps for labels, hairlines for
+   structure, and the theme accent reserved for state.
+
+   Three rules drive the layout:
+
+   1. Groups, not a list. Every control belongs to a named
+      section — Connection, Appearance, Meter, Keybinds,
+      Diagnostics — and each section header is a tracked-caps
+      rail so the eye can jump between them.
+   2. One control geometry. Dropdowns, keybind buttons, actions
+      and text fields are all the same 26px chip, so a row is
+      read by its label, never by the shape of its control.
+   3. Labels whisper, values speak. Labels sit at 12.5px in the
+      technical face; the numbers they control are tabular and
+      brighter.
+   ============================================================ */
+
+.settingsPanel {
+  /* Chip geometry shared by every control in the panel. */
+  --set-field-h: 26px;
+  --set-field-bg: rgba(255, 255, 255, 0.05);
+  --set-field-border: rgba(255, 255, 255, 0.1);
+  --set-field-bg-hover: rgba(255, 255, 255, 0.11);
+  --set-field-border-hover: rgba(255, 255, 255, 0.2);
+  --set-label: rgba(255, 255, 255, 0.78);
+  --set-control-w: 168px;
+
+  position: absolute;
+  left: 372px;
+  top: 0;
+  width: 720px;
+  z-index: 2;
+  display: none;
+  contain: layout style;
+  overflow: visible;
+
+  color: var(--hud-name);
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 400, "wdth" 87.5;
+  background: rgba(var(--hud-bg), 0.97);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--rounded-lg);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.55);
+}
+
+.settingsPanel.isOpen {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Bahnschrift is Latin-only. Korean and Chinese labels fall back to the
+   same CJK stack the meter rows use, so a translated panel keeps one
+   voice instead of mixing substituted faces glyph by glyph. */
+.settingsPanel:lang(ko),
+.settingsPanel:lang(zh-CN),
+.settingsPanel:lang(zh-Hans),
+.settingsPanel:lang(zh-TW),
+.settingsPanel:lang(zh-Hant) {
+  font-family: var(--cjk-font-stack);
+}
+.settingsPanel:lang(ko) .settingsLabel,
+.settingsPanel:lang(zh-CN) .settingsLabel,
+.settingsPanel:lang(zh-Hans) .settingsLabel,
+.settingsPanel:lang(zh-TW) .settingsLabel,
+.settingsPanel:lang(zh-Hant) .settingsLabel,
+.settingsPanel:lang(ko) .settingsMiniTitle,
+.settingsPanel:lang(zh-CN) .settingsMiniTitle,
+.settingsPanel:lang(zh-Hans) .settingsMiniTitle,
+.settingsPanel:lang(zh-TW) .settingsMiniTitle,
+.settingsPanel:lang(zh-Hant) .settingsMiniTitle {
+  font-family: var(--cjk-font-stack);
+  letter-spacing: 0.04em;
+}
+/* Full-width CJK glyphs carry less detail per pixel than tracked Latin
+   caps, so the section rails need a step up to stay legible. */
+.settingsPanel:lang(ko) .settingsMiniTitle,
+.settingsPanel:lang(zh-CN) .settingsMiniTitle,
+.settingsPanel:lang(zh-Hans) .settingsMiniTitle,
+.settingsPanel:lang(zh-TW) .settingsMiniTitle,
+.settingsPanel:lang(zh-Hant) .settingsMiniTitle,
+.settingsPanel:lang(ko) .settingsAdvancedBtn .settingsLabel,
+.settingsPanel:lang(zh-CN) .settingsAdvancedBtn .settingsLabel,
+.settingsPanel:lang(zh-Hans) .settingsAdvancedBtn .settingsLabel,
+.settingsPanel:lang(zh-TW) .settingsAdvancedBtn .settingsLabel,
+.settingsPanel:lang(zh-Hant) .settingsAdvancedBtn .settingsLabel {
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+/* ---------- header ---------- */
+
+.settingsPanel .settingsHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px 8px;
+  border-bottom: 1px solid var(--hud-hairline);
+}
+.settingsPanel .settingsHeader .settingsTitle {
+  flex: 1;
+  min-width: 0;
+  font-variation-settings: "wght" 700, "wdth" 87.5;
+  font-size: 12.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--title);
+}
+.settingsPanel .settingsHeader .settingsVersionLink {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--hud-faint);
+}
+.settingsPanel .settingsHeader .settingsVersionLink:hover {
+  color: var(--hud-sub);
+}
+.settingsPanel .settingsHeader .closeX {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0;
+  border-radius: 3px;
+  color: var(--hud-sub);
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 120ms ease, background 120ms ease;
+}
+.settingsPanel .settingsHeader .closeX:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- body / groups ---------- */
+
+.settingsPanel .settingsBody {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 13px 14px 14px;
+}
+
+.settingsPanel .settingsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+/* Section rail: tracked caps that terminate in a hairline running to
+   the edge of the column. Cheap, quiet, and it makes the panel read as
+   five short lists instead of one long one. */
+.settingsPanel .settingsMiniTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-variation-settings: "wght" 700, "wdth" 75;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hud-sub);
+}
+.settingsPanel .settingsMiniTitle::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--hud-hairline);
+}
+
+.settingsPanel .settingsGroupBody {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.settingsPanel .settingsGroupBody > * + * {
+  border-top: 1px solid var(--hud-hairline);
+}
+
+/* Two independent stacks; collapses to one when the panel is narrowed. */
+.settingsPanel .settingsColumns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px 24px;
+  align-items: start;
+}
+.settingsPanel .settingsColumn {
+  min-width: 0;
+}
+
+/* Short lists that read better side by side than stacked. */
+.settingsPanel .settingsGroupSplit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  column-gap: 24px;
+}
+.settingsPanel .settingsGroupSplit > * + * {
+  border-top: 0;
+}
+
+/* ---------- rows ---------- */
+
+.settingsPanel .settingsRow,
+.settingsPanel .settingsToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 30px;
+  padding: 3px 0;
+  min-width: 0;
+}
+.settingsPanel .settingsInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.settingsPanel .settingsLabel {
+  font-variation-settings: "wght" 500, "wdth" 87.5;
+  font-size: 12.5px;
+  line-height: 1.25;
+  color: var(--set-label);
+}
+.settingsPanel .settingsRowEnd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.settingsPanel .settingsRowAction {
+  justify-content: flex-end;
+}
+
+/* Connection is status, not preference: three readouts side by side with
+   the label sitting above its control. As full-width rows the two ends of
+   each pair would end up 600px apart with nothing in between. */
+.settingsPanel .settingsGroupStrip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
+  gap: 10px 22px;
+  align-items: start;
+}
+.settingsPanel .settingsGroupStrip > * + * {
+  border-top: 0;
+}
+.settingsPanel .settingsRowStacked {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 6px;
+  min-height: 0;
+  padding: 0;
+}
+.settingsPanel .settingsRowStacked .settingsCharacterIdentity,
+.settingsPanel .settingsRowStacked .settingsDeviceRow,
+.settingsPanel .settingsRowStacked .settingsRowEnd {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+}
+.settingsPanel .settingsRowStacked .settingsRowEnd {
+  justify-content: space-between;
+}
+.settingsPanel .settingsRowStacked .characterNameInput {
+  flex: 1 1 60px;
+  min-width: 0;
+  max-width: none;
+}
+/* The account sits in a half-width cell beside the A2 Tools switches: its
+   state stays on one line next to its button. */
+.settingsPanel .accountRow .accountState {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.settingsPanel .accountRow .accountState.isLong {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.settingsPanel .settingsRowStacked .localActorIdInput {
+  flex: 0 0 68px;
+  width: 68px;
+}
+
+/* ---------- readouts ---------- */
+
+.settingsPanel .settingsValue {
+  display: flex;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.82);
+}
+.settingsPanel .lockedPort::before {
+  content: "/";
+  color: var(--hud-faint);
+  margin: 0 5px;
+}
+.settingsPanel .lockedPort.isPcapError {
+  color: var(--error-fill);
+}
+.settingsPanel .lockedPort.isPcapError::before {
+  content: none;
+}
+
+/* ---------- text fields ---------- */
+
+.settingsPanel .settingsCharacterIdentity {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.settingsPanel .characterNameInput,
+.settingsPanel .localActorIdInput {
+  height: var(--set-field-h);
+  box-sizing: border-box;
+  padding: 0 8px;
+  border: 1px solid var(--set-field-border);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 12px;
+}
+.settingsPanel .characterNameInput {
+  flex: 0 1 180px;
+  max-width: 180px;
+  font-family: var(--hud-ident);
+}
+.settingsPanel .localActorIdInput {
+  width: 76px;
+  font-family: var(--hud-tech);
+  font-variant-numeric: tabular-nums;
+}
+.settingsPanel .characterNameInput:focus,
+.settingsPanel .localActorIdInput:focus {
+  outline: none;
+  border-color: var(--isUser-fill);
+}
+.settingsPanel .characterNameInput::placeholder,
+.settingsPanel .localActorIdInput::placeholder {
+  color: var(--hud-faint);
+}
+.settingsPanel .settingsActorInline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--hud-faint);
+  font-size: 12px;
+}
+
+/* ---------- capture device ---------- */
+
+.settingsPanel .settingsDeviceRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.settingsPanel .autoDetectDeviceLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--set-field-h);
+  box-sizing: border-box;
+  padding: 0 8px;
+  border: 1px solid var(--set-field-border);
+  border-radius: 3px;
+  background: var(--set-field-bg);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.settingsPanel .autoDetectDeviceLabel:hover {
+  color: #fff;
+  background: var(--set-field-bg-hover);
+  border-color: var(--set-field-border-hover);
+}
+.settingsPanel .autoDetectDeviceLabel input[type="checkbox"] {
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  accent-color: var(--isUser-fill);
+  cursor: pointer;
+}
+.settingsPanel .deviceDropdownWrapper {
+  flex: 1 1 90px;
+}
+.settingsPanel .deviceDropdownBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---------- chips: dropdowns, keybinds, actions ---------- */
+
+.settingsPanel .settingsDropdownWrapper {
+  position: relative;
+  flex: 0 1 var(--set-control-w);
+  min-width: 0;
+}
+.settingsPanel .playerLimitNarrow {
+  flex: 0 0 76px;
+}
+.settingsPanel .settingsDropdownBtn,
+.settingsPanel .keybindBtn,
+.settingsPanel .settingsAction {
+  height: var(--set-field-h);
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--set-field-border);
+  border-radius: 3px;
+  background: var(--set-field-bg);
+  color: rgba(255, 255, 255, 0.88);
+  font-family: var(--hud-tech);
+  cursor: pointer;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.settingsPanel .settingsDropdownBtn:hover,
+.settingsPanel .keybindBtn:hover,
+.settingsPanel .settingsAction:hover {
+  color: #fff;
+  background: var(--set-field-bg-hover);
+  border-color: var(--set-field-border-hover);
+}
+.settingsPanel .settingsDropdownBtn:focus-visible,
+.settingsPanel .keybindBtn:focus-visible,
+.settingsPanel .settingsAction:focus-visible,
+.settingsPanel .settingsRange:focus-visible,
+.settingsPanel .settingsAdvancedBtn:focus-visible {
+  outline: 2px solid var(--isUser-fill);
+  outline-offset: 1px;
+}
+
+.settingsPanel .settingsDropdownBtn {
+  width: 100%;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 8px;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
+.settingsPanel .settingsDropdownText {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.settingsPanel .settingsDropdownCaret {
+  flex: 0 0 auto;
+  font-size: 9px;
+  color: var(--hud-faint);
+}
+
+/* The theme control doubles as its own swatch: JS paints the button with
+   the theme's row fill, so it only needs geometry and contrast here. */
+.settingsPanel .themeDropdownBtn {
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--text-color);
+  text-shadow: var(--player-name-shadow, var(--text-shadow));
+}
+.settingsPanel .themeDropdownBtn:hover {
+  filter: brightness(1.12);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+.settingsPanel .themeDropdownBtn .settingsDropdownCaret {
+  color: inherit;
+  opacity: 0.7;
+}
+.settingsPanel .themeDropdownMenu .settingsDropdownItem {
+  text-shadow: var(--player-name-shadow, var(--text-shadow));
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+}
+body.mainPlayerNamesBold .settingsPanel .themeDropdownBtn,
+body.mainPlayerNamesBold .settingsPanel .themeDropdownMenu .settingsDropdownItem {
+  font-variation-settings: "wght" 700, "wdth" 87.5;
+}
+
+.settingsPanel .settingsDropdownMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  min-width: 100%;
+  padding: 4px;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  background: rgba(var(--hud-bg), 0.98);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+  /* Direction and gap live on the base rule, not on .isOpen: the player
+     limit menu is opened by setting display inline, so it never picks up
+     a class-scoped flex-direction. */
+  flex-direction: column;
+  gap: 2px;
+  display: none;
+  z-index: 7;
+}
+.settingsPanel .settingsDropdownMenu.isOpen {
+  display: flex;
+}
+.settingsPanel .settingsDropdownItem {
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.82);
+  font-family: inherit;
+  font-size: 12px;
+  text-align: left;
+  white-space: nowrap;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+.settingsPanel .settingsDropdownItem:hover,
+.settingsPanel .settingsDropdownItem.isActive {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.settingsPanel .keybindBtn {
+  flex: 0 0 auto;
+  justify-content: center;
+  min-width: 116px;
+  padding: 0 10px;
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-variant-numeric: tabular-nums;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+}
+.settingsPanel .keybindBtn .keybindText {
+  pointer-events: none;
+}
+.settingsPanel .keybindBtn.recording {
+  color: #fff;
+  border-color: var(--isUser-fill);
+  background: rgba(255, 255, 255, 0.12);
+  animation: keybindPulse 1s ease-in-out infinite;
+}
+@keyframes keybindPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+.settingsPanel .settingsAction {
+  justify-content: center;
+  padding: 0 12px;
+  font-variation-settings: "wght" 600, "wdth" 75;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.settingsPanel .settingsActionDanger {
+  color: var(--error-fill);
+  border-color: var(--error-fill);
+  opacity: 0.75;
+}
+.settingsPanel .settingsActionDanger:hover {
+  color: var(--error-fill);
+  border-color: var(--error-fill);
+  background: var(--set-field-bg-hover);
+  opacity: 1;
+}
+
+/* ---------- sliders ---------- */
+
+.settingsPanel .settingsRangeInline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 1 var(--set-control-w);
+  min-width: 0;
+}
+.settingsPanel .settingsRange {
+  flex: 1;
+  min-width: 0;
+  height: 14px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* --range-pct is mirrored from the input's value in core.js so the track
+   can show how far along it is without a second element. */
+.settingsPanel .settingsRange::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    var(--isUser-fill) 0 var(--range-pct, 50%),
+    rgba(255, 255, 255, 0.14) var(--range-pct, 50%) 100%
+  );
+}
+.settingsPanel .settingsRange::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 9px;
+  height: 11px;
+  margin-top: -4px;
+  border: 0;
+  border-radius: 1px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+.settingsPanel .settingsRange:hover::-webkit-slider-thumb {
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12), 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+.settingsPanel .settingsRangeInline .settingsValue {
+  flex: 0 0 auto;
+  min-width: 34px;
+  justify-content: flex-end;
+}
+
+/* ---------- toggles ---------- */
+
+.settingsPanel .settingsToggleLabel {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+.settingsPanel .settingsToggleControl {
+  position: relative;
+  width: 30px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+.settingsPanel .settingsToggleControl input[type="checkbox"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.settingsPanel .settingsToggleTrack {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 1px solid var(--set-field-border);
+  background: rgba(255, 255, 255, 0.08);
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.settingsPanel .settingsToggleTrack::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), background 120ms ease;
+}
+.settingsPanel .settingsToggleControl input[type="checkbox"]:checked + .settingsToggleTrack {
+  background: var(--isUser-fill);
+  border-color: var(--isUser-fill);
+}
+.settingsPanel .settingsToggleControl input[type="checkbox"]:checked + .settingsToggleTrack::after {
+  transform: translateX(13px);
+  background: #fff;
+}
+.settingsPanel .settingsToggleControl input[type="checkbox"]:focus-visible + .settingsToggleTrack {
+  outline: 2px solid var(--isUser-fill);
+  outline-offset: 2px;
+}
+
+/* Bold is one setting with two switches, so they ride together on the
+   right rather than claiming a row each. */
+.settingsPanel .settingsBoldToggleGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex: 0 0 auto;
+}
+.settingsPanel .settingsToggleInline {
+  min-height: 0;
+  padding: 0;
+  width: auto;
+  gap: 7px;
+}
+.settingsPanel .settingsToggleInline .settingsToggleLabel {
+  flex: 0 0 auto;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--hud-sub);
+}
+
+/* ---------- advanced disclosure ---------- */
+
+.settingsPanel .settingsAdvancedToggle {
+  margin-top: 4px;
+}
+.settingsPanel .settingsAdvancedBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 0;
+  background: none;
+  border: 0;
+  color: var(--hud-sub);
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+.settingsPanel .settingsAdvancedBtn:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+.settingsPanel .settingsAdvancedBtn .settingsLabel {
+  font-variation-settings: "wght" 700, "wdth" 75;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: inherit;
+}
+.settingsPanel .settingsAdvancedCaret {
+  font-size: 9px;
+  line-height: 1;
+  transition: transform 150ms ease;
+}
+.settingsPanel .settingsAdvancedToggle.isOpen .settingsAdvancedCaret {
+  transform: rotate(180deg);
+}
+.settingsPanel .settingsAdvancedBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------- footer ---------- */
+
+.settingsPanel .settingsFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  margin-top: 2px;
+  padding-top: 13px;
+  border-top: 1px solid var(--hud-hairline);
+}
+.settingsPanel .settingsFooterLinks {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.settingsPanel .settingsFooterValue {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+/* One geometry for the three outbound links; only the fill tells them
+   apart, and none of them is louder than the panel it sits in. */
+.settingsPanel .discordButton,
+.settingsPanel .supportButton,
+.settingsPanel .a2toolsButton,
+.settingsPanel .quitButton {
+  height: 28px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: #fff;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 700, "wdth" 87.5;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: filter 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.settingsPanel .discordButton {
+  background: #5865f2;
+}
+.settingsPanel .supportButton {
+  background: linear-gradient(90deg, #7f5fe8, #6f4cd8);
+}
+.settingsPanel .a2toolsButton {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899, #6366f1);
+  background-size: 300% 300%;
+  animation: a2toolsShimmer 6s ease infinite;
+}
+.settingsPanel .discordButton:hover,
+.settingsPanel .supportButton:hover,
+.settingsPanel .a2toolsButton:hover {
+  filter: brightness(1.12);
+}
+.settingsPanel .discordButton .discordIcon,
+.settingsPanel .supportButton .supportIcon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+}
+.settingsPanel .discordButton .discordIcon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+.settingsPanel .supportButton .supportIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Quit is destructive, so it is outlined rather than filled — present,
+   but never the brightest thing in the footer. */
+.settingsPanel .quitButton {
+  background: transparent;
+  border-color: var(--error-fill);
+  color: var(--error-fill);
+  opacity: 0.8;
+}
+.settingsPanel .quitButton:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settingsPanel .a2toolsButton { animation: none; }
+  .settingsPanel .keybindBtn.recording { animation: none; }
+  .settingsPanel .settingsToggleTrack::after { transition: none; }
+}
+
+
+/* Shared close button — used in settingsPanel, detailsPanel, and historyPanel */
+.closeX {
+  cursor: pointer;
+  user-select: none;
+  font-size: 22px;
+  padding: 2px 8px;
+  border-radius: 4px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* History panel */
+.historyPanel {
+  position: absolute;
+  color: var(--text-color);
+  display: none;
+  left: min(372px, calc(100vw - 292px));
+  right: 12px;
+  top: 0;
+  width: max-content;
+  min-width: 280px;
+  max-width: min(760px, calc(100vw - 304px));
+  max-height: calc(100vh - 24px);
+  border: 1px solid var(--panel-border);
+  background: rgba(12, 22, 40, 0.95);
+  border-radius: var(--rounded-lg);
+  overflow: hidden;
+  flex-direction: column;
+
+  &.open {
+    display: flex;
+  }
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 6px;
+}
+
+.historyTitle {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--title);
+}
+
+.historyBody {
+  overflow-y: auto;
+  flex: 1;
+  padding: 6px 0;
+}
+
+.historyEmpty {
+  padding: 20px 16px;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+  font-size: 13px;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+}
+
+.historyRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.12s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.historyRowIcons {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.historyIconWrap {
+  position: relative;
+  display: inline-flex;
+}
+.historyIconWrap[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 10, 14, 0.95);
+  color: #e0e0e0;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 9px;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+  z-index: 200;
+}
+.historyIconWrap[data-tip]:hover::after {
+  opacity: 1;
+}
+.historyRowClassIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  object-fit: contain;
+}
+
+.historyRowInfo {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.historyRowName {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historyRowMeta {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 2px;
+}
+
+.historyRowActions {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.historyClassDropdown {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.historyClassDropdown .historyClassDropdownTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  user-select: none;
+}
+.historyClassDropdownLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.historyClassDropdownChevron {
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+.historyClassDropdown.open .historyClassDropdownChevron {
+  transform: rotate(180deg);
+}
+.historyClassDropdownMenu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #1a1c22;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  overflow: hidden;
+  z-index: 300;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.historyClassDropdown.open .historyClassDropdownMenu {
+  display: block;
+}
+.historyClassOption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.historyClassOption:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+.historyClassOption.selected {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.historyClassDropdownIcon {
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.historyFilters {
+  display: flex;
+  gap: 6px;
+  padding: 6px 14px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.historyFilterSelect {
+  flex: 1;
+  min-width: 0;
+  background: rgba(0, 0, 0, 0.35);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.45)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 12px;
+  padding: 6px 26px 6px 10px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+
+  &:focus {
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+}
+.historyFilterSelect option {
+  background: #1e2028;
+  color: #fff;
+}
+.historyList {
+  max-height: 540px;
+  overflow-y: auto;
+}
+.historyList::-webkit-scrollbar {
+  width: 10px;
+}
+.historyList::-webkit-scrollbar-track {
+  background: rgb(30, 30, 30);
+  border-radius: 999px;
+}
+.historyList::-webkit-scrollbar-thumb {
+  background-color: rgb(77, 77, 77);
+  border-radius: 999px;
+}
+.historyList::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* The dry-run button. Unlike the delete button it is always visible: previewing
+   what an upload contains is a thing you should be able to do without first
+   entering a mode that exists to make deletion deliberate. */
+/* Supporter names. Cosmetic only: never the bar, never the ordering, never a
+   number — a meter that flatters whoever paid is not one anyone should trust.
+   One rule per layout because the four "layouts" are one DOM under two CSS
+   switches (body.legacyUi and .meter.slim), and each sets its own name colour.
+
+   Two layers, and the split is deliberate. The base rule is a plain gold with
+   the standard name shadow, which is what keeps the text readable over whatever
+   the game happens to be drawing underneath. The sweep is added on top only
+   where the browser can clip a gradient to text — if that ever fails, the name
+   is still gold and still legible rather than turning invisible. */
+.meter .item .content .name.isSupporter,
+body.legacyUi .meter .item .content .name.isSupporter,
+.detailsPartyBarName.isSupporter,
+.hoverDetailsTooltipHeader .isSupporter {
+  /* !important for the details party bars, which set colour inline from
+     jobColorMap and would otherwise win. */
+  color: var(--supporter-name, #ffcf5c) !important;
+  text-shadow:
+    0 0 6px rgba(255, 191, 60, 0.45),
+    var(--player-name-shadow, var(--text-shadow));
+}
+
+/* The supporter badge — a small gold star beside the name.
+   Deliberately an icon and not a "PATRON" pill: the slim layouts run an 11.5px
+   name in a 398px window, and a word here would push real numbers off the row.
+   It shares the sweep so badge and name read as one mark rather than two. */
+.supporterBadge {
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  flex: 0 0 auto;
+  color: var(--supporter-name, #ffcf5c);
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.9));
+  line-height: 0;
+}
+
+.meter.slim .supporterBadge svg {
+  width: 9px;
+  height: 9px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+    .supporterBadge {
+      animation: a2toolsBadgeGlow 3s ease-in-out infinite;
+    }
+  }
+}
+
+/* Paired with the name sweep rather than matching it exactly: the star is a few
+   pixels across, so a travelling band would be invisible on it. A brightness
+   pulse on the same 3s period reads as the same effect. */
+@keyframes a2toolsBadgeGlow {
+  0%, 100% { color: #d9a13c; filter: drop-shadow(0 1px 1px rgba(0,0,0,.9)); }
+  50%      { color: #fff3c8; filter: drop-shadow(0 1px 1px rgba(0,0,0,.9)) drop-shadow(0 0 4px rgba(255,205,90,.85)); }
+}
+
+/* A narrow bright band travelling across a warm gold base. The band is only a
+   few percent of the gradient, so most of the time most of the name is plain
+   gold — it reads as an occasional glint rather than a flashing element sitting
+   on top of someone's game.
+
+   The range is 100%→0% and not something wider, and that is load bearing rather
+   than arbitrary. With `background-size` above 100% the image is wider than the
+   text, and percentage positioning maps 0%/100% to "flush left"/"flush right",
+   so anywhere in that range the gradient still covers every glyph. Positions
+   outside it scroll the image clear of the text, and since the fill is
+   transparent and clipped to the gradient, the name simply disappears for part
+   of every cycle — which is exactly what the first version of this did.
+   Both ends of the gradient are the same gold, so the wrap is invisible. */
+@keyframes a2toolsGoldSweep {
+  from { background-position: 100% 50%; }
+  to   { background-position: 0% 50%; }
+}
+
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  .meter .item .content .name.isSupporter,
+  body.legacyUi .meter .item .content .name.isSupporter,
+  .detailsPartyBarName.isSupporter,
+  .hoverDetailsTooltipHeader .isSupporter {
+    /* Two highlight bands, not one. The element only ever shows about a third of
+       the gradient at a time, so with a single band most of the cycle is flat
+       gold and the effect reads as a rare glint. A second band roughly opposite
+       it means one is nearly always crossing the name. Both ends are the same
+       gold so the wrap stays invisible. */
+    background-image: linear-gradient(
+      /* Steeper than the usual near-horizontal sweep so the band reads as a
+         diagonal shine crossing the glyphs rather than a bar sliding sideways.
+         Kept off a true 45deg: on a line of text only ~17px tall, too steep and
+         the band clears the name almost as soon as it arrives. */
+      125deg,
+      #c9922f 0%,
+      #ffeaad 13%,
+      #fffdf2 18%,
+      #ffeaad 23%,
+      #c9922f 34%,
+      #e9bb5c 50%,
+      #c9922f 66%,
+      #ffeaad 75%,
+      #fffdf2 80%,
+      #ffeaad 85%,
+      #c9922f 100%
+    );
+    background-size: 280% 100%;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /* text-shadow paints *behind* the glyph, so with a transparent fill it
+       shows through the letters and turns them muddy. drop-shadow works on the
+       composited result instead, which is what keeps the name readable once the
+       gradient is doing the colouring. */
+    text-shadow: none;
+    filter:
+      drop-shadow(0 1px 1px rgba(0, 0, 0, 0.92))
+      drop-shadow(0 0 5px rgba(255, 190, 60, 0.42));
+    animation: a2toolsGoldSweep 3s linear infinite;
+  }
+}
+
+/* Someone who has asked their OS for less motion should not get a name that
+   never stops moving. Keep the gradient — it still looks gold — and stop it. */
+@media (prefers-reduced-motion: reduce) {
+  .meter .item .content .name.isSupporter,
+  body.legacyUi .meter .item .content .name.isSupporter,
+  .detailsPartyBarName.isSupporter,
+  .hoverDetailsTooltipHeader .isSupporter {
+    animation: none;
+    background-position: 50% 50%;
+  }
+}
+
+/* The device-grant code. Shown rather than hidden behind the browser: opening
+   the page can fail — a default browser that is not set, a popup blocker, a
+   locked-down machine — and when it does the code is the only way back into the
+   flow. Monospaced and spaced out because people read it aloud and retype it. */
+.accountCodeBox {
+  margin-top: 8px;
+  padding: 9px 11px;
+  border-radius: 6px;
+  background: rgba(127, 196, 255, 0.08);
+  border: 1px solid rgba(127, 196, 255, 0.22);
+}
+
+.accountCodeLabel,
+.accountCodeHint {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.accountCode {
+  font-family: Consolas, "SF Mono", ui-monospace, monospace;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #cfe6ff;
+  margin: 5px 0;
+  user-select: text;
+}
+
+.accountCodeHint {
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+.historyPreviewBtn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: #7fc4ff;
+    background: rgba(127, 196, 255, 0.12);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+}
+
+.historyUploadBtn.isUploaded {
+  color: #6ee7a8;
+}
+
+.historyPreviewNote {
+  display: none;
+  margin: 0 12px 8px;
+  padding: 7px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(127, 196, 255, 0.09);
+  border: 1px solid rgba(127, 196, 255, 0.22);
+  word-break: break-word;
+
+  &.isError {
+    color: #ffb4b4;
+    background: rgba(224, 107, 107, 0.1);
+    border-color: rgba(224, 107, 107, 0.3);
+  }
+}
+
+.historyDeleteBtn {
+  background: none;
+  border: none;
+  color: #e06b6b;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: #ff8080;
+    background: rgba(224, 107, 107, 0.12);
+  }
+}
+
+.historyPanel.deleteMode .historyDeleteBtn {
+  display: inline-flex;
+}
+
+.historyTrainToggle {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1.4;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.12s, color 0.12s;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &.active {
+    color: var(--accent, #7ecfff);
+    background: rgba(126, 207, 255, 0.1);
+  }
+}
+
+.historyDeleteToggle {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.12s, color 0.12s;
+
+  &:hover {
+    color: #e06b6b;
+    background: rgba(224, 107, 107, 0.1);
+  }
+
+  &.active {
+    color: #e06b6b;
+    background: rgba(224, 107, 107, 0.12);
+  }
+}
+
+/* Segmented list / grouped view toggle */
+.historyViewToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.historyViewBtn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  padding: 3px 7px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+.historyViewBtn svg {
+  width: 15px;
+  height: 15px;
+}
+.historyViewBtn:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+.historyViewBtn.active {
+  color: var(--accent, #7ecfff);
+  background: rgba(126, 207, 255, 0.14);
+}
+
+/* Grouped-by-boss sections */
+.historyGroup {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.historyGroupHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s;
+}
+.historyGroupHeader:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.historyGroupChevron {
+  display: inline-flex;
+  color: rgba(255, 255, 255, 0.55);
+  transform: rotate(-90deg);
+  transition: transform 0.15s;
+  flex-shrink: 0;
+}
+.historyGroupHeader.expanded .historyGroupChevron {
+  transform: rotate(0deg);
+}
+.historyGroupName {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.historyGroupCount {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 2px 9px;
+}
+.historyGroupChildren {
+  background: rgba(0, 0, 0, 0.18);
+}
+.historyGroupChildren .historyRowChild {
+  padding-left: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.historyGroupChildren .historyRowChild:last-child {
+  border-bottom: none;
+}
+
+.historyTrainBadge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--dps-text);
+  background: var(--row-fill);
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: 6px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.historyLiveBadge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  background: #e05050;
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: 6px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  animation: livePulse 1.4s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* Details back button */
+.detailsBackBtn {
+  background: rgba(255, 255, 255, 0.13);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  & svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+}
+
+/* Ping display — sits below the meter, outside the meter viewport */
+.pingDisplay {
+  display: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
+  white-space: nowrap;
+  width: auto;
+  flex: 0 0 auto;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  align-items: center;
+  gap: 4px;
+}
+.pingDisplay.isVisible {
+  display: flex;
+}
+.pingDisplay .pingIcon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+.pingDisplay.ping-good {
+  color: #5fcaff;
+}
+.pingDisplay.ping-warn {
+  color: #f2b94f;
+}
+.pingDisplay.ping-high {
+  color: #f27a3a;
+}
+.pingDisplay.ping-bad {
+  color: #e06b6b;
+}
+
+.detailsPanel {
+  position: absolute;
+  color: white;
+  display: none;
+  flex-direction: column;
+  --details-font-size: var(--font);
+  --details-skill-icon-size: 24px;
+  /* display: block; */
+  /* left: calc(100% + 8px); */
+  left: min(372px, calc(100vw - 292px));
+  right: 12px;
+  /* top: calc(100% + 4px); */
+  top: 0;
+  font-weight: bold;
+  width: min(1130px, max(280px, calc(100vw - 304px)));
+  border: 1px solid var(--panel-border);
+  background: rgba(12, 22, 40, var(--details-bg-opacity, 0.5));
+  padding: 6px 4px;
+  border-radius: var(--rounded-lg);
+  max-height: calc(100vh - 24px);
+  max-width: max(280px, calc(100vw - 304px));
+  overflow: visible;
+  contain: layout style;
+
+  &.flash {
+    animation: detailsFlash 1s ease-out;
+  }
+
+  &.open {
+    display: flex;
+  }
+  .detailsHeader {
+    display: flex;
+    align-items: center;
+    color: var(--title);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 8px 12px;
+    gap: 12px;
+
+    .detailsTitle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 700;
+      flex-wrap: wrap;
+    }
+
+    .detailsTitleSeparator,
+    .detailsTitleVs {
+      opacity: 0.6;
+    }
+
+    .detailsDropdownWrapper {
+      position: relative;
+    }
+
+    .detailsDropdownBtn {
+      background: transparent;
+      border: none;
+      color: inherit;
+      /* noinspection CssNoGenericFontName */
+      font-family: inherit;
+      font-size: inherit;
+      padding: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detailsDropdownCaret {
+      opacity: 0.6;
+      font-size: 0.8em;
+      order: -1;
+      flex: 0 0 auto;
+    }
+
+    .detailsNicknameBtn {
+      color: var(--isUser-fill);
+    }
+
+    .detailsTargetBtn,
+    .detailsTargetSuffix {
+      color: var(--indicator-end);
+    }
+
+    .detailsDropdownMenu {
+      position: absolute;
+      left: 0;
+      top: calc(100% + 6px);
+      min-width: 200px;
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(12, 22, 40, 0.95);
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+      display: none;
+      z-index: 6;
+    }
+
+    .detailsDropdownMenu.isOpen {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .detailsDropdownItem {
+      background: transparent;
+      border: none;
+      color: inherit;
+      text-align: left;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .detailsDropdownItem:hover,
+    .detailsDropdownItem.isActive {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .detailsTargetSort {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 4px;
+    }
+
+    .detailsScreenshotBtn {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--isUser-fill);
+    }
+
+    .detailsScreenshotBtn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .detailsScreenshotNote {
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 150ms ease;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .detailsScreenshotNote.isVisible {
+      opacity: 1;
+    }
+
+    .detailsSortBtn {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: transparent;
+      color: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .detailsSortBtn.isActive {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .detailsRefreshBtn {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: inherit;
+    }
+
+    .detailsRefreshBtn:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .detailsHeaderControls {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .detailsSettingsMenuWrapper {
+      position: relative;
+    }
+    .detailsSettingsBtn {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: inherit;
+    }
+    .detailsSettingsBtn:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .detailsSettingsMenu {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      min-width: 260px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(12, 22, 40, 0.95);
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+      display: none;
+      z-index: 5;
+    }
+    .detailsSettingsMenu.isOpen {
+      display: block;
+    }
+    .closeX {
+      cursor: pointer;
+      user-select: none;
+      font-size: 22px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .closeX:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  .detailsStats {
+    display: grid;
+    gap: 6px 12px;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 6px 12px;
+
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .label {
+      font-weight: 700;
+    }
+    .value {
+      font-weight: 400;
+    }
+  }
+
+  .detailsSettings {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .detailsSettingsLabel {
+      opacity: 0.8;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .detailsSettingsControl {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .detailsOpacityInput {
+      width: 190px;
+    }
+
+    .detailsOpacityValue {
+      font-size: 12px;
+      opacity: 0.75;
+      min-width: 44px;
+      text-align: right;
+    }
+  }
+
+  .detailsSkills {
+    .cell {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    .cell.center {
+      justify-content: center;
+    }
+    .cell.name {
+      justify-content: flex-start;
+      white-space: nowrap;
+      color: var(--isUser-fill);
+    }
+
+    .cell.dmg {
+      text-align: center;
+    }
+
+    .skillHeader {
+      display: grid;
+      grid-template-columns: var(--skill-grid-cols);
+      gap: 8px;
+      align-items: center;
+      padding: 6px 12px;
+      font-weight: 700;
+
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      .cell.name {
+        color: white;
+      }
+    }
+    .skills {
+      max-height: 562px;
+      padding: 0 12px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-gutter: stable;
+      contain: layout;
+
+      &::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: rgba(30, 30, 30);
+        border-radius: 999px;
+        margin-top: 8px;
+        margin-bottom: -8px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: rgb(77, 77, 77);
+        border-radius: 999px;
+      }
+
+      &::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+      .skillRow {
+        display: grid;
+        grid-template-columns: var(--skill-grid-cols);
+        gap: 8px;
+        align-items: center;
+        padding: 2px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        position: relative;
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .rowFill {
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: calc(var(--details-skill-icon-size, 24px) + 6px);
+          background: var(--row-fill);
+          opacity: 0.5;
+          border-radius: var(--rounded-xs);
+          transform-origin: left center;
+          pointer-events: none;
+        }
+        .cell {
+          position: relative;
+          z-index: 1;
+        }
+      }
+    }
+
+    .detailsFootnote {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.75);
+      text-shadow: var(--text-shadow);
+      padding: 6px 12px 0;
+      font-weight: 400;
+    }
+  }
+}
+
+.updateModal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  &.isOpen {
+    display: flex;
+  }
+
+  .updateModalCard {
+    width: 360px;
+    border-radius: 24px;
+    background: rgb(12, 22, 40);
+    padding: 24px;
+    font-weight: bold;
+    color: white;
+    .updateModalTitle {
+      font-size: 24px;
+    }
+    .updateModalText {
+      margin: 24px 0;
+      white-space: pre-line;
+    }
+    .updateModalActions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .updateModalBtn {
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 8px;
+      width: 100%;
+      cursor: pointer;
+      color: white;
+      text-shadow: var(--text-shadow);
+    }
+    .updateModalBtn.updateInstallBtn {
+      background: #4caf50;
+    }
+    .updateModalBtn.updateNotesBtn {
+      background: #2196f3;
+    }
+    .updateModalBtn.updateManualBtn {
+      background: #78909c;
+    }
+    .updateModalBtn.updateLaterBtn {
+      background: #ff9800;
+    }
+    .updateProgress {
+      margin-top: 16px;
+      text-align: center;
+    }
+    .updateProgressTrack {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .updateProgressBar {
+      height: 100%;
+      width: 0%;
+      background: #4caf50;
+      border-radius: 4px;
+      transition: width 0.2s;
+    }
+    .updateProgressText {
+      margin-top: 8px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+    }
+    .updateProgressActions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .updateProgressActions .updateModalBtn {
+      flex: 1;
+    }
+    .updateModalBtn.updateCancelBtn {
+      background: #ff5252;
+    }
+    .updateStatusText {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 14px;
+    }
+  }
+}
+
+/* Compatibility: flatten nested rules for environments without CSS nesting support. */
+
+
+
+
+.detailsPanel.open {
+  display: flex;
+}
+.detailsPanel .detailsHeader {
+  display: flex;
+  align-items: center;
+  color: var(--title);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 12px;
+  gap: 12px;
+}
+.detailsPanel .detailsHeader .detailsFightTitle {
+  flex: 1;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--title);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.detailsPanel .detailsHeader .detailsFightTitle .fightTitleBossName {
+  color: #ff55cc;
+}
+.detailsPanel .detailsHeader .detailsDropdownWrapper {
+  position: relative;
+}
+.detailsPanel .detailsHeader .detailsDropdownBtn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.detailsPanel .detailsHeader .detailsDropdownCaret {
+  opacity: 0.6;
+  font-size: 0.8em;
+  order: -1;
+  flex: 0 0 auto;
+}
+.detailsPanel .detailsHeader .detailsNicknameBtn {
+  color: var(--isUser-fill);
+}
+.detailsPanel .detailsHeader .detailsNicknameBtn.isCjk,
+.detailsPanel .detailsHeader .detailsDropdownItem.isCjk {
+  font-family: var(--cjk-font-stack);
+  letter-spacing: 0;
+}
+.detailsPanel .detailsHeader .detailsTargetBtn,
+.detailsPanel .detailsHeader .detailsTargetSuffix {
+  color: var(--indicator-end);
+}
+.detailsPanel .detailsHeader .detailsDropdownMenu {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  min-width: 200px;
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 22, 40, 0.95);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+  display: none;
+  z-index: 6;
+}
+.detailsPanel .detailsHeader .detailsDropdownMenu.isOpen {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.detailsPanel .detailsHeader .detailsDropdownItem {
+  background: transparent;
+  border: none;
+  color: inherit;
+  text-align: left;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.detailsPanel .detailsHeader .detailsDropdownItem:hover,
+.detailsPanel .detailsHeader .detailsDropdownItem.isActive {
+  background: rgba(255, 255, 255, 0.08);
+}
+.detailsPanel .detailsHeader .detailsTargetSort {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+}
+.detailsPanel .detailsHeader .detailsScreenshotWrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.detailsPanel .detailsHeader .detailsScreenshotBtn {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--isUser-fill);
+}
+.detailsPanel .detailsHeader .detailsScreenshotBtn svg {
+  width: 28px;
+  height: 28px;
+}
+.detailsPanel .detailsHeader .detailsScreenshotNote {
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  color: rgba(255, 255, 255, 0.75);
+}
+.detailsPanel .detailsHeader .detailsScreenshotNote.isVisible {
+  opacity: 1;
+}
+.detailsPanel .detailsHeader .detailsSortBtn {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.detailsPanel .detailsHeader .detailsSortBtn.isActive {
+  background: rgba(255, 255, 255, 0.2);
+}
+.detailsPanel .detailsHeader .detailsRefreshBtn {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: inherit;
+}
+.detailsPanel .detailsHeader .detailsRefreshBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.detailsPanel .detailsHeader .detailsHeaderControls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.detailsPanel .detailsHeader .detailsModeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+}
+.detailsPanel .detailsHeader .detailsModeBtn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.detailsPanel .detailsHeader .detailsModeBtn:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+.detailsPanel .detailsHeader .detailsModeBtn[data-mode="dmg"].isActive {
+  background: #e0a23c;
+  color: #0c1628;
+}
+.detailsPanel .detailsHeader .detailsModeBtn[data-mode="heal"].isActive {
+  background: #36c46a;
+  color: #0c1628;
+}
+.detailsPanel .detailsHeader .detailsSettingsMenuWrapper {
+  position: relative;
+  overflow: visible;
+}
+.detailsPanel .detailsHeader .detailsSettingsBtn {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: inherit;
+}
+.detailsPanel .detailsHeader .detailsSettingsBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.detailsPanel .detailsHeader .detailsSettingsMenu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  min-width: 260px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 22, 40, 0.95);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+  display: none;
+  z-index: 1000;
+}
+.detailsPanel .detailsHeader .detailsSettingsMenu.isOpen {
+  display: block;
+}
+.detailsPanel .detailsHeader .closeX {
+  cursor: pointer;
+  user-select: none;
+  font-size: 22px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.detailsPanel .detailsHeader .closeX:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.detailsPanel .detailsSettings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.detailsPanel .detailsSettings .detailsSettingsLabel {
+  opacity: 0.8;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.detailsPanel .detailsSettings .detailsSettingsToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.detailsPanel .detailsSettings .detailsSettingsToggleLabel {
+  flex: 1;
+  text-align: left;
+  font-size: 13px;
+}
+.detailsPanel .detailsSettings .detailsSettingsToggleControl {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.detailsPanel .detailsSettings .detailsSettingsToggleControl input[type="checkbox"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+}
+.detailsPanel .detailsSettings .detailsSettingsToggleTrack {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--panel-border);
+  transition: none;
+}
+.detailsPanel .detailsSettings .detailsSettingsToggleTrack::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+.detailsPanel .detailsSettings .detailsSettingsToggleControl input[type="checkbox"]:checked
++ .detailsSettingsToggleTrack {
+  background: var(--isUser-fill);
+  border-color: var(--isUser-fill);
+}
+.detailsPanel .detailsSettings .detailsSettingsToggleControl input[type="checkbox"]:checked
++ .detailsSettingsToggleTrack::after {
+  transform: translateX(16px);
+}
+.detailsPanel .detailsSettings .detailsSettingsToggleControl input[type="checkbox"]:focus-visible
++ .detailsSettingsToggleTrack {
+  outline: 2px solid var(--isUser-fill);
+  outline-offset: 2px;
+}
+.detailsPanel .detailsSettings .detailsSettingsFolder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.detailsPanel .detailsSettings .detailsSettingsFolder.isHidden {
+  display: none;
+}
+.detailsPanel .detailsSettings .detailsSettingsFolderPath {
+  flex: 1 1 160px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  word-break: break-all;
+}
+.detailsPanel .detailsSettings .detailsSettingsFolderBtn {
+  border: 1px solid var(--panel-border);
+  border-radius: var(--rounded-xs);
+  padding: 4px 8px;
+  background: var(--panel-field-bg);
+  color: var(--text-color);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+.detailsPanel .detailsSettings .detailsSettingsControl {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.detailsPanel .detailsSettings .detailsOpacityInput {
+  width: 190px;
+}
+.detailsPanel .detailsSettings .detailsFontSizeInput {
+  width: 190px;
+}
+.detailsPanel .detailsSettings .detailsIconSizeInput {
+  width: 190px;
+}
+.detailsPanel .detailsSettings .detailsOpacityValue {
+  font-size: 12px;
+  opacity: 0.75;
+  min-width: 44px;
+  text-align: right;
+}
+.detailsPanel .detailsSettings .detailsFontSizeValue {
+  font-size: 12px;
+  opacity: 0.75;
+  min-width: 44px;
+  text-align: right;
+}
+.detailsPanel .detailsSettings .detailsIconSizeValue {
+  font-size: 12px;
+  opacity: 0.75;
+  min-width: 44px;
+  text-align: right;
+}
+.detailsPanel .detailsStatsRow {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.detailsPanel .detailsPartyList {
+  flex: 0 0 33.33%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+.detailsPanel .detailsStats {
+  flex: 1;
+  display: grid;
+  gap: 4px 10px;
+  grid-template-columns: repeat(2, 1fr);
+  padding: 6px 10px;
+  align-content: start;
+}
+.detailsPanel .detailsStats .stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.detailsPanel .detailsStats .stat.statEmpty {
+  visibility: hidden;
+}
+.detailsPanel .detailsStats .stat .label {
+  font-weight: 700;
+  color: var(--isUser-fill);
+}
+.detailsPanel .detailsStats .stat .value {
+  font-weight: 700;
+}
+.detailsPanel .detailsStats .stat .label,
+.detailsPanel .detailsStats .stat .value {
+  margin: 0;
+}
+/* Party bars in details left column */
+.detailsPanel .detailsPartyBar {
+  position: relative;
+  height: 32px;
+  padding: 0 6px 0 12px;
+  cursor: pointer;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  flex-shrink: 0;
+}
+.detailsPanel .detailsPartyBar:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.detailsPanel .detailsPartyBar.isSelected {
+  background: rgba(255, 255, 255, 0.08);
+}
+.detailsPanel .detailsPartyBarFill {
+  position: absolute;
+  inset: 0;
+  background: var(--row-fill);
+  opacity: 0.45;
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.detailsPanel .detailsPartyBarContent {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.detailsPanel .detailsPartyBarIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
+}
+.detailsPanel .detailsPartyBarName {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  text-shadow: var(--player-name-shadow, var(--text-shadow));
+}
+.detailsPanel .detailsPartyBarName.isCjk {
+  font-family: var(--cjk-font-stack);
+  letter-spacing: 0;
+}
+.detailsPanel .detailsPartyBarDps,
+.detailsPanel .detailsPartyBarDmg,
+.detailsPanel .detailsPartyBarPct {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.85;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  text-shadow: var(--text-shadow);
+}
+.detailsPanel .detailsPartyBarDps {
+  width: 62px;
+}
+.detailsPanel .detailsPartyBarDmg {
+  width: 56px;
+}
+.detailsPanel .detailsPartyBarPct {
+  width: 40px;
+  opacity: 0.6;
+}
+
+.detailsPanel .detailsBody {
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  overflow-y: auto;
+  font-size: var(--details-font-size, var(--font));
+}
+.detailsPanel .detailsSkills {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  --skill-grid-cols:
+    minmax(90px, 3fr)    /* name */
+    minmax(54px, 0.9fr)  /* hit */
+    minmax(30px, 0.8fr)  /* dmg */
+    minmax(30px, 0.8fr)  /* dmgpct */
+    minmax(54px, 0.9fr)  /* mhit */
+    minmax(24px, 0.7fr)  /* mdmg */
+    minmax(30px, 0.8fr)  /* crit */
+    minmax(36px, 0.9fr)  /* parry */
+    minmax(34px, 0.9fr)  /* perfect */
+    minmax(28px, 0.7fr)  /* double */
+    minmax(24px, 0.7fr)  /* back */
+    minmax(28px, 0.7fr)  /* smite */
+    minmax(28px, 0.7fr)  /* powershard */
+    minmax(50px, 0.8fr)  /* regen */
+    minmax(50px, 0.8fr)  /* mindmg */
+    minmax(50px, 0.8fr)  /* avgdmg */
+    minmax(50px, 0.8fr); /* maxdmg */
+}
+/* Column-hiding: when .detailsPanel has .hide-col-X, collapse that column to 0 */
+.detailsPanel.hide-col-hit  .detailsSkills .cell.hit,
+.detailsPanel.hide-col-mhit .detailsSkills .cell.mhit,
+.detailsPanel.hide-col-mdmg .detailsSkills .cell.mdmg,
+.detailsPanel.hide-col-dmg .detailsSkills .cell.dmg,
+.detailsPanel.hide-col-dmgpct .detailsSkills .cell.dmgpct,
+.detailsPanel.hide-col-crit .detailsSkills .cell.crit,
+.detailsPanel.hide-col-parry .detailsSkills .cell.parry,
+.detailsPanel.hide-col-perfect .detailsSkills .cell.perfect,
+.detailsPanel.hide-col-double .detailsSkills .cell.double,
+.detailsPanel.hide-col-back .detailsSkills .cell.back,
+.detailsPanel.hide-col-smite .detailsSkills .cell.smite,
+.detailsPanel.hide-col-powershard .detailsSkills .cell.powershard,
+.detailsPanel.hide-col-regen .detailsSkills .cell.regen,
+.detailsPanel.hide-col-mindmg .detailsSkills .cell.mindmg,
+.detailsPanel.hide-col-avgdmg .detailsSkills .cell.avgdmg,
+.detailsPanel.hide-col-maxdmg .detailsSkills .cell.maxdmg {
+  display: none;
+}
+.detailsPanel .detailsSkills .skillHeader .cell[data-sort-key] {
+  cursor: pointer;
+}
+.detailsPanel .detailsSkills .cell {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.detailsPanel .detailsSkills .skillHeader .cell,
+.detailsPanel .detailsSkills .skills .skillRow .cell {
+  white-space: nowrap;
+}
+.detailsPanel .detailsSkills .skills .skillRow .cell {
+  font-weight: 400;
+}
+.detailsPanel .detailsSkills .skills .skillRow .cell.name {
+  font-weight: 700;
+  white-space: nowrap;
+  align-items: center;
+}
+.detailsPanel .detailsSkills .cell.name {
+  justify-content: flex-start;
+  white-space: nowrap;
+  color: var(--isUser-fill);
+}
+.detailsPanel .detailsSkills .cell.name .skillIcon {
+  width: var(--details-skill-icon-size, 24px);
+  height: var(--details-skill-icon-size, 24px);
+  border-radius: 3px;
+  margin-right: 6px;
+  flex: 0 0 auto;
+  object-fit: cover;
+}
+.detailsPanel .detailsSkills .cell.name .skillIcon.isPlaceholder {
+  background: transparent;
+  border:     1px solid transparent;
+}
+.detailsPanel .detailsSkills .cell.name .skillNameText {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+  font-size: 0.88em;
+  padding-left: 3px;
+  text-shadow: var(--player-name-shadow, var(--text-shadow));
+}
+.detailsPanel .detailsSkills .cell.name .dotToggle {
+  flex: 0 0 10px;
+  width: 10px;
+  text-align: center;
+  font-size: 0.85em;
+  opacity: 0.6;
+  margin: 0 2px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+.detailsPanel .detailsSkills .skills .skillRow.isDotChild {
+  opacity: 0.85;
+  background: rgba(255, 255, 255, 0.03);
+}
+.detailsPanel .detailsSkills .skills .skillRow.isDotChild .cell.name .skillNameText {
+  font-style: italic;
+}
+.detailsPanel .detailsSkills .cell.name .skillSpecIndicator {
+  display: none;
+  flex: 0 0 auto;
+  gap: 1.5px;
+  margin-left: 4px;
+  align-items: center;
+}
+.detailsPanel .detailsSkills .cell.name .skillSpecIndicator .specDot {
+  width: 4px;
+  height: 10px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.detailsPanel .detailsSkills .cell.name .skillSpecIndicator .specDot.isActive {
+  background: #6af;
+}
+.detailsPanel .detailsSkills .cell.center {
+  justify-content: center;
+  text-overflow: ellipsis;
+}
+.detailsPanel .detailsSkills .cell.dmg,
+.detailsPanel .detailsSkills .cell.dmgpct {
+  justify-content: center;
+}
+.detailsPanel .detailsSkills .skills .skillRow .cell.hit,
+.detailsPanel .detailsSkills .skills .skillRow .cell.dmg,
+.detailsPanel .detailsSkills .skills .skillRow .cell.dmgpct {
+  font-weight: 700;
+}
+.detailsPanel .detailsSkills .skillHeader {
+  display: grid;
+  grid-template-columns: var(--skill-grid-cols);
+  gap: 8px;
+  align-items: center;
+  /* Right padding = 12px content + measured scrollbar width (set by JS as --scrollbar-w) */
+  padding: 6px calc(12px + var(--scrollbar-w, 10px)) 6px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.detailsPanel .detailsSkills .skillHeader .cell.name {
+  color: white;
+}
+.detailsPanel .detailsSkills .skillHeader .cell[data-tip] {
+  position: relative;
+}
+.detailsPanel .detailsSkills .skillHeader .cell[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 10, 14, 0.95);
+  color: #e0e0e0;
+  font-size: 13px;
+  font-weight: 400;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+  z-index: 100;
+}
+.detailsPanel .detailsSkills .skillHeader .cell[data-tip]:hover::after {
+  opacity: 1;
+}
+.detailsPanel .detailsSkills .skillHeader .cell.name[data-tip]::after {
+  left: 0;
+  transform: none;
+}
+.detailsPanel .detailsSkills .skills {
+  padding: 0 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  contain: layout;
+}
+.detailsPanel .detailsSkills::-webkit-scrollbar {
+  height: 10px;
+}
+.detailsPanel .detailsSkills::-webkit-scrollbar-track {
+  background: rgb(30, 30, 30);
+  border-radius: 999px;
+}
+.detailsPanel .detailsSkills::-webkit-scrollbar-thumb {
+  background-color: rgb(77, 77, 77);
+  border-radius: 999px;
+}
+.detailsPanel .detailsSkills::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.detailsPanel .detailsSkills .skills::-webkit-scrollbar {
+  width: 10px;
+}
+.detailsPanel .detailsSkills .skills::-webkit-scrollbar-track {
+  background: rgb(30, 30, 30);
+  border-radius: 999px;
+  margin-top: 8px;
+  margin-bottom: -8px;
+}
+.detailsPanel .detailsSkills .skills::-webkit-scrollbar-thumb {
+  background-color: rgb(77, 77, 77);
+  border-radius: 999px;
+}
+.detailsPanel .detailsSkills .skills::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.detailsPanel .detailsBody::-webkit-scrollbar {
+  width: 10px;
+}
+.detailsPanel .detailsBody::-webkit-scrollbar-track {
+  background: rgb(30, 30, 30);
+  border-radius: 999px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+.detailsPanel .detailsBody::-webkit-scrollbar-thumb {
+  background-color: rgb(77, 77, 77);
+  border-radius: 999px;
+}
+.detailsPanel .detailsBody::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@keyframes meterBarHoverRipple {
+  0% {
+    transform: translateX(-100%); /* GPU optimized */
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(350%); /* GPU optimized (moves across the bar) */
+    opacity: 0;
+  }
+}
+
+
+.detailsPanel .detailsSkills .skills .skillRow {
+  display: grid;
+  grid-template-columns: var(--skill-grid-cols);
+  gap: 8px;
+  align-items: center;
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+.detailsPanel .detailsSkills .skills .skillRow:last-child {
+  border-bottom: none;
+}
+.detailsPanel .detailsSkills .skills .skillRow .rowFill {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: calc(var(--details-skill-icon-size, 24px) + 6px);
+  background: var(--row-fill);
+  opacity: 0.5;
+  border-radius: var(--rounded-xs);
+  transform-origin: left center;
+  pointer-events: none;
+}
+.detailsPanel .detailsSkills .skills .skillRow .cell {
+  position: relative;
+  z-index: 1;
+}
+.detailsPanel .detailsSkills .detailsFootnote {
+  font-size: 0.85em;
+  opacity: 0.6;
+  padding: 6px 12px 0;
+  font-weight: 400;
+}
+
+/* ── Collapsible sections ── */
+.detailsPanel .detailsSection {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.detailsPanel .detailsSection.isExpanded {
+  flex: 1 1 auto;
+}
+.detailsPanel .detailsSection .detailsSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  transition: color 0.15s;
+}
+.detailsPanel .detailsSection .detailsSectionHeader:hover {
+  color: rgba(255, 255, 255, 0.95);
+}
+.detailsPanel .detailsSection .detailsSectionArrow {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: transform 0.2s;
+}
+.detailsPanel .detailsSection.isExpanded > .detailsSectionHeader .detailsSectionArrow {
+  transform: rotate(90deg);
+}
+.detailsPanel .detailsSection .detailsSectionContent {
+  display: none;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+.detailsPanel .detailsSection.isExpanded > .detailsSectionContent {
+  display: flex;
+}
+
+/* ── DPS Chart ── */
+.detailsPanel .dpsChartSection .detailsSectionContent {
+  padding: 0;
+}
+.detailsPanel .dpsChartWrap {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 12px 0;
+}
+.detailsPanel .dpsChartLegend {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 0 4px;
+  flex-wrap: wrap;
+}
+.detailsPanel .dpsChartLegend .legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82em;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+}
+.detailsPanel .dpsChartLegend .legendItem svg {
+  flex-shrink: 0;
+}
+.detailsPanel .dpsChartCanvas {
+  display: block;
+  width: 100%;
+}
+.detailsPanel .dpsChartXAxis {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0 4px;
+  font-size: 0.75em;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+.detailsPanel .dpsChartXAxis span {
+  flex-shrink: 0;
+}
+
+/* ── Timeline chart ── */
+.detailsPanel .timelineChart {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 4px 0;
+}
+.detailsPanel .timelineLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  padding: 4px 12px 6px;
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.8);
+}
+.detailsPanel .timelineLegend .legendItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.detailsPanel .timelineLegend .legendItem img {
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  object-fit: cover;
+}
+.detailsPanel .timelineViewport {
+  flex: 1 1 auto;
+  min-height: 80px;
+  max-height: 320px;
+  overflow-x: auto;
+  overflow-y: auto;
+  padding: 0 12px;
+}
+.detailsPanel .timelineViewport::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.detailsPanel .timelineViewport::-webkit-scrollbar-track {
+  background: rgb(30, 30, 30);
+  border-radius: 999px;
+}
+.detailsPanel .timelineViewport::-webkit-scrollbar-thumb {
+  background-color: rgb(77, 77, 77);
+  border-radius: 999px;
+}
+.detailsPanel .timelineViewport::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.detailsPanel .timelineCanvas {
+  display: block;
+}
+.detailsPanel .timelineXAxis {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 12px 0;
+  font-size: 0.75em;
+  color: rgba(255, 255, 255, 0.5);
+}
+.detailsPanel .timelineXAxis span {
+  flex-shrink: 0;
+}
+
+.updateModal.isOpen {
+  display: flex;
+}
+.updateModal .updateModalCard {
+  width: 360px;
+  border-radius: 24px;
+  background: rgb(12, 22, 40);
+  padding: 24px;
+  font-weight: bold;
+  color: white;
+}
+.updateModal .updateModalCard .updateModalTitle {
+  font-size: 24px;
+}
+.updateModal .updateModalCard .updateModalText {
+  margin: 24px 0;
+  white-space: pre-line;
+}
+.updateModal .updateModalCard .updateModalActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.updateModal .updateModalCard .updateModalBtn {
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 8px;
+  width: 100%;
+  cursor: pointer;
+  color: white;
+  text-shadow: var(--text-shadow);
+}
+.updateModal .updateModalCard .updateModalBtn.updateInstallBtn {
+  background: #4caf50;
+}
+.updateModal .updateModalCard .updateModalBtn.updateNotesBtn {
+  background: #2196f3;
+}
+.updateModal .updateModalCard .updateModalBtn.updateManualBtn {
+  background: #78909c;
+}
+.updateModal .updateModalCard .updateModalBtn.updateLaterBtn {
+  background: #ff9800;
+}
+.updateModal .updateModalCard .updateModalBtn.updateCancelBtn {
+  background: #ff5252;
+}
+.updateModal .updateModalCard .updateProgress {
+  margin-top: 16px;
+  text-align: center;
+}
+.updateModal .updateModalCard .updateProgressTrack {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.updateModal .updateModalCard .updateProgressBar {
+  height: 100%;
+  width: 0%;
+  background: #4caf50;
+  border-radius: 4px;
+  transition: width 0.2s;
+}
+.updateModal .updateModalCard .updateProgressText {
+  margin-top: 8px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+}
+.updateModal .updateModalCard .updateProgressActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.updateModal .updateModalCard .updateProgressActions .updateModalBtn {
+  flex: 1;
+}
+.updateModal .updateModalCard .updateStatusText {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+}
+/* One-time Discord activity popup (core.js maybeShowDiscordPromo). */
+.discordPromo {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+.discordPromo.isOpen {
+  display: flex;
+}
+.discordPromo .discordPromoCard {
+  width: min(360px, 95vw);
+  border-radius: 18px;
+  background: rgb(12, 22, 40);
+  padding: 20px;
+  color: white;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+.discordPromo .discordPromoTitle {
+  font-size: 18px;
+  font-weight: 700;
+  padding: 0 28px;
+}
+.discordPromo .discordPromoText,
+.discordPromo .discordPromoHint {
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.85);
+}
+.discordPromo .discordPromoHint {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.6);
+}
+.discordPromo .discordPromoPreview {
+  width: 100%;
+  max-width: 304px;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+.discordPromo .discordPromoToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.discordPromo .discordPromoToggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: #5865f2;
+  cursor: pointer;
+}
+.discordPromo .discordPromoDone {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 28px;
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  background: #5865f2;
+  cursor: pointer;
+}
+.discordPromo .discordPromoDone:hover {
+  background: #4752c4;
+}
+.discordPromo .discordPromoClose {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.supportModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 8;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.supportModal.isOpen {
+  display: flex;
+}
+.supportModal .supportModalCard {
+  width: min(360px, 95vw);
+  border-radius: 18px;
+  background: rgb(12, 22, 40);
+  padding: 20px;
+  color: white;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.supportModal .supportModalTitle {
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+.supportModal .supportModalClose {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+.supportModal .supportQrContainer {
+  background: white;
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+.supportModal .supportQrImage {
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: white;
+}
+.supportModal .supportActions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+.supportModal .supportIconButton {
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  border-radius: 10px;
+  padding: 10px 8px;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.supportModal .supportIconButton:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.16);
+}
+.supportModal .supportIconButton.isActive {
+  background: rgba(143, 106, 243, 0.35);
+  box-shadow: 0 0 0 1px rgba(143, 106, 243, 0.45);
+}
+.supportModal .supportIcon {
+  width: 18px;
+  height: 18px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.supportModal .supportIcon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.supportModal .supportLabel {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.supportModal .supportIconButton[data-support="afdian"] {
+  background: linear-gradient(90deg, #7f5fe8, #6f4cd8);
+  color: #ffffff;
+}
+.supportModal .supportIconButton[data-support="wechat"] {
+  background: rgba(16, 187, 89, 0.2);
+  color: #8df0b6;
+}
+.supportModal .supportIconButton[data-support="paypal"] {
+  background: rgba(0, 112, 186, 0.2);
+  color: #8fc9ff;
+}
+.supportModal .supportIconButton[data-support="kofi"] {
+  background: linear-gradient(90deg, #7f5fe8, #6f4cd8);
+  color: #ffffff;
+}
+.supportModal .supportIconButton[data-support="btc"] {
+  background: rgba(247, 147, 26, 0.22);
+  color: #ffd0a1;
+}
+.supportModal .supportIconButton[data-support="eth"] {
+  background: rgba(98, 126, 234, 0.22);
+  color: #c2d2ff;
+}
+.supportModal .supportIconButton[data-support="usdc"] {
+  background: rgba(39, 117, 202, 0.22);
+  color: #bcd8ff;
+}
+.supportModal .supportCopyStatus {
+  min-height: 18px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+}
+
+
+.windowDragFreeze {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  pointer-events: none !important;
+  cursor: grabbing !important;
+}
+
+.hoverDetailsTooltip {
+  position: absolute;
+  z-index: 40;
+  min-width: 200px;
+  max-width: 380px;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 10px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: rgba(12, 22, 40, 0.88);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  color: var(--title);
+  text-shadow: var(--text-shadow);
+  opacity: 0;
+  transform: translateY(2px);
+  pointer-events: none;
+  transition: opacity 80ms ease, transform 80ms ease;
+}
+
+.hoverDetailsTooltip.isVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hoverDetailsTooltipHeader {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hoverDetailsTooltipClassIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.hoverDetailsTooltipStats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  opacity: 0.95;
+  margin-bottom: 8px;
+}
+
+.hoverDetailsTooltipSkills {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.hoverDetailsTooltipSkill {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.hoverDetailsTooltipSkill .idx {
+  opacity: 0.8;
+  font-size: 13px;
+}
+
+.hoverDetailsTooltipSkill .name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.hoverDetailsTooltipSkill .name .skillIcon {
+  width: var(--tooltip-skill-icon-size, 20px);
+  height: var(--tooltip-skill-icon-size, 20px);
+  border-radius: 3px;
+  flex: 0 0 auto;
+  object-fit: cover;
+}
+.hoverDetailsTooltipSkill .name .skillIcon.isPlaceholder {
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.hoverDetailsTooltipSkill .name .skillName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.hoverDetailsTooltipSkill .dmg {
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.hoverDetailsTooltipSkill.muted {
+  display: block;
+  opacity: 0.75;
+}
+
+/* ========== Slim Mode ========== */
+
+
+
+
+/* ============================================================
+   LEGACY METER SKIN
+   ------------------------------------------------------------
+   The pre-redesign main window, restored when Settings > Beta UI
+   is switched off. Everything is scoped under body.legacyUi, so
+   with the toggle on none of it matches and the redesign stands
+   on its own.
+
+   The rules up to "legacy bridges" are the original stylesheet's
+   meter rules, unchanged apart from the scoping prefix.
+   ============================================================ */
+
+body.legacyUi .meter {
+  width: 380px;
+  background: rgba(12, 22, 40, var(--window-opacity));
+
+  /* backdrop-filter: blur(1px) saturate(180%); */
+  /* background-color: rgba(255, 255, 255, 0.1); */
+  border: 1px solid rgba(255, 255, 255, min(0.3, calc(var(--window-opacity) * 0.3)));
+  border-radius: var(--rounded);
+  position: relative;
+  min-width: 300px;
+  min-height: 30px;
+  padding-bottom: 20px;
+
+  &.flash {
+    animation: detailsFlash 1s ease-out;
+  }
+}
+body.legacyUi .header {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  .bossIcon {
+    display: flex;
+    align-items: center;
+    width: 88px;
+    position: relative;
+    img {
+      -webkit-user-drag: none;
+
+      width: 100%;
+    }
+  }
+  .bossIconOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    background: rgba(0, 0, 0, 0.35);
+    color: #ffffff;
+    transition: opacity 150ms ease;
+    pointer-events: none;
+    border-radius: 8px;
+  }
+  .bossIconOverlay svg {
+    width: 22px;
+    height: 22px;
+  }
+  .bossIcon:hover .bossIconOverlay {
+    opacity: 1;
+  }
+
+  .bossNames {
+    flex: 1;
+    color: var(--title);
+    text-shadow: var(--text-shadow);
+    font-weight: bold;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+  }
+
+  .headerBtns {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    color: white;
+    gap: 8px;
+    text-shadow: var(--text-shadow);
+    cursor: pointer;
+    .headerBtn {
+      display: flex;
+      align-items: center;
+      width: 20px;
+      height: 20px;
+    }
+    /* When suspend button is visible, shrink all header buttons */
+    &.hasSuspendBtn .headerBtn,
+    &.hasLockBtn .headerBtn {
+      width: 16px;
+      height: 16px;
+    }
+    &.hasSuspendBtn,
+    &.hasLockBtn {
+      gap: 6px;
+    }
+    .lockBtn {
+      color: rgba(255, 255, 255, 0.85);
+      transition: color 150ms ease;
+    }
+    .lockBtn.isLocked {
+      color: #ffc857;
+    }
+    .suspendBtn {
+      color: rgba(255, 255, 255, 0.85);
+      transition: color 150ms ease;
+    }
+    .suspendBtn.isSuspended {
+      color: #ff6b6b;
+    }
+    .metricToggleBtn {
+      width: auto;
+      height: auto;
+      min-width: 26px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+  }
+
+  .footerBtns {
+    position: absolute;
+    right: 24px;
+    bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    color: white;
+    text-shadow: var(--text-shadow);
+    cursor: pointer;
+
+    .footerBtn {
+      display: flex;
+      align-items: center;
+      width: 20px;
+      height: 20px;
+    }
+
+    .metricToggleBtn {
+      width: auto;
+      height: auto;
+      min-width: 26px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+  }
+}
+body.legacyUi .meterTotalBar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+}
+body.legacyUi .meter.slim .meterTotalBar {
+  font-size: 11px;
+  padding: 0 20px 0 12px;
+}
+body.legacyUi .meterTotalBar .meterTotalDps,
+body.legacyUi .meterTotalBar .meterTotalDmg {
+  color: rgba(255, 255, 255, 0.55);
+}
+body.legacyUi .meterTotalBar .meterTotalSep {
+  opacity: 0.3;
+}
+body.legacyUi .list {
+  display: grid;
+  gap: 4px;
+  padding: 0 12px;
+  &:has(.item:not([style*="display: none"])) {
+    padding: 4px 12px 16px;
+  }
+  &:has(.item:not([style*="display: none"])) + .meterTotalBar {
+    margin-top: -13px;
+  }
+  .item {
+    position: relative;
+    height: 36px;
+    padding: 0 8px;
+    border-radius: var(--rounded-xs);
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+  }
+
+  /* .item.isUser {
+    cursor: pointer;
+  } */
+  .item.isUser .fill {
+    background: var(--isUser-fill);
+  }
+  .item.warning .fill {
+    background: var(--warning-fill);
+  }
+  .item.error .fill {
+    background: var(--error-fill);
+  }
+  .fill {
+    position: absolute;
+    inset: 0;
+
+    background: var(--row-fill);
+    opacity: 0.8;
+    transform-origin: left center;
+    transform: scaleX(0);
+    overflow: hidden;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -40%;
+      width: 40%;
+      opacity: 0;
+      pointer-events: none;
+      background: linear-gradient(
+              110deg,
+              rgba(255, 255, 255, 0) 0%,
+              rgba(255, 255, 255, 0.35) 50%,
+              rgba(255, 255, 255, 0) 100%
+      );
+    }
+  }
+
+  .item.hoverRippleOnce .fill::after {
+    opacity: 1;
+    animation: meterBarHoverRipple 900ms ease-out;
+  }
+
+  .content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .classIcon {
+      width: 26px;
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+      .classIconImg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .name {
+      flex: 1;
+      color: var(--text-color);
+      font-size: 21px;
+      line-height: 1;
+      padding-bottom: 1px;
+      text-shadow:
+              0 0 2px rgba(0,0,0,0.95),
+              0 1px 3px rgba(0,0,0,0.90),
+              0 3px 6px rgba(0,0,0,0.70);
+      font-weight: 500;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .name.isCjk {
+      font-family: var(--cjk-font-stack);
+      letter-spacing: 0;
+    }
+    .dps {
+      color: var(--dps-text);
+      font-size: var(--font);
+      text-shadow: var(--dps-shadow, var(--text-shadow));
+      font-weight: 400;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+}
+body.legacyUi .meter .item.isIdentifying .content .name {
+  font-size: 18px;
+  font-weight: 400;
+}
+body.legacyUi.mainPlayerNamesBold .meter .item .content .name {
+  font-weight: 700;
+}
+body.legacyUi.mainPlayerNamesBold .meter .item .content .name.isCjk {
+  font-weight: 700;
+}
+body.legacyUi.mainPlayerDpsBold .meter .item .content .dps {
+  font-weight: 700;
+}
+body.legacyUi .battleTime {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  position: absolute;
+  bottom: 8px;
+  left: 12px;
+  margin-bottom: 0;
+  padding: 0;
+
+  &.isVisible {
+    display: flex;
+  }
+  .tick {
+    color: var(--text-color);
+    text-shadow: var(--text-shadow);
+    font-weight: 700;
+    font-size: 17px;
+  }
+
+  .analysisStatus {
+    color: rgba(255, 255, 255, 0.75);
+    text-shadow: var(--text-shadow);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .status {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25);
+    flex: 0 0 auto;
+    position: relative;
+  }
+
+  &.state-fighting .status {
+    background: var(--indicator-combat);
+  }
+
+  &.state-fighting .status::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 999px;
+    background: var(--indicator-combat);
+    opacity: 0.35;
+  }
+  &.state-grace .status {
+    background: var(--indicator-wait);
+  }
+  &.state-ended .status {
+    background: var(--indicator-end);
+  }
+  &.state-idle .status {
+    background: var(--indicator-idle);
+  }
+}
+body.legacyUi .resizeHandle {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 14px;
+  height: 14px;
+  cursor: se-resize;
+  opacity: 0.65;
+}
+body.legacyUi .resizeHandle::before {
+  content: "";
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid rgba(255, 255, 255, 0.7);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.7);
+}
+body.legacyUi .header .bossIcon {
+  display: flex;
+  align-items: center;
+  width: 88px;
+}
+body.legacyUi .header .bossIcon img {
+  -webkit-user-drag: none;
+  width: 100%;
+}
+body.legacyUi .header .bossNames {
+  flex: 1;
+  min-width: 0;
+  color: var(--title);
+  text-shadow: var(--text-shadow);
+  font-weight: bold;
+  /* override the fixed `height: 24px` from the base `.header .bossNames` rule
+     above — a fixed height crams the name + HP bar into one line and overlaps. */
+  height: auto;
+  min-height: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 4px;
+  font-size: 17px;
+  overflow: visible;
+}
+body.legacyUi .header .bossNames .bossName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.1;
+}
+body.legacyUi .header .headerBtns {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  color: white;
+  gap: 8px;
+  text-shadow: var(--text-shadow);
+  cursor: pointer;
+}
+body.legacyUi .header .headerBtns .headerBtn {
+  display: flex;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+}
+body.legacyUi .footerBtns {
+  position: absolute;
+  right: 24px;
+  bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  color: white;
+  text-shadow: var(--text-shadow);
+  cursor: pointer;
+}
+body.legacyUi .footerBtns .footerBtn {
+  display: flex;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+}
+body.legacyUi .footerBtns .metricToggleBtn {
+  width: auto;
+  height: auto;
+  min-width: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+body.legacyUi .footerBtns .targetModeBtn {
+  width: auto;
+  height: auto;
+  min-width: 62px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: right;
+  justify-content: flex-end;
+}
+body.legacyUi .list .item {
+  position: relative;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: var(--rounded-xs);
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+body.legacyUi .list .item.isUser .fill {
+  background: var(--isUser-fill);
+}
+body.legacyUi .list .item.warning .fill {
+  background: var(--warning-fill);
+}
+body.legacyUi .list .item.error .fill {
+  background: var(--error-fill);
+}
+body.legacyUi .list .item .content {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+body.legacyUi .list .item .classIcon {
+  width: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.legacyUi .list .item .classIcon .classIconImg {
+  width: 100%;
+  height: 100%;
+}
+body.legacyUi .list .item .name {
+  flex: 0 1 auto;
+  color: var(--text-color);
+  font-size: 18px;
+  text-shadow: var(--player-name-shadow, var(--text-shadow));
+  font-weight: 500;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+body.legacyUi .list .item .name.isCjk {
+  font-family: var(--cjk-font-stack);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-shadow:
+          0 0 2px rgba(0,0,0,0.95),
+          0 1px 3px rgba(0,0,0,0.90),
+          0 3px 6px rgba(0,0,0,0.70);
+}
+body.legacyUi .list .item .dps {
+  color: var(--dps-text);
+  font-size: var(--font);
+  text-shadow: var(--dps-shadow, var(--text-shadow));
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+body.legacyUi .battleTime.isVisible {
+  display: flex;
+}
+body.legacyUi .battleTime .tick {
+  color: var(--text-color);
+  text-shadow: var(--text-shadow);
+  font-weight: 700;
+  font-size: 17px;
+}
+body.legacyUi .battleTime .status {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25);
+  flex: 0 0 auto;
+  position: relative;
+}
+body.legacyUi .battleTime.state-fighting .status {
+  background: var(--indicator-combat);
+}
+body.legacyUi .battleTime.state-fighting .status::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 999px;
+  background: var(--indicator-combat);
+  opacity: 0.35;
+}
+body.legacyUi .battleTime.state-grace .status {
+  background: var(--indicator-wait);
+}
+body.legacyUi .battleTime.state-ended .status {
+  background: var(--indicator-end);
+}
+body.legacyUi .battleTime.state-idle .status {
+  background: var(--indicator-idle);
+}
+body.legacyUi .list.dragInteracting .item {
+  pointer-events: none;
+}
+body.legacyUi .meter.slim .header {
+  padding: 6px 10px;
+  gap: 8px;
+}
+body.legacyUi .meter.slim .header .bossIcon {
+  width: 72px;
+}
+body.legacyUi .meter.slim .header .bossIcon img {
+  border: none;
+  border-radius: 0;
+}
+body.legacyUi .meter.slim .header .bossIcon .bossIconOverlay {
+  display: none;
+}
+body.legacyUi .meter.slim .header .bossNames {
+  font-size: 15px;
+  min-height: 20px;
+  overflow: visible;
+}
+body.legacyUi .meter.slim .header .bossNames .bossHpBar {
+  height: 11px;
+}
+body.legacyUi .meter.slim .header .bossNames .bossHpBar .bossHpText {
+  font-size: 9px;
+}
+body.legacyUi .meter.slim .header .headerBtns .headerBtn {
+  width: 16px;
+  height: 16px;
+}
+body.legacyUi .meter.slim .footerBtns {
+  bottom: 1px;
+  right: 16px;
+}
+body.legacyUi .meter.slim .footerBtns .footerBtn {
+  width: 16px;
+  height: 16px;
+}
+body.legacyUi .meter.slim .footerBtns .metricToggleBtn,
+body.legacyUi .meter.slim .footerBtns .targetModeBtn {
+  font-size: 13px;
+}
+body.legacyUi .meter.slim .list:has(.item:not([style*="display: none"])) + .meterTotalBar {
+  margin-top: 0;
+}
+body.legacyUi .meter.slim .list {
+  gap: 2px;
+}
+body.legacyUi .meter.slim .list:has(.item:not([style*="display: none"])) {
+  padding: 2px 10px 6px;
+}
+body.legacyUi .meter.slim .list .item {
+  height: 24px;
+  padding: 0 6px;
+}
+body.legacyUi .meter.slim .list .item .content {
+  gap: 5px;
+}
+body.legacyUi .meter.slim .list .item .classIcon {
+  width: 18px;
+}
+body.legacyUi .meter.slim .list .item .name {
+  font-size: 14px;
+}
+body.legacyUi .meter.slim .list .item .name.isCjk {
+  font-size: 16px;
+}
+body.legacyUi .meter.slim .list .item .dps {
+  font-size: 13px;
+  gap: 4px;
+}
+body.legacyUi .meter.slim .battleTime {
+  bottom: 1px;
+  left: 10px;
+}
+body.legacyUi .meter.slim .battleTime .tick {
+  font-size: 14px;
+}
+body.legacyUi .meter.slim .battleTime .status {
+  width: 8px;
+  height: 8px;
+}
+body.legacyUi .meter.slim .resizeHandle {
+  width: 12px;
+  height: 12px;
+}
+
+/* ---------- legacy bridges ----------
+   The redesign moved a few elements in the DOM (the HP bar left the header,
+   the footer fragments were gathered into one row, the bar gained a track
+   wrapper). These rules put those elements back where the legacy rules above
+   expect to find them, so the old layout reassembles from the new markup. */
+
+/* The footer row dissolves, handing its children back to .meter — which is
+   what the legacy absolute positioning for the timer and buttons assumes. */
+body.legacyUi .meterFooter {
+  display: contents;
+}
+
+/* Ping sat below the window, not inside it. */
+body.legacyUi .pingDisplay {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 2px;
+  padding: 2px 8px;
+  font-family: inherit;
+  font-variation-settings: normal;
+  font-size: 13px;
+  font-weight: 600;
+  width: fit-content;
+  gap: 5px;
+}
+body.legacyUi .pingDisplay .pingIcon {
+  width: 15px;
+  height: 15px;
+}
+
+/* Boss HP: back to an inset pill under the boss name rather than a
+   full-bleed band, and without the redesign's lit leading edge. */
+body.legacyUi .bossHpBar {
+  height: 13px;
+  margin: -2px 12px 6px;
+  border: 0;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+body.legacyUi .bossHpFill {
+  border-radius: 4px;
+  background: linear-gradient(90deg, #36c46a, #5be08a);
+}
+body.legacyUi .bossHpBar.isMid .bossHpFill {
+  background: linear-gradient(90deg, #e0a23c, #f0c45b);
+}
+body.legacyUi .bossHpBar.isLow .bossHpFill {
+  background: linear-gradient(90deg, #d24b4b, #f06b6b);
+}
+body.legacyUi .bossHpFill::after {
+  content: none;
+}
+body.legacyUi .bossHpText {
+  justify-content: center;
+  gap: 6px;
+  padding: 0;
+  font-family: inherit;
+  font-variation-settings: normal;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+body.legacyUi .bossHpText .bossHpAmt {
+  color: #fff;
+}
+
+/* Header: the classic skin keeps the redesign's screenshot button — an icon
+   grouped with the other controls on the right — rather than the 88px AION 2
+   wordmark that used to open the row with the action hidden on hover. */
+body.legacyUi .header .bossIcon {
+  order: 2;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+}
+body.legacyUi .header .bossIcon img {
+  display: none;
+}
+body.legacyUi .header .bossIconOverlay {
+  position: static;
+  inset: auto;
+  opacity: 1;
+  background: none;
+  border-radius: 0;
+  color: inherit;
+  pointer-events: none;
+}
+body.legacyUi .header .bossIconOverlay svg {
+  width: 20px;
+  height: 20px;
+}
+/* The old slim rules sized .bossIcon for the 72px wordmark and hid the hover
+   overlay outright; both have to be undone now that it is an icon button. */
+body.legacyUi .meter.slim .header .bossIcon {
+  width: 17px;
+  height: 17px;
+}
+body.legacyUi .meter.slim .header .bossIcon .bossIconOverlay {
+  display: flex;
+}
+body.legacyUi .meter.slim .header .bossIconOverlay svg {
+  width: 17px;
+  height: 17px;
+}
+body.legacyUi .header .bossNames .bossName {
+  font-family: inherit;
+  font-variation-settings: normal;
+  font-size: 18px;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* Bars: solid slab spanning the whole row, no reserved readout column and no
+   lit edge. meter.js drives width, which reproduces the old scaleX look. */
+body.legacyUi .list .item .fillTrack {
+  display: contents;
+}
+body.legacyUi .list .item .fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: auto;
+  transform: none;
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--row-fill);
+  opacity: var(--meter-fill-opacity, 0.8);
+  transition: none;
+}
+body.legacyUi .list .item .fill::after {
+  content: none;
+}
+body.legacyUi .list .item.isUser .fill {
+  background: var(--isUser-fill);
+}
+body.legacyUi .list .item.warning .fill {
+  background: var(--warning-fill);
+}
+body.legacyUi .list .item.error .fill {
+  background: var(--error-fill);
+}
+
+/* Elements the old UI simply did not have. */
+body.legacyUi .list .item .rank {
+  display: none;
+}
+body.legacyUi .list .item.isUser::before {
+  content: none;
+}
+
+/* Mode switches were bare text, not chips. */
+body.legacyUi .footerBtns .footerBtn {
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-variation-settings: normal;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: normal;
+}
+body.legacyUi .footerBtns .targetModeBtn {
+  min-width: 62px;
+  text-align: right;
+  justify-content: flex-end;
+}
+body.legacyUi .footerBtns .metricToggleBtn {
+  min-width: 26px;
+}
+body.legacyUi .footerBtns .footerBtn:hover {
+  background: transparent;
+  border-color: transparent;
+}
+body.legacyUi .footerBtns .collapseBtn {
+  width: 20px;
+}
+body.legacyUi .footerBtns .collapseBtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Header buttons were 20px icons without the dimmed resting state. */
+body.legacyUi .header .headerBtns {
+  color: #fff;
+}
+body.legacyUi .header .headerBtns .headerBtn,
+body.legacyUi .header .headerBtns .headerBtn svg {
+  width: 20px;
+  height: 20px;
+}
+body.legacyUi .header .headerBtns.hasSuspendBtn .headerBtn,
+body.legacyUi .header .headerBtns.hasSuspendBtn .headerBtn svg,
+body.legacyUi .header .headerBtns.hasLockBtn .headerBtn,
+body.legacyUi .header .headerBtns.hasLockBtn .headerBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Status dot / analysis text sizing predates the footer row. */
+body.legacyUi .battleTime .analysisStatus {
+  font-family: inherit;
+  font-variation-settings: normal;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+}
+body.legacyUi .battleTime .tick {
+  font-family: inherit;
+  font-variation-settings: normal;
+}
+body.legacyUi .meterTotalBar {
+  font-family: inherit;
+  font-variation-settings: normal;
+}
+body.legacyUi .list .item .name,
+body.legacyUi .list .item .dps,
+body.legacyUi .list .item .dps > p {
+  font-variation-settings: normal;
+}
+body.legacyUi .list .item .dps > p {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  letter-spacing: normal;
+}
+body.legacyUi .list .item .dps {
+  margin-right: 0;
+  padding: 0;
+  background: none;
+}
+body.legacyUi .list .item .dps .dpsContribution {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  min-width: 0;
+}
+
+/* ============================================================
+   HISTORY & DETAILS PANELS
+   ------------------------------------------------------------
+   The two analysis surfaces, brought onto the same instrument
+   language as the meter and Settings. Everything below overrides
+   the original panel rules further up the file; nothing there was
+   deleted, so the JS hooks and the column-hiding machinery are
+   untouched.
+
+   Four rules drive both panels:
+
+   1. Labels whisper, numbers speak. Every label is tracked caps
+      in the technical face at 10px; every figure is tabular and
+      brighter than the word next to it.
+   2. Structure is hairlines, not boxes. Sections are named by a
+      tracked-caps rail that runs out to the edge of the column —
+      the same rail Settings uses — instead of by a filled bar.
+   3. One control geometry. Filters, mode switches, icon buttons
+      and menu rows are all the same bordered chip, so a control
+      is read by its label and never by its shape.
+   4. Numbers align right. These are tables, not captions: a
+      column of tabular figures with a common right edge can be
+      compared without reading it.
+
+   Accent is the user's theme (--isUser-fill / --row-fill) and is
+   spent only on state — what is selected, what is on, how far a
+   bar runs. Nothing here hard-codes a hue except the status
+   colours already defined as tokens.
+   ============================================================ */
+
+.historyPanel,
+.detailsPanel {
+  /* Chip geometry, shared with Settings so a control is the same
+     object in all three panels. */
+  --pane-field-h: 26px;
+  --pane-field-bg: rgba(255, 255, 255, 0.05);
+  --pane-field-border: rgba(255, 255, 255, 0.1);
+  --pane-field-bg-hover: rgba(255, 255, 255, 0.11);
+  --pane-field-border-hover: rgba(255, 255, 255, 0.2);
+
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 400, "wdth" 87.5;
+  font-weight: 400;
+  color: var(--hud-name);
+}
+
+/* Bahnschrift is Latin-only. A translated panel falls back to one CJK
+   stack rather than letting the browser substitute glyph by glyph. */
+.historyPanel:lang(ko),
+.historyPanel:lang(zh-CN),
+.historyPanel:lang(zh-Hans),
+.historyPanel:lang(zh-TW),
+.historyPanel:lang(zh-Hant),
+.detailsPanel:lang(ko),
+.detailsPanel:lang(zh-CN),
+.detailsPanel:lang(zh-Hans),
+.detailsPanel:lang(zh-TW),
+.detailsPanel:lang(zh-Hant) {
+  font-family: var(--cjk-font-stack);
+}
+/* Full-width glyphs carry less detail per pixel than tracked Latin caps,
+   so the rails and titles step up and drop the tracking. */
+.historyPanel:lang(ko) .historyTitle,
+.historyPanel:lang(zh-CN) .historyTitle,
+.historyPanel:lang(zh-Hans) .historyTitle,
+.historyPanel:lang(zh-TW) .historyTitle,
+.historyPanel:lang(zh-Hant) .historyTitle,
+.historyPanel:lang(ko) .historyGroupName,
+.historyPanel:lang(zh-CN) .historyGroupName,
+.historyPanel:lang(zh-Hans) .historyGroupName,
+.historyPanel:lang(zh-TW) .historyGroupName,
+.historyPanel:lang(zh-Hant) .historyGroupName,
+.detailsPanel:lang(ko) .detailsFightTitle,
+.detailsPanel:lang(zh-CN) .detailsFightTitle,
+.detailsPanel:lang(zh-Hans) .detailsFightTitle,
+.detailsPanel:lang(zh-TW) .detailsFightTitle,
+.detailsPanel:lang(zh-Hant) .detailsFightTitle,
+.detailsPanel:lang(ko) .detailsSectionTitle,
+.detailsPanel:lang(zh-CN) .detailsSectionTitle,
+.detailsPanel:lang(zh-Hans) .detailsSectionTitle,
+.detailsPanel:lang(zh-TW) .detailsSectionTitle,
+.detailsPanel:lang(zh-Hant) .detailsSectionTitle,
+.detailsPanel:lang(ko) .detailsStats .stat .label,
+.detailsPanel:lang(zh-CN) .detailsStats .stat .label,
+.detailsPanel:lang(zh-Hans) .detailsStats .stat .label,
+.detailsPanel:lang(zh-TW) .detailsStats .stat .label,
+.detailsPanel:lang(zh-Hant) .detailsStats .stat .label,
+.detailsPanel:lang(ko) .detailsSkills .skillHeader .cell,
+.detailsPanel:lang(zh-CN) .detailsSkills .skillHeader .cell,
+.detailsPanel:lang(zh-Hans) .detailsSkills .skillHeader .cell,
+.detailsPanel:lang(zh-TW) .detailsSkills .skillHeader .cell,
+.detailsPanel:lang(zh-Hant) .detailsSkills .skillHeader .cell,
+.detailsPanel:lang(ko) .detailsSettingsLabel,
+.detailsPanel:lang(zh-CN) .detailsSettingsLabel,
+.detailsPanel:lang(zh-Hans) .detailsSettingsLabel,
+.detailsPanel:lang(zh-TW) .detailsSettingsLabel,
+.detailsPanel:lang(zh-Hant) .detailsSettingsLabel {
+  font-family: var(--cjk-font-stack);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+/* ---------- shared chrome: header rails, chips, close ---------- */
+
+.historyPanel .historyHeader,
+.detailsPanel .detailsHeader {
+  gap: 9px;
+  padding: 9px 14px 8px;
+  border-bottom: 1px solid var(--hud-hairline);
+  color: var(--title);
+}
+
+.historyPanel .historyTitle {
+  flex: 1;
+  min-width: 0;
+  font-variation-settings: "wght" 700, "wdth" 87.5;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--title);
+}
+
+/* One chip for every square control in either header. */
+.historyPanel .historyViewBtn,
+.historyPanel .historyTrainToggle,
+.historyPanel .historyDeleteToggle,
+.detailsPanel .detailsHeader .detailsScreenshotBtn,
+.detailsPanel .detailsHeader .detailsSettingsBtn,
+.detailsPanel .detailsHeader .detailsRefreshBtn,
+.historyPanel .historyHeader .closeX,
+.detailsPanel .detailsHeader .closeX {
+  box-sizing: border-box;
+  width: 23px;
+  height: 23px;
+  min-width: 23px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--pane-field-border);
+  border-radius: 3px;
+  background: var(--pane-field-bg);
+  color: var(--hud-sub);
+  font-family: var(--hud-tech);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.historyPanel .historyViewBtn:hover,
+.historyPanel .historyTrainToggle:hover,
+.historyPanel .historyDeleteToggle:hover,
+.detailsPanel .detailsHeader .detailsScreenshotBtn:hover,
+.detailsPanel .detailsHeader .detailsSettingsBtn:hover,
+.detailsPanel .detailsHeader .detailsRefreshBtn:hover,
+.historyPanel .historyHeader .closeX:hover,
+.detailsPanel .detailsHeader .closeX:hover {
+  color: #fff;
+  background: var(--pane-field-bg-hover);
+  border-color: var(--pane-field-border-hover);
+}
+.historyPanel .historyViewBtn:focus-visible,
+.historyPanel .historyTrainToggle:focus-visible,
+.historyPanel .historyDeleteToggle:focus-visible,
+.detailsPanel .detailsHeader button:focus-visible,
+.detailsPanel .detailsSkills .skillHeader .cell:focus-visible {
+  outline: 2px solid var(--isUser-fill);
+  outline-offset: 1px;
+}
+.historyPanel .historyViewBtn svg,
+.historyPanel .historyTrainToggle svg,
+.historyPanel .historyDeleteToggle svg,
+.detailsPanel .detailsHeader .detailsScreenshotBtn svg,
+.detailsPanel .detailsHeader .detailsSettingsBtn svg,
+.detailsPanel .detailsHeader .detailsRefreshBtn svg {
+  width: 14px;
+  height: 14px;
+}
+/* The Battle History window, which is read rather than glanced at: its text
+   a size up, and its header buttons larger than the overlay's. Zoom rather
+   than a font-size for every rule, so the whole panel keeps its proportions. */
+body.isHistoryWindow .historyPanel {
+  zoom: 1.1;
+}
+body.isHistoryWindow .historyPanel .historyViewBtn,
+body.isHistoryWindow .historyPanel .historyTrainToggle,
+body.isHistoryWindow .historyPanel .historyDeleteToggle,
+body.isHistoryWindow .historyPanel .historyHeader .closeX {
+  width: 27px;
+  height: 27px;
+  min-width: 27px;
+}
+body.isHistoryWindow .historyPanel .historyViewBtn svg,
+body.isHistoryWindow .historyPanel .historyTrainToggle svg,
+body.isHistoryWindow .historyPanel .historyDeleteToggle svg {
+  width: 17px;
+  height: 17px;
+}
+body.isHistoryWindow .historyPanel .historyHeader .closeX {
+  font-size: 20px;
+}
+
+/* The × glyph is optically taller than an icon; drop it a hair so it
+   centres in the same 23px box. */
+.historyPanel .historyHeader .closeX,
+.detailsPanel .detailsHeader .closeX {
+  font-size: 17px;
+  padding-bottom: 2px;
+}
+
+/* "On" is the theme accent, and only ever the theme accent. */
+.historyPanel .historyViewBtn.active,
+.historyPanel .historyTrainToggle.active {
+  color: #fff;
+  background: color-mix(in srgb, var(--isUser-fill) 26%, transparent);
+  border-color: color-mix(in srgb, var(--isUser-fill) 60%, transparent);
+}
+/* Delete is destructive, so it reports as a status rather than a choice. */
+.historyPanel .historyDeleteToggle:hover,
+.historyPanel .historyDeleteToggle.active {
+  color: #fff;
+  background: color-mix(in srgb, var(--error-fill) 26%, transparent);
+  border-color: color-mix(in srgb, var(--error-fill) 62%, transparent);
+}
+
+/* ---------- history: filters ---------- */
+
+.historyPanel {
+  min-width: 320px;
+  background: rgba(var(--hud-bg), 0.97);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--rounded-lg);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.55);
+}
+
+.historyPanel .historyViewToggle {
+  gap: 3px;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.historyPanel .historyFilters {
+  gap: 7px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--hud-hairline);
+}
+.historyPanel .historyFilterSelect {
+  box-sizing: border-box;
+  height: var(--pane-field-h);
+  padding: 0 24px 0 8px;
+  border: 1px solid var(--pane-field-border);
+  border-radius: 3px;
+  background-color: var(--pane-field-bg);
+  background-position: right 7px center;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 500, "wdth" 87.5;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+.historyPanel .historyFilterSelect:hover {
+  background-color: var(--pane-field-bg-hover);
+  border-color: var(--pane-field-border-hover);
+}
+.historyPanel .historyFilterSelect:focus {
+  border-color: var(--pane-field-border-hover);
+}
+.historyPanel .historyFilterSelect option {
+  background: rgb(var(--hud-bg));
+  color: #fff;
+}
+/* The class filter is a div wearing the same chip; its caret is a real
+   child element, so it does not need the background arrow or its gutter. */
+.historyPanel .historyClassDropdown .historyClassDropdownTrigger {
+  padding: 0 8px;
+  background-image: none;
+}
+.historyPanel .historyClassDropdownChevron path {
+  fill: var(--hud-faint);
+}
+.historyPanel .historyClassDropdownMenu {
+  padding: 4px;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  background: rgba(var(--hud-bg), 0.98);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+}
+.historyPanel .historyClassOption {
+  gap: 7px;
+  padding: 4px 7px;
+  border-radius: 3px;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
+  font-weight: 500;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.78);
+}
+.historyPanel .historyClassOption:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+.historyPanel .historyClassOption.selected {
+  background: color-mix(in srgb, var(--isUser-fill) 22%, transparent);
+  color: #fff;
+}
+.historyPanel .historyClassDropdownIcon {
+  width: 17px;
+  height: 17px;
+}
+
+/* ---------- history: the list ---------- */
+
+.historyPanel .historyBody {
+  padding: 0;
+}
+.historyPanel .historyEmpty {
+  padding: 30px 16px;
+  font-variation-settings: "wght" 400, "wdth" 87.5;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--hud-sub);
+}
+
+.historyPanel .historyRow {
+  gap: 10px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--hud-hairline);
+  transition: background 120ms ease;
+}
+.historyPanel .historyRow:hover {
+  background: rgba(255, 255, 255, 0.055);
+}
+
+/* Identity, so it keeps the CJK-capable stack the meter names use. */
+.historyPanel .historyRowName {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--hud-ident);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--hud-name);
+}
+
+/* Date · duration · damage. Hairline ticks instead of gaps: three short
+   figures separated by whitespace alone read as one run-on string. */
+.historyPanel .historyRowMeta {
+  gap: 0;
+  margin-top: 3px;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 500, "wdth" 87.5;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--hud-sub);
+}
+.historyPanel .historyRowMeta > span + span {
+  position: relative;
+  margin-left: 9px;
+  padding-left: 9px;
+}
+.historyPanel .historyRowMeta > span + span::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 1px;
+  height: 9px;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.16);
+}
+.historyPanel .historyRowDamage {
+  font-variation-settings: "wght" 700, "wdth" 87.5;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.historyPanel .historyRowIcons {
+  gap: 3px;
+}
+.historyPanel .historyRowClassIcon {
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+}
+.historyPanel .historyIconWrap[data-tip]::after {
+  background: rgba(var(--hud-bg), 0.97);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 3px 7px;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+
+.historyPanel .historyDeleteBtn {
+  border-radius: 3px;
+  padding: 3px 5px;
+  color: var(--error-fill);
+}
+
+/* Grouped view: the boss name becomes the section rail, exactly as a
+   Settings group header does, and the count rides in a chip. */
+.historyPanel .historyGroup {
+  border-bottom: 1px solid var(--hud-hairline);
+}
+.historyPanel .historyGroupHeader {
+  gap: 8px;
+  padding: 8px 14px;
+  transition: background 120ms ease;
+}
+.historyPanel .historyGroupChevron {
+  color: var(--hud-faint);
+}
+.historyPanel .historyGroupName {
+  /* Shrink to the name, not to half the row: the rail after it takes the
+     slack, so flex:1 here truncated bosses that had room to spare. */
+  flex: 0 1 auto;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 700, "wdth" 87.5;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--title);
+}
+.historyPanel .historyGroupHeader::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--hud-hairline);
+}
+.historyPanel .historyGroupCount {
+  order: 3;
+  flex: 0 0 auto;
+  padding: 1px 6px;
+  border: 1px solid var(--pane-field-border);
+  border-radius: 3px;
+  background: var(--pane-field-bg);
+  font-variation-settings: "wght" 700, "wdth" 75;
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--hud-sub);
+}
+/* A rail down the left of a group's children, so a long list still says
+   which section you are inside without scrolling back to the header. */
+.historyPanel .historyGroupChildren {
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow: inset 2px 0 0 rgba(255, 255, 255, 0.09);
+}
+.historyPanel .historyGroupChildren .historyRowChild {
+  padding-left: 34px;
+  border-bottom: 1px solid var(--hud-hairline);
+}
+/* In grouped view the boss name is the section header and the row leads with
+   its timestamp instead, so the row title stops being a name and becomes a
+   figure: technical face, tabular, one step quieter than a boss name. */
+.historyPanel .historyRowChild .historyRowName {
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* Badges are state, so they borrow the same chip and carry a hue only
+   where the hue is the message. */
+.historyPanel .historyTrainBadge,
+.historyPanel .historyLiveBadge {
+  margin-left: 0;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 700, "wdth" 75;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+.historyPanel .historyTrainBadge {
+  color: #fff;
+  background: color-mix(in srgb, var(--row-fill) 34%, transparent);
+  border: 1px solid color-mix(in srgb, var(--row-fill) 62%, transparent);
+}
+.historyPanel .historyLiveBadge {
+  color: #fff;
+  background: color-mix(in srgb, var(--error-fill) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--error-fill) 68%, transparent);
+}
+/* Dungeon tier, in History rows and the Details title: green Exploration,
+   blue Normal, red Hard, violet Level n. */
+.difficultyBadge {
+  --tier: #8a94a6;
+  display: inline-block;
+  margin-left: 0;
+  padding: 1px 5px;
+  border-radius: 3px;
+  vertical-align: middle;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 700, "wdth" 75;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  color: #fff;
+  background: color-mix(in srgb, var(--tier) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tier) 68%, transparent);
+}
+.difficulty-exploration { --tier: #4caf72; }
+.difficulty-normal { --tier: #4a8fe0; }
+.difficulty-hard { --tier: #e0524a; }
+.difficulty-level { --tier: #a07ae0; }
+
+/* ---------- scrollbars: hairline, not hardware ---------- */
+
+.historyPanel .historyList::-webkit-scrollbar,
+.detailsPanel .detailsBody::-webkit-scrollbar,
+.detailsPanel .detailsSkills .skills::-webkit-scrollbar,
+.detailsPanel .timelineViewport::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.historyPanel .historyList::-webkit-scrollbar-track,
+.detailsPanel .detailsBody::-webkit-scrollbar-track,
+.detailsPanel .detailsSkills .skills::-webkit-scrollbar-track,
+.detailsPanel .timelineViewport::-webkit-scrollbar-track {
+  margin: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.historyPanel .historyList::-webkit-scrollbar-thumb,
+.detailsPanel .detailsBody::-webkit-scrollbar-thumb,
+.detailsPanel .detailsSkills .skills::-webkit-scrollbar-thumb,
+.detailsPanel .timelineViewport::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+.historyPanel .historyList::-webkit-scrollbar-thumb:hover,
+.detailsPanel .detailsBody::-webkit-scrollbar-thumb:hover,
+.detailsPanel .detailsSkills .skills::-webkit-scrollbar-thumb:hover,
+.detailsPanel .timelineViewport::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.26);
+}
+
+/* ---------- details: shell & header ---------- */
+
+.detailsPanel {
+  padding: 0;
+  background: rgba(var(--hud-bg), var(--details-bg-opacity, 0.8));
+  border: 1px solid var(--panel-border);
+  border-radius: var(--rounded-lg);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.55);
+}
+
+/* "FIGHT VS <BOSS> — 2026-08-09 21:14": the fight is the label, the boss
+   is the subject. Same tracked-caps treatment as the meter's boss name. */
+.detailsPanel .detailsHeader .detailsFightTitle {
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--hud-sub);
+}
+.detailsPanel .detailsHeader .detailsFightTitle .fightTitleBossName {
+  font-variation-settings: "wght" 700, "wdth" 87.5;
+  font-weight: 700;
+  color: var(--title);
+}
+
+.detailsPanel .detailsHeader .detailsHeaderControls {
+  gap: 7px;
+}
+
+/* Back to History, and the window's own close: same chip, wider. */
+.detailsPanel .detailsBackBtn {
+  height: 23px;
+  padding: 0 8px;
+  gap: 5px;
+  border: 1px solid var(--pane-field-border);
+  border-radius: 3px;
+  background: var(--pane-field-bg);
+  color: var(--hud-sub);
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.detailsPanel .detailsBackBtn:hover {
+  color: #fff;
+  background: var(--pane-field-bg-hover);
+  border-color: var(--pane-field-border-hover);
+}
+.detailsPanel .detailsBackBtn svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* DMG / HEAL. Both states are theme accents — reading which one is on is
+   the label's job, and a hard-coded amber/green pair belonged to no theme. */
+.detailsPanel .detailsHeader .detailsModeToggle {
+  gap: 3px;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+}
+.detailsPanel .detailsHeader .detailsModeBtn {
+  height: 23px;
+  min-width: 42px;
+  padding: 0 8px;
+  border: 1px solid var(--pane-field-border);
+  border-radius: 3px;
+  background: var(--pane-field-bg);
+  color: var(--hud-sub);
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 700, "wdth" 75;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.detailsPanel .detailsHeader .detailsModeBtn:hover {
+  color: #fff;
+  background: var(--pane-field-bg-hover);
+  border-color: var(--pane-field-border-hover);
+}
+.detailsPanel .detailsHeader .detailsModeBtn[data-mode="dmg"].isActive {
+  color: #fff;
+  background: color-mix(in srgb, var(--isUser-fill) 30%, transparent);
+  border-color: color-mix(in srgb, var(--isUser-fill) 62%, transparent);
+}
+.detailsPanel .detailsHeader .detailsModeBtn[data-mode="heal"].isActive {
+  color: #fff;
+  background: color-mix(in srgb, var(--row-fill) 32%, transparent);
+  border-color: color-mix(in srgb, var(--row-fill) 64%, transparent);
+}
+
+.detailsPanel .detailsHeader .detailsScreenshotBtn {
+  color: var(--hud-sub);
+}
+.detailsPanel .detailsHeader .detailsScreenshotBtn svg {
+  width: 14px;
+  height: 14px;
+}
+.detailsPanel .detailsHeader .detailsScreenshotNote {
+  font-variation-settings: "wght" 500, "wdth" 87.5;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--hud-sub);
+}
+
+/* Attacker / target pickers in the title line. */
+.detailsPanel .detailsHeader .detailsDropdownBtn {
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 700, "wdth" 87.5;
+  font-weight: 700;
+}
+.detailsPanel .detailsHeader .detailsDropdownCaret {
+  color: var(--hud-faint);
+}
+.detailsPanel .detailsHeader .detailsDropdownMenu {
+  padding: 4px;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  background: rgba(var(--hud-bg), 0.98);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+}
+.detailsPanel .detailsHeader .detailsDropdownItem {
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
+  font-weight: 500;
+  font-size: 13px;
+}
+.detailsPanel .detailsHeader .detailsDropdownItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.detailsPanel .detailsHeader .detailsDropdownItem.isActive {
+  background: color-mix(in srgb, var(--isUser-fill) 22%, transparent);
+  color: #fff;
+}
+.detailsPanel .detailsHeader .detailsSortBtn {
+  height: 20px;
+  padding: 0 7px;
+  border: 1px solid var(--pane-field-border);
+  border-radius: 3px;
+  background: var(--pane-field-bg);
+  color: var(--hud-sub);
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 700, "wdth" 75;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.detailsPanel .detailsHeader .detailsSortBtn.isActive {
+  color: #fff;
+  background: color-mix(in srgb, var(--isUser-fill) 28%, transparent);
+  border-color: color-mix(in srgb, var(--isUser-fill) 60%, transparent);
+}
+
+/* ---------- details: the settings menu ---------- */
+
+.detailsPanel .detailsHeader .detailsSettingsMenu {
+  min-width: 300px;
+  margin-top: 6px;
+  padding: 12px 14px 13px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--rounded-sm);
+  background: rgba(var(--hud-bg), 0.98);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+.detailsPanel .detailsSettings {
+  gap: 9px;
+}
+/* The same section rail Settings uses, so the menu reads as short lists. */
+.detailsPanel .detailsSettings .detailsSettingsLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+  opacity: 1;
+  font-variation-settings: "wght" 700, "wdth" 75;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hud-sub);
+}
+.detailsPanel .detailsSettings .detailsSettingsLabel::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--hud-hairline);
+}
+.detailsPanel .detailsSettings .detailsSettingsToggle {
+  min-height: 24px;
+  gap: 12px;
+}
+.detailsPanel .detailsSettings .detailsSettingsToggleLabel {
+  font-variation-settings: "wght" 500, "wdth" 87.5;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.78);
+}
+/* Same switch as Settings: 30×17 with an 11px knob. */
+.detailsPanel .detailsSettings .detailsSettingsToggleControl {
+  width: 30px;
+  height: 17px;
+}
+.detailsPanel .detailsSettings .detailsSettingsToggleTrack {
+  border: 1px solid var(--pane-field-border);
+  background: rgba(255, 255, 255, 0.08);
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.detailsPanel .detailsSettings .detailsSettingsToggleTrack::after {
+  width: 11px;
+  height: 11px;
+  background: rgba(255, 255, 255, 0.55);
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), background 120ms ease;
+}
+.detailsPanel .detailsSettings .detailsSettingsToggleControl input[type="checkbox"]:checked
++ .detailsSettingsToggleTrack::after {
+  transform: translateX(13px);
+  background: #fff;
+}
+/* Two columns: fifteen one-line switches stacked is a scroll, not a list. */
+.detailsPanel .detailsSettings .detailsSettingsColumns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 18px;
+}
+.detailsPanel .detailsSettings .detailsSettingsControl {
+  gap: 10px;
+}
+.detailsPanel .detailsSettings .detailsOpacityInput,
+.detailsPanel .detailsSettings .detailsFontSizeInput,
+.detailsPanel .detailsSettings .detailsIconSizeInput {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+  height: 14px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* --range-pct is mirrored from the input's value in core.js. */
+.detailsPanel .detailsSettings input[type="range"]::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    var(--isUser-fill) 0 var(--range-pct, 50%),
+    rgba(255, 255, 255, 0.14) var(--range-pct, 50%) 100%
+  );
+}
+.detailsPanel .detailsSettings input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 9px;
+  height: 11px;
+  margin-top: -4px;
+  border: 0;
+  border-radius: 1px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+.detailsPanel .detailsSettings .detailsOpacityValue,
+.detailsPanel .detailsSettings .detailsFontSizeValue,
+.detailsPanel .detailsSettings .detailsIconSizeValue {
+  opacity: 1;
+  min-width: 38px;
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.82);
+}
+.detailsPanel .detailsSettings .detailsSettingsFolderPath {
+  font-variation-settings: "wght" 400, "wdth" 87.5;
+  font-size: 12.5px;
+  color: var(--hud-sub);
+}
+.detailsPanel .detailsSettings .detailsSettingsFolderBtn {
+  height: var(--pane-field-h);
+  padding: 0 9px;
+  border: 1px solid var(--pane-field-border);
+  border-radius: 3px;
+  background: var(--pane-field-bg);
+  color: rgba(255, 255, 255, 0.88);
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.detailsPanel .detailsSettings .detailsSettingsFolderBtn:hover {
+  color: #fff;
+  background: var(--pane-field-bg-hover);
+  border-color: var(--pane-field-border-hover);
+}
+
+/* ---------- details: party bars & stat readouts ---------- */
+
+.detailsPanel .detailsStatsRow {
+  border-bottom: 1px solid var(--hud-hairline);
+}
+.detailsPanel .detailsPartyList {
+  border-right: 1px solid var(--hud-hairline);
+}
+
+.detailsPanel .detailsPartyBar {
+  height: 30px;
+  padding: 0 9px 0 11px;
+  border-bottom: 1px solid var(--hud-hairline);
+  transition: background 120ms ease;
+}
+.detailsPanel .detailsPartyBar:hover {
+  background: rgba(255, 255, 255, 0.055);
+}
+.detailsPanel .detailsPartyBar.isSelected {
+  background: rgba(255, 255, 255, 0.075);
+}
+/* Selection is a lit rail, the same one your own row wears in the meter —
+   a filled row would fight the damage bar underneath it. */
+.detailsPanel .detailsPartyBar.isSelected::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  z-index: 2;
+  background: var(--isUser-fill);
+  box-shadow: 0 0 8px 1px color-mix(in srgb, var(--isUser-fill) 70%, transparent);
+}
+/* Tint, not slab: the same gradient the meter rows use. */
+.detailsPanel .detailsPartyBarFill {
+  --bar: var(--row-fill);
+  opacity: var(--meter-fill-opacity, 0.8);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--bar) 26%, transparent) 0%,
+    color-mix(in srgb, var(--bar) 55%, transparent) 100%
+  );
+}
+.detailsPanel .detailsPartyBarContent {
+  gap: 6px;
+}
+.detailsPanel .detailsPartyBarIcon {
+  width: 19px;
+  height: 19px;
+}
+.detailsPanel .detailsPartyBarName {
+  font-family: var(--hud-ident);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--hud-name);
+}
+.detailsPanel .detailsPartyBarDps,
+.detailsPanel .detailsPartyBarDmg,
+.detailsPanel .detailsPartyBarPct {
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  font-weight: 600;
+  opacity: 1;
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.86);
+}
+.detailsPanel .detailsPartyBarDmg {
+  color: var(--hud-sub);
+}
+.detailsPanel .detailsPartyBarPct {
+  font-variation-settings: "wght" 600, "wdth" 75;
+  font-weight: 600;
+  font-size: 12px;
+  opacity: 1;
+  color: var(--hud-sub);
+}
+
+/* Stat readouts: as many 150px columns as fit, each a label/figure pair on
+   its own hairline. Two fixed columns left 600px gaps in the wide window. */
+.detailsPanel .detailsStats {
+  gap: 0 22px;
+  grid-template-columns: repeat(auto-fit, minmax(172px, 1fr));
+  padding: 8px 14px 9px;
+}
+.detailsPanel .detailsStats .stat {
+  align-items: baseline;
+  gap: 10px;
+  min-height: 23px;
+  padding: 2px 0;
+  border-bottom: 1px solid var(--hud-hairline);
+}
+.detailsPanel .detailsStats .stat .label {
+  font-variation-settings: "wght" 600, "wdth" 75;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--hud-sub);
+}
+.detailsPanel .detailsStats .stat .value {
+  flex: 0 0 auto;
+  font-variation-settings: "wght" 700, "wdth" 87.5;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--hud-num);
+}
+
+/* ---------- details: collapsible sections ---------- */
+
+.detailsPanel .detailsSection .detailsSectionHeader {
+  gap: 7px;
+  padding: 9px 14px 7px;
+  border-bottom: 0;
+  font-variation-settings: "wght" 700, "wdth" 75;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hud-sub);
+  transition: color 120ms ease;
+}
+.detailsPanel .detailsSection .detailsSectionHeader:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+/* The rail: tracked caps that terminate in a hairline running to the edge
+   of the column, so the panel reads as three short views. */
+.detailsPanel .detailsSection .detailsSectionHeader::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--hud-hairline);
+}
+.detailsPanel .detailsSection .detailsSectionArrow {
+  border-left-color: var(--hud-faint);
+}
+
+/* ---------- details: the skill table ---------- */
+
+/* Micro-caps, sitting on a darker band so the table has a top edge even
+   when the rows scroll under it. */
+.detailsPanel .detailsSkills .skillHeader {
+  padding: 6px calc(14px + var(--scrollbar-w, 8px)) 6px 14px;
+  background: rgba(0, 0, 0, 0.24);
+  border-top: 1px solid var(--hud-hairline);
+  border-bottom: 1px solid var(--hud-hairline);
+  font-weight: 400;
+}
+.detailsPanel .detailsSkills .skillHeader .cell {
+  font-variation-settings: "wght" 700, "wdth" 75;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--hud-sub);
+  transition: color 120ms ease;
+}
+.detailsPanel .detailsSkills .skillHeader .cell.name {
+  color: rgba(255, 255, 255, 0.72);
+}
+.detailsPanel .detailsSkills .skillHeader .cell[data-sort-key]:hover {
+  color: #fff;
+}
+.detailsPanel .detailsSkills .skillHeader .cell[data-tip]::after {
+  background: rgba(var(--hud-bg), 0.97);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 3px 7px;
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 500, "wdth" 87.5;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+
+.detailsPanel .detailsSkills .skills {
+  padding: 0 14px;
+}
+
+/* Sixteen numeric columns compared down the page, so they share a right
+   edge. Centred figures of different widths cannot be scanned as a column. */
+.detailsPanel .detailsSkills .cell.center,
+.detailsPanel .detailsSkills .cell.dmg,
+.detailsPanel .detailsSkills .cell.dmgpct {
+  justify-content: flex-end;
+}
+.detailsPanel .detailsSkills .cell {
+  font-variant-numeric: tabular-nums;
+}
+.detailsPanel .detailsSkills .skills .skillRow .cell {
+  font-variation-settings: "wght" 500, "wdth" 87.5;
+  font-weight: 500;
+  font-size: 0.875em;
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.72);
+}
+/* Damage is what the table is for, so it is the only white column; its share
+   and the cast count support it one step down, everything else recedes. */
+.detailsPanel .detailsSkills .skills .skillRow .cell.dmg {
+  font-variation-settings: "wght" 700, "wdth" 87.5;
+  font-weight: 700;
+  color: var(--hud-num);
+}
+.detailsPanel .detailsSkills .skills .skillRow .cell.dmgpct,
+.detailsPanel .detailsSkills .skills .skillRow .cell.hit {
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.detailsPanel .detailsSkills .skills .skillRow {
+  padding: 3px 0;
+  border-bottom: 1px solid var(--hud-hairline);
+}
+.detailsPanel .detailsSkills .skills .skillRow:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+/* The bar is a tint behind the row, not a slab under the text — the same
+   rule the meter rows follow, and it now runs the full width of the row
+   rather than starting after the icon. */
+.detailsPanel .detailsSkills .skills .skillRow .rowFill {
+  --bar: var(--row-fill);
+  left: 0;
+  border-radius: 3px;
+  opacity: var(--meter-fill-opacity, 0.8);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--bar) 20%, transparent) 0%,
+    color-mix(in srgb, var(--bar) 30%, transparent) 62%,
+    color-mix(in srgb, var(--bar) 52%, transparent) 100%
+  );
+}
+
+.detailsPanel .detailsSkills .cell.name {
+  color: var(--hud-name);
+}
+.detailsPanel .detailsSkills .skills .skillRow .cell.name {
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-weight: 600;
+}
+.detailsPanel .detailsSkills .cell.name .skillIcon {
+  width: var(--details-skill-icon-size, 24px);
+  height: var(--details-skill-icon-size, 24px);
+  border-radius: 3px;
+  margin-right: 5px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.75));
+}
+/* Nested inside the row cell's own 0.875em, so this multiplier compounds:
+   0.875 × 0.92 = 0.805em of the panel font. details.js measures the name
+   column with the same product — keep the two in step. */
+.detailsPanel .detailsSkills .cell.name .skillNameText {
+  font-family: var(--hud-ident);
+  font-size: 0.92em;
+  letter-spacing: 0.01em;
+  color: var(--hud-name);
+}
+.detailsPanel .detailsSkills .cell.name .dotToggle {
+  color: var(--hud-faint);
+  opacity: 1;
+}
+/* DoT ticks belong to the skill above them, so they sit inside a rail
+   instead of relying on italics alone. */
+.detailsPanel .detailsSkills .skills .skillRow.isDotChild {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: inset 2px 0 0 rgba(255, 255, 255, 0.07);
+}
+.detailsPanel .detailsSkills .skills .skillRow.isDotChild .cell {
+  color: var(--hud-sub);
+}
+.detailsPanel .detailsSkills .skills .skillRow.isDotChild .cell.name .skillNameText {
+  font-style: normal;
+  color: var(--hud-sub);
+}
+.detailsPanel .detailsSkills .cell.name .skillSpecIndicator .specDot.isActive {
+  background: var(--isUser-fill);
+}
+
+.detailsPanel .detailsSkills .detailsFootnote {
+  padding: 7px 14px 2px;
+  font-variation-settings: "wght" 400, "wdth" 87.5;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  opacity: 1;
+  color: var(--hud-faint);
+}
+
+/* ---------- details: charts ---------- */
+
+.detailsPanel .dpsChartWrap {
+  padding: 6px 14px 0;
+}
+.detailsPanel .dpsChartLegend .legendItem,
+.detailsPanel .timelineLegend .legendItem {
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.8);
+}
+.detailsPanel .dpsChartXAxis,
+.detailsPanel .timelineXAxis {
+  font-variation-settings: "wght" 500, "wdth" 75;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--hud-faint);
+}
+.detailsPanel .timelineLegend,
+.detailsPanel .timelineViewport {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+.detailsPanel .timelineXAxis {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .historyPanel .historyLiveBadge { animation: none; }
+  .detailsPanel .detailsSettings .detailsSettingsToggleTrack::after { transition: none; }
+}
+
+
+/* ============================================================
+   DETAILS WINDOW
+   ------------------------------------------------------------
+   The second window ("Show Details on Monitor") loads this same
+   page. The overlay chrome is hidden and the details panel is
+   promoted from a floating panel to the whole screen, so the
+   panel's own markup and JS are reused verbatim.
+   ============================================================ */
+
+html.detailsWindow,
+html.detailsWindow body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* Opaque: this window sits on a desktop, not over the game, and the
+     overlay's translucency would just show the wallpaper through it. */
+  background: rgb(var(--hud-bg));
+}
+
+html.detailsWindow .container,
+html.detailsWindow .meter {
+  position: static;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+/* Everything that belongs to the overlay itself. */
+html.detailsWindow .header,
+html.detailsWindow .bossHpBar,
+html.detailsWindow .list,
+html.detailsWindow .meterFooter,
+html.detailsWindow .resizeHandle,
+html.detailsWindow .pingDisplay,
+html.detailsWindow .settingsPanel,
+/* History has its own window again, so it never draws over a fight. */
+html.detailsWindow .historyPanel,
+html.detailsWindow .updateModal,
+html.detailsWindow .hoverDetailsTooltip {
+  display: none !important;
+}
+
+/* The panel stops floating and becomes the window. */
+/* Cap the readable width and centre the whole panel — padding alone left the
+   header controls overflowing past the capped content. Stretched across a
+   1920px display the stat grid spread into unreadable gaps. */
+html.detailsWindow .detailsPanel {
+  position: absolute;
+  inset: 0 auto 0 50%;
+  transform: translateX(-50%);
+  top: 0;
+  bottom: 0;
+  width: min(1700px, 100%);
+  max-width: none;
+  max-height: none;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  /* The header, stat strip and table carry their own 14px gutter now, so the
+     panel only adds the outer inset that keeps them off the screen edge. */
+  padding: 0 10px 10px;
+  background: rgb(var(--hud-bg));
+  box-shadow: none;
+}
+html.detailsWindow .detailsPanel.open { display: flex; }
+
+/* ============================================================
+   HISTORY WINDOW
+   ------------------------------------------------------------
+   The fight list as a window of its own. It is a browser the
+   user leaves open: picking a fight opens that fight in its own
+   window and this list stays exactly as it was, so several
+   fights can be read side by side.
+
+   The panel therefore stops being the floating card it wears
+   over the meter and takes the whole window, on the same
+   geometry the Details panel uses.
+   ============================================================ */
+
+html.historyWindow,
+html.historyWindow body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: rgb(var(--hud-bg));
+}
+
+html.historyWindow .container,
+html.historyWindow .meter {
+  position: static;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  cursor: auto;
+}
+
+/* Everything that belongs to the overlay itself. */
+html.historyWindow .header,
+html.historyWindow .bossHpBar,
+html.historyWindow .list,
+html.historyWindow .meterFooter,
+html.historyWindow .resizeHandle,
+html.historyWindow .pingDisplay,
+html.historyWindow .settingsPanel,
+html.historyWindow .detailsPanel,
+html.historyWindow .updateModal,
+html.historyWindow .hoverDetailsTooltip,
+html.historyWindow .detailsMonitorBadge {
+  display: none !important;
+}
+
+html.historyWindow .historyPanel {
+  position: absolute;
+  inset: 0 auto 0 50%;
+  transform: translateX(-50%);
+  top: 0;
+  bottom: 0;
+  /* border-box, or the 10px gutter is added to 100% and the panel hangs 20px
+     past the window edge. */
+  box-sizing: border-box;
+  width: min(1700px, 100%);
+  min-width: 0;
+  max-width: none;
+  max-height: none;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  padding: 0 10px 10px;
+  background: rgb(var(--hud-bg));
+  box-shadow: none;
+}
+
+/* Over the meter the list is a floating card with a 540px cap. Filling a window
+   it should run to the bottom, and the scroll belongs to the body so the header
+   and filters stay put. */
+html.historyWindow .historyList {
+  max-height: none;
+  overflow-y: visible;
+}
+html.historyWindow .historyBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Frameless, so the history header is the drag surface and its × closes the
+   window. */
+html.historyWindow .historyHeader {
+  -webkit-app-region: drag;
+  padding-right: 6px;
+}
+html.historyWindow .historyHeader button,
+html.historyWindow .historyHeader .historyViewToggle,
+html.historyWindow .historyFilters,
+html.historyWindow .historyHeader .historyClose {
+  -webkit-app-region: no-drag;
+}
+
+/* Drag the window by its header, since it is frameless. */
+html.detailsWindow .detailsHeader {
+  -webkit-app-region: drag;
+  padding-right: 6px;
+}
+html.detailsWindow .detailsHeader button,
+html.detailsWindow .detailsHeader .detailsModeToggle,
+html.detailsWindow .detailsHeader .detailsSettingsMenuWrapper,
+html.detailsWindow .detailsHeader .detailsScreenshotWrapper,
+html.detailsWindow .detailsWindowClose {
+  -webkit-app-region: no-drag;
+}
+
+/* There is no title bar, so the panel supplies the close control. It is
+   inert in the overlay and only revealed in this window. */
+.detailsWindowClose { display: none; }
+html.detailsWindow .detailsWindowClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 23px;
+  height: 23px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid var(--pane-field-border, rgba(255, 255, 255, 0.1));
+  border-radius: 3px;
+  background: var(--pane-field-bg, rgba(255, 255, 255, 0.05));
+  color: var(--hud-sub);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+html.detailsWindow .detailsWindowClose:hover {
+  background: color-mix(in srgb, var(--error-fill) 26%, transparent);
+  border-color: color-mix(in srgb, var(--error-fill) 62%, transparent);
+  color: #fff;
+}
+html.detailsWindow .detailsWindowClose svg { width: 14px; height: 14px; }
+
+/* Back-to-History now has somewhere to go: History fills this same window. The
+   panel's own close stays hidden — it would only be undone by the keep-open
+   watchdog, and the window close button beside it is the real control. */
+html.detailsWindow .detailsClose { display: none !important; }
+
+/* Give the skill table the full height it now has room for. */
+html.detailsWindow .detailsBody { flex: 1; min-height: 0; }
+
+/* Inline explanation under a setting label — used when a control is
+   unavailable and the user needs the reason, not just a dead dropdown. */
+.settingsHint {
+  display: none;
+  margin-top: 2px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.5);
+  max-width: 34ch;
+}
+
+/* Confirmation that the Details window landed on the screen the user picked.
+   A dropdown label cannot prove which physical monitor was selected, so the
+   window says so on itself for a few seconds after being placed. */
+.detailsMonitorBadge {
+  position: fixed;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+}
+html.detailsWindow .detailsMonitorBadge.isVisible {
+  display: flex;
+  animation: detailsMonitorBadgeFade 3s ease-out forwards;
+}
+.detailsMonitorBadgeNum {
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 700, "wdth" 87.5;
+  font-size: clamp(140px, 22vw, 340px);
+  line-height: 0.9;
+  color: #fff;
+  text-shadow: 0 8px 60px rgba(0, 0, 0, 0.9);
+}
+.detailsMonitorBadgeText {
+  font-family: var(--hud-tech);
+  font-variation-settings: "wght" 600, "wdth" 87.5;
+  font-size: clamp(14px, 1.6vw, 22px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.75);
+}
+@keyframes detailsMonitorBadgeFade {
+  0%   { opacity: 0; transform: scale(0.94); }
+  8%   { opacity: 1; transform: scale(1); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.detailsWindow .detailsMonitorBadge.isVisible { animation-duration: 3s; }
+}
+
+/* ============================================================
+   SETTINGS WINDOW
+   ------------------------------------------------------------
+   Settings is its own window now, loading this same page with
+   only the settings panel shown. The overlay no longer grows to
+   ~820px tall to contain it, and the window remembers where it
+   was left.
+   ============================================================ */
+
+html.settingsWindow,
+html.settingsWindow body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0a0e16;
+}
+
+html.settingsWindow .container,
+html.settingsWindow .meter {
+  position: static;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+html.settingsWindow .header,
+html.settingsWindow .bossHpBar,
+html.settingsWindow .list,
+html.settingsWindow .meterFooter,
+html.settingsWindow .resizeHandle,
+html.settingsWindow .pingDisplay,
+html.settingsWindow .detailsPanel,
+html.settingsWindow .historyPanel,
+html.settingsWindow .updateModal,
+html.settingsWindow .hoverDetailsTooltip,
+html.settingsWindow .detailsMonitorBadge {
+  display: none !important;
+}
+
+html.settingsWindow .settingsPanel {
+  position: absolute;
+  inset: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: #0a0e16;
+  overflow-y: auto;
+}
+html.settingsWindow .settingsPanel.isOpen { display: flex; }
+
+/* The panel's type was sized for a flyout beside the meter. In a window of
+   its own it reads small, so scale the whole panel, controls with the text,
+   rather than retuning every size in it. Zoom goes on the children: on the
+   panel itself it would also scale the 100% height and push the bottom of
+   the scroll area out of the window. */
+html.settingsWindow .settingsHeader,
+html.settingsWindow .settingsBody {
+  zoom: 1.2;
+}
+
+/* Frameless, so the panel header is the drag surface. */
+html.settingsWindow .settingsHeader {
+  -webkit-app-region: drag;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #0a0e16;
+}
+html.settingsWindow .settingsHeader button,
+html.settingsWindow .settingsHeader .closeX,
+html.settingsWindow .settingsHeader a {
+  -webkit-app-region: no-drag;
+}
+
+/* ============================================================
+   DRAG AFFORDANCE
+   ------------------------------------------------------------
+   The overlay is frameless, so there is no title bar to hint at.
+   Anywhere that actually moves the window shows a grab cursor;
+   the exclusions below mirror the mousedown drag filter in
+   core.js, so the cursor never promises a drag that will not
+   happen.
+   ============================================================ */
+
+.meter,
+.header,
+.header .bossNames,
+.header .bossNames .bossName,
+.meterFooter {
+  cursor: grab;
+}
+
+/* Interactive surfaces keep their own affordance. */
+.meter .list .item,
+.headerBtn,
+.footerBtn,
+.bossIcon,
+.resizeHandle,
+.settingsPanel,
+.detailsPanel,
+.historyPanel,
+.updateModal,
+.pingDisplay,
+.meter button,
+.meter input,
+.meter select,
+.meter textarea,
+.meter a,
+.meter [data-no-drag] {
+  cursor: auto;
+}
+.meter .list .item,
+.headerBtn,
+.footerBtn,
+.bossIcon,
+.meter button,
+.meter a {
+  cursor: pointer;
+}
+.resizeHandle { cursor: se-resize; }
+
+/* While a drag is in flight the whole window reads as held. */
+body.windowDragFreeze,
+body.windowDragFreeze * {
+  cursor: grabbing !important;
+}
+
+/* Tool windows drag by their own header, handled by -webkit-app-region. */
+html.detailsWindow .meter,
+html.settingsWindow .meter {
+  cursor: auto;
+}

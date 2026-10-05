@@ -11,3 +11,5 @@ captures/
 secrets/
 .env
 target/
+node_modules/
+desktop/src-tauri/vendor/localization/*.exe

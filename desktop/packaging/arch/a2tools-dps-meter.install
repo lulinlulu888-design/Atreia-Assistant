@@ -1,0 +1,19 @@
+# Packet capture needs CAP_NET_RAW. Grant it to the installed binary so the
+# meter never has to run as root. A new binary (every upgrade) needs it again.
+
+_grant_capture() {
+  if setcap cap_net_raw,cap_net_admin=eip /usr/bin/a2tools-dps-meter; then
+    echo "==> A2Tools DPS Meter may now capture packets."
+  else
+    echo "==> Could not grant packet-capture permission. Run:"
+    echo "    sudo setcap cap_net_raw,cap_net_admin=eip /usr/bin/a2tools-dps-meter"
+  fi
+}
+
+post_install() {
+  _grant_capture
+}
+
+post_upgrade() {
+  _grant_capture
+}

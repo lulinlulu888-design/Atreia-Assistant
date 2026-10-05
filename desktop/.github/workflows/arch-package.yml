@@ -1,0 +1,284 @@
+name: Linux packages
+
+# Run by hand (Actions tab, or `gh workflow run arch-package.yml`). Builds the
+# meter's Linux packages and keeps them as downloads:
+#
+# - the Arch package (packaging/arch/PKGBUILD, makepkg in an Arch container),
+#   for Arch, CachyOS, Manjaro, EndeavourOS;
+# - the .deb (Debian, Ubuntu, Mint, Pop!_OS) and .rpm (Fedora, openSUSE),
+#   built by Tauri on Ubuntu 22.04 so they run on that and anything newer,
+#   then installed on clean Ubuntu, Debian and Fedora to prove they work.
+#
+# Every package's install script grants packet-capture permission, so the
+# meter never runs as root. Nothing here publishes anything: the files go to
+# the CDN by hand.
+#
+# For a release, run it on the release tag (`gh workflow run arch-package.yml
+# -f ref=v2.0.36`): the packages are then plain 2.0.36, and go to the CDN with
+# the MSI before the manifest names them (archUrl, debUrl, rpmUrl), which is
+# what Linux meters update from.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Tag or branch to build (a release tag for a release)"
+        required: false
+        default: main
+
+jobs:
+  package:
+    name: makepkg
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    steps:
+      # git first, so checkout keeps the history pkgver() reads.
+      - name: Build dependencies
+        run: |
+          pacman -Syu --noconfirm --needed git rust nodejs npm pkgconf \
+            webkit2gtk-4.1 gtk3 libpcap libcap hicolor-icon-theme
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+      # makepkg refuses to run as root.
+      - name: makepkg
+        run: |
+          useradd -m builder
+          chown -R builder "$GITHUB_WORKSPACE"
+          su builder -c "cd '$GITHUB_WORKSPACE/packaging/arch' && makepkg --noconfirm"
+      - name: What it links against
+        run: |
+          ldd "$GITHUB_WORKSPACE/src-tauri/target/release/a2tools-dps-meter" | sort
+          ls -la "$GITHUB_WORKSPACE"/packaging/arch/*.pkg.tar.zst
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arch-package
+          path: packaging/arch/*.pkg.tar.zst
+          if-no-files-found: error
+
+  deb-rpm:
+    name: .deb and .rpm
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev rpm cpio
+      # Files a clean checkout lacks (gitignored mirrors of src/data), as in
+      # the PKGBUILD's build().
+      - name: Frontend data
+        run: |
+          mkdir -p public/i18n public/data public/src/data
+          cp -r src/data/i18n/* public/i18n/
+          cp src/data/skill_icons.json src/data/dot_skill_ids.json public/data/
+          cp src/data/skill_icons.json src/data/dot_skill_ids.json public/src/data/
+      - name: Build
+        run: |
+          npm ci
+          npx tauri build --bundles deb,rpm
+      # Tauri's .rpm can only grant capture permission from a %post script,
+      # which rpm-ostree (Bazzite and the other image-based Fedoras) runs
+      # without the privilege to do it. Repackage its files with our spec,
+      # which declares the permission in the package (%caps) instead.
+      - name: Rebuild the .rpm
+        run: |
+          version=$(grep -m1 '^version' src-tauri/Cargo.toml | cut -d'"' -f2)
+          mkdir -p rpmpayload
+          (cd rpmpayload && rpm2cpio ../src-tauri/target/release/bundle/rpm/*.rpm | cpio -idm --quiet)
+          (
+            cd rpmpayload
+            find "./usr/lib/A2Tools DPS Meter" -type d | sed 's|^\.||; s|.*|%dir "&"|'
+            find . \( -type f -o -type l \) | sed 's|^\.||' | while IFS= read -r f; do
+              if [ "$f" = /usr/bin/a2tools-dps-meter ]; then
+                printf '%%caps(cap_net_raw,cap_net_admin=eip) "%s"\n' "$f"
+              else
+                printf '"%s"\n' "$f"
+              fi
+            done
+          ) > rpm-files.txt
+          head -20 rpm-files.txt
+          rpmbuild -bb packaging/linux/a2-tools-dps-meter.spec \
+            --define "_topdir $PWD/rpmbuild" \
+            --define "pkgversion $version" \
+            --define "payload $PWD/rpmpayload" \
+            --define "filelist $PWD/rpm-files.txt"
+      # Tauri names the .deb after the product ("A2Tools DPS Meter_2.0.36_amd64.deb");
+      # the CDN and the updater use the package name instead.
+      - name: Name the packages
+        run: |
+          version=$(grep -m1 '^version' src-tauri/Cargo.toml | cut -d'"' -f2)
+          mkdir -p out
+          cp src-tauri/target/release/bundle/deb/*.deb "out/a2tools-dps-meter_${version}_amd64.deb"
+          cp rpmbuild/RPMS/x86_64/*.rpm "out/a2tools-dps-meter-${version}-1.x86_64.rpm"
+          ls -la out
+      - name: What is in them
+        run: |
+          dpkg-deb --info out/*.deb
+          dpkg-deb --contents out/*.deb | grep -v '/$'
+          rpm -qp --requires out/*.rpm
+          rpm -qp --scripts out/*.rpm
+          rpm -qp --filecaps out/*.rpm | grep cap_net_raw
+          rpm -qlp out/*.rpm | grep -E '^/usr/(bin|share/applications)/'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deb-rpm-packages
+          path: out/*
+          if-no-files-found: error
+
+  install-test:
+    name: Install on ${{ matrix.image }}
+    needs: deb-rpm
+    runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: ubuntu:24.04
+            install: apt-get update && apt-get install -y ./a2tools-dps-meter_*_amd64.deb
+          - image: debian:12
+            install: apt-get update && apt-get install -y ./a2tools-dps-meter_*_amd64.deb
+          - image: fedora:41
+            install: dnf install -y ./a2tools-dps-meter-*.x86_64.rpm
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: deb-rpm-packages
+      # Dependencies resolve, the install script grants capture permission,
+      # and every library the meter links against is there.
+      - name: Install
+        run: ${{ matrix.install }}
+      - name: Check
+        run: |
+          set -e
+          test -x /usr/bin/a2tools-dps-meter
+          getcap /usr/bin/a2tools-dps-meter | tee /dev/stderr | grep -q cap_net_raw
+          if ldd /usr/bin/a2tools-dps-meter | grep 'not found'; then exit 1; fi
+          # Under one of the names platform/linux/pcap.rs loads it by.
+          ldconfig -p | grep -qE 'libpcap\.so\.(1|0\.8) ' || { echo "libpcap missing"; exit 1; }
+          ls /usr/share/applications/ | grep -i a2tools
+
+  # The RPM repository on the CDN (linux/rpm/), which Fedora and the
+  # image-based Fedoras install and update the meter from.
+  rpm-repo:
+    name: RPM repository
+    needs: deb-rpm
+    runs-on: ubuntu-latest
+    container: fedora:41
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: deb-rpm-packages
+      - name: Metadata
+        run: |
+          dnf install -y createrepo_c
+          mkdir -p repo/rpm
+          cp a2tools-dps-meter-*.x86_64.rpm repo/rpm/
+          createrepo_c repo/rpm
+          ls -laR repo
+      # Installed from the repository, the way a player does, rather than
+      # from the file.
+      - name: Install from it
+        run: |
+          printf '[a2tools]\nname=A2Tools DPS Meter (test)\nbaseurl=file://%s/repo/rpm/\ngpgcheck=0\n' "$PWD" \
+            > /etc/yum.repos.d/a2tools.repo
+          dnf install -y a2-tools-dps-meter
+          getcap /usr/bin/a2tools-dps-meter | grep cap_net_raw
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rpm-repo
+          path: repo
+          if-no-files-found: error
+
+  # Bazzite publishes its system as a container image. Installing into it is
+  # not a reboot into a layered deployment, but it is Bazzite's own rpm-ostree
+  # and libraries, and shows whether the capture permission arrives without
+  # any install script.
+  bazzite:
+    name: Install on Bazzite
+    needs: rpm-repo
+    runs-on: ubuntu-latest
+    steps:
+      # The image is large; the runner needs the room.
+      - name: Disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+      - uses: actions/download-artifact@v4
+        with:
+          name: rpm-repo
+          path: repo
+      - name: Install
+        run: |
+          # Podman, not Docker: the image has more layers than Docker allows
+          # ("max depth exceeded").
+          sudo podman run --rm -v "$PWD/repo:/repo:ro" ghcr.io/ublue-os/bazzite:stable bash -euc '
+            cat /etc/os-release | grep -E "^(NAME|VERSION)="
+            printf "[a2tools]\nname=A2Tools DPS Meter (test)\nbaseurl=file:///repo/rpm/\ngpgcheck=0\n" > /etc/yum.repos.d/a2tools.repo
+            if rpm-ostree install a2-tools-dps-meter; then
+              echo "installed with rpm-ostree"
+            else
+              echo "rpm-ostree could not install here; trying dnf"
+              dnf install -y a2-tools-dps-meter
+            fi
+            getcap /usr/bin/a2tools-dps-meter | tee /dev/stderr | grep -q cap_net_raw
+            if ldd /usr/bin/a2tools-dps-meter | grep "not found"; then exit 1; fi
+            ldconfig -p | grep -qE "libpcap\.so\.(1|0\.8) "
+          '
+
+  # SteamOS (Steam Deck) replaces its read-only system on every update, so the
+  # meter goes in a distrobox, which SteamOS ships: Arch inside, our Arch
+  # package installed normally. The box must be rootful (--root); a rootless
+  # one cannot capture the host's network. This runs that route on Ubuntu
+  # (no SteamOS image exists to test in) and checks what it depends on.
+  steamos-distrobox:
+    name: SteamOS route (rootful distrobox)
+    needs: package
+    # Not yet working: distrobox will not create a rootful box here without
+    # its interactive password prompt (the skip flag is misread as a box
+    # name). Kept to finish, but it does not hold up a release; the route is
+    # marked unconfirmed in docs/linux.md.
+    continue-on-error: true
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: arch-package
+          path: pkg
+      - name: Create the box and install
+        run: |
+          # Ubuntu's distrobox (1.7) is older than SteamOS's; use a current one.
+          sudo apt-get update
+          sudo apt-get install -y podman
+          curl -s https://raw.githubusercontent.com/89luca89/distrobox/main/install | sh -s -- --prefix ~/.local
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.local/bin:$PATH"
+          distrobox version
+          # A rootful box asks for a password for the user inside it on first
+          # entry; a player types one, CI cannot.
+          distrobox create --root --yes --name a2tools --image docker.io/library/archlinux:latest \n            --absolutely-disable-root-password-i-am-really-positively-sure
+          distrobox enter --root a2tools -- sudo pacman -Syu --noconfirm
+          distrobox enter --root a2tools -- sudo pacman -U --noconfirm "$PWD"/pkg/*.pkg.tar.zst
+      - name: Capture permission
+        run: distrobox enter --root a2tools -- getcap /usr/bin/a2tools-dps-meter | grep cap_net_raw
+      # The meter finds the game by its process on the host.
+      - name: Sees host processes
+        run: |
+          sleep 600 &
+          distrobox enter --root a2tools -- sh -c "test -d /proc/$!"
+      # A program with the same file capability captures the host's traffic
+      # as the normal user, which is what the meter does with libpcap.
+      - name: Captures host traffic
+        run: |
+          distrobox enter --root a2tools -- sudo pacman -S --noconfirm tcpdump
+          distrobox enter --root a2tools -- sudo setcap cap_net_raw,cap_net_admin=eip /usr/bin/tcpdump
+          ( sleep 3; for i in 1 2 3 4 5; do curl -s -o /dev/null https://cdn.a2tools.app/latest-v2.json; sleep 1; done ) &
+          distrobox enter --root a2tools -- timeout 20 tcpdump -i any -c 5 -n 'tcp port 443'

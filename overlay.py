@@ -13,50 +13,113 @@ class CombatOverlay:
         self.window.title("亚特雷亚助手 · 战斗悬浮窗")
         self.window.overrideredirect(True)
         self.window.attributes("-topmost", True)
-        self.window.attributes("-alpha", .94)
-        self.window.configure(background="#756d56")
-        self.scale = max(1.0, root.winfo_fpixels("1i") / 96)
-        self.window.geometry(f"{round(380*self.scale)}x{round(290*self.scale)}+40+80")
+        self.window.attributes("-alpha", .98)
+        self.window.configure(background="#0d1620")
+        # Physical-pixel HUD budget. Do not multiply by desktop DPI again:
+        # the previous 380x290 panel became 570x435 at 150% scaling.
+        self.scale = 1.0
+        self.collapsed = False
+        self.window.geometry("280x84+40+80")
         self.window.protocol("WM_DELETE_WINDOW", self.hide)
-        body = tk.Frame(self.window, background="#101827", padx=8, pady=6)
-        body.pack(fill="both", expand=True, padx=1, pady=1)
-        bar = ttk.Frame(body)
+        body = tk.Frame(self.window, background="#0d1620", padx=8, pady=3)
+        body.pack(fill="both", expand=True)
+        bar = tk.Frame(body, background="#0d1620", height=24)
         bar.pack(fill="x")
-        self.title = tk.Label(bar, text="亚特雷亚 · 战斗", background="#101827", foreground="#e5d2a2",
-                              font=("Microsoft YaHei UI", 10, "bold"), cursor="fleur")
+        self.title = tk.Label(bar, text="ATREIA", background="#0d1620", foreground="#cfc3a5",
+                              font=("Segoe UI", -11, "bold"), cursor="fleur")
         self.title.pack(side="left", fill="x", expand=True)
         for widget in (bar, self.title):
             widget.bind("<ButtonPress-1>", self.begin_drag)
             widget.bind("<B1-Motion>", self.drag)
-        ttk.Button(bar, text="×", width=2, command=self.hide).pack(side="right")
-        self.lock_button = ttk.Button(bar, text="锁定", width=4, command=self.toggle_lock)
-        self.lock_button.pack(side="right", padx=3)
-        ttk.Button(bar, text="主窗", width=4, command=self.show_main).pack(side="right")
+        def icon(text, command):
+            label = tk.Label(bar, text=text, background="#0d1620", foreground="#82909f",
+                             font=("Segoe UI", -12), cursor="hand2", padx=5)
+            label.pack(side="right")
+            label.bind("<Button-1>", lambda _: command())
+            label.bind("<Enter>", lambda _: label.configure(foreground="#e7dec9"))
+            label.bind("<Leave>", lambda _: label.configure(foreground="#82909f"))
+            return label
+        icon("×", self.hide)
+        self.collapse_button = icon("−", self.toggle_collapse)
+        icon("···", self.show_menu)
+        self.lock_button = tk.Label(body)  # state mirror; not a visible HUD button
+        self.mode_label = tk.Label(bar, text="伤害", background="#0d1620", foreground="#76bcc9",
+                                   font=("Microsoft YaHei UI", -11), padx=8, cursor="hand2")
+        self.mode_label.pack(side="right")
+        self.mode_label.bind("<Button-1>", lambda _: self.show_menu())
         filters = ttk.Frame(body)
-        filters.pack(fill="x", pady=(6, 3))
+        # Selection models remain available, but large input widgets are never
+        # packed into the HUD. Their choices live in the contextual menu.
         self.metric = ttk.Combobox(filters, values=("伤害", "治疗"), state="readonly", width=6)
         self.metric.current(0)
-        self.metric.pack(side="left", padx=(0, 6))
         self.source = ttk.Combobox(filters, values=("本场",), state="readonly", width=15)
         self.source.current(0)
-        self.source.pack(side="left", fill="x", expand=True)
         for widget in (self.metric, self.source):
             widget.bind("<<ComboboxSelected>>", lambda _: self.refresh_targets())
         self.target = ttk.Combobox(body, state="readonly", width=20)
-        self.target.pack(fill="x", pady=(0, 5))
         self.target.bind("<<ComboboxSelected>>", lambda _: self.render_rows())
-        area = ttk.Frame(body)
-        area.pack(fill="both", expand=True)
-        self.canvas = tk.Canvas(area, background="#101827", highlightthickness=0, height=120)
-        scroll = ttk.Scrollbar(area, command=self.canvas.yview)
-        scroll.pack(side="right", fill="y")
-        self.canvas.configure(yscrollcommand=scroll.set)
+        self.area = tk.Frame(body, background="#0d1620")
+        self.area.pack(fill="both", expand=True, pady=(3, 0))
+        self.canvas = tk.Canvas(self.area, background="#0d1620", highlightthickness=0, height=48)
         self.canvas.pack(fill="both", expand=True)
         self.canvas.bind("<Configure>", lambda _: self.draw())
         self.canvas.bind("<MouseWheel>", self.scroll)
-        self.text_font = font.Font(root=root, family="Microsoft YaHei UI", size=9)
+        self.text_font = font.Font(root=root, family="Microsoft YaHei UI", size=-11)
         self.note = tk.StringVar(value="等待战斗数据 · 兼容性待验证")
-        ttk.Label(body, textvariable=self.note, style="Muted.TLabel").pack(anchor="w", pady=(5, 0))
+        self.note_label = tk.Label(body, textvariable=self.note, background="#0d1620", foreground="#687b8e",
+                                   font=("Microsoft YaHei UI", -10), anchor="w")
+        self.note_label.pack(fill="x", pady=(2, 0))
+
+    def toggle_collapse(self):
+        self.collapsed = not self.collapsed
+        self.collapse_button.configure(text="+" if self.collapsed else "−")
+        if self.collapsed:
+            self.area.pack_forget()
+            self.note_label.pack_forget()
+        else:
+            self.note_label.pack_forget()
+            self.area.pack(fill="both", expand=True, pady=(3, 0))
+            self.note_label.pack(fill="x", pady=(2, 0))
+        self.resize_hud()
+
+    def resize_hud(self):
+        rows = min(5, max(1, len(self.ranking)))
+        height = 28 if self.collapsed else (48 + rows * 22 if self.ranking else 84)
+        self.window.geometry(f"280x{height}")
+
+    def show_menu(self):
+        menu = tk.Menu(self.window, tearoff=False, background="#14212e", foreground="#d5e0ee",
+                       activebackground="#24394a", activeforeground="#ffffff", borderwidth=0)
+        for value in ("伤害", "治疗"):
+            menu.add_command(label=("✓ " if self.metric.get() == value else "") + value,
+                             command=lambda v=value: self.choose_metric(v))
+        menu.add_separator()
+        menu.add_command(label="本场", command=lambda: self.choose_source(0))
+        for index in range(len(self.history)):
+            menu.add_command(label=f"历史战斗 {index+1}", command=lambda i=index+1: self.choose_source(i))
+        if self.metric.get() == "伤害":
+            menu.add_separator()
+            for index,target in enumerate(self.target_ids):
+                menu.add_command(label=f"目标 #{target}", command=lambda i=index: self.choose_target(i))
+        menu.add_separator()
+        menu.add_command(label="解锁位置" if self.locked else "锁定位置", command=self.toggle_lock)
+        menu.add_command(label="打开主窗口", command=self.show_main)
+        try:
+            menu.tk_popup(self.window.winfo_x()+80, self.window.winfo_y()+24)
+        finally:
+            menu.grab_release()
+
+    def choose_metric(self, value):
+        self.metric.set(value)
+        self.refresh_targets()
+
+    def choose_source(self, index):
+        self.source.current(index)
+        self.refresh_targets()
+
+    def choose_target(self, index):
+        self.target.current(index)
+        self.render_rows()
 
     def show(self):
         self.window.deiconify()
@@ -105,6 +168,7 @@ class CombatOverlay:
         self.refresh_targets()
 
     def refresh_targets(self):
+        self.mode_label.configure(text=self.metric.get() + (" · 历史" if self.source.current() > 0 else ""))
         old = self.target.current()
         selected = self.target_ids[old] if 0 <= old < len(self.target_ids) else None
         self.target_ids = [target["target_id"] for target in self.selected_snapshot().get("targets", [])]
@@ -137,31 +201,34 @@ class CombatOverlay:
                 # Per-target DPS is never added together.
                 self.ranking = [dict(p, total=p["damage"]) for p in targets[index]["players"]]
         self.ranking.sort(key=lambda row: row["total"], reverse=True)
+        self.resize_hud()
         self.draw()
 
     def draw(self):
         canvas = self.canvas
         canvas.delete("all")
-        width, height = max(1, canvas.winfo_width()), round(29*self.scale)
+        width, height = max(1, canvas.winfo_width()), 22
         maximum = max((row["total"] for row in self.ranking), default=0)
         total = sum(row["total"] for row in self.ranking)
         for index,row in enumerate(self.ranking):
             y, tag = index*height, f"player-{index}"
-            canvas.create_rectangle(0,y,width,y+height-3,fill="#1c293c",outline="",tags=tag)
+            canvas.create_rectangle(0,y,width,y+height-3,fill="#111f2c",outline="",tags=tag)
             fraction = row["total"]/maximum if maximum else 0
-            canvas.create_rectangle(0,y,width*fraction,y+height-3,fill="#245667" if self.metric.get()=="伤害" else "#285849",outline="",tags=tag)
+            canvas.create_rectangle(0,y,width*fraction,y+height-3,fill="#203b4b" if self.metric.get()=="伤害" else "#234238",outline="",tags=tag)
             name = row.get("name") or f'#{row["actor_id"]}'
             while name and self.text_font.measure(name) > width*.32:
                 name = name[:-1]
             canvas.create_text(6,y+height/2-1,text=f"{index+1}. {name}",anchor="w",fill="#e4edf7",font=self.text_font,tags=tag)
             share = row["total"]/total if total else 0
-            value = f'{row["total"]:,}  {share:.0%}'
+            def compact(value):
+                return f'{value/1_000_000:.1f}m' if value >= 1_000_000 else f'{value/1000:.1f}k' if value >= 1000 else f'{value:.0f}'
+            value = f'{compact(row["total"])}  {share:.0%}'
             if "dps" in row:
-                value = f'{row["dps"]:,.0f}/s  ·  ' + value
+                value = f'{compact(row["dps"])}/s  ·  ' + value
             canvas.create_text(width-6,y+height/2-1,text=value,anchor="e",fill="#e4edf7",font=self.text_font,tags=tag)
             canvas.tag_bind(tag,"<Button-1>",lambda _,i=index:self.show_details(i))
         if not self.ranking:
-            canvas.create_text(width/2,45*self.scale,text="等待战斗数据",fill="#92a4bf",font=self.text_font)
+            canvas.create_text(width/2,17,text="等待战斗数据",fill="#687b8e",font=self.text_font)
         canvas.configure(scrollregion=(0,0,width,max(height*len(self.ranking),1)))
 
     def show_details(self, index):

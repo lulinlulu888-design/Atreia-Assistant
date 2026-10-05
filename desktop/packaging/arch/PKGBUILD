@@ -1,0 +1,80 @@
+# Package of the meter for Arch and derivatives (CachyOS, Manjaro,
+# EndeavourOS). The meter updates itself from the package each release
+# publishes (see src-tauri/src/platform/linux/updater.rs).
+#
+# Builds from the repository this file sits in, not from a downloaded
+# tarball: CI builds it with `makepkg` in an Arch container (see
+# .github/workflows/arch-package.yml), and so can anyone from a checkout.
+#
+# It installs the program to /usr/bin, the game data where Tauri looks for
+# resources (/usr/lib/<product name>/data), and grants packet-capture
+# permission in the install script, which is the one thing a Linux user would
+# otherwise have to do by hand (see a2tools-dps-meter.install).
+
+pkgname=a2tools-dps-meter
+pkgver=0
+pkgrel=1
+pkgdesc="A2Tools DPS Meter: real-time DPS overlay for AION 2 (Linux/Proton)"
+arch=('x86_64')
+url="https://github.com/taengu/A2Tools-DPS-Meter"
+license=('GPL-3.0-only')
+depends=('webkit2gtk-4.1' 'gtk3' 'libpcap' 'libcap' 'hicolor-icon-theme')
+makedepends=('rust' 'nodejs' 'npm' 'git' 'pkgconf')
+install=a2tools-dps-meter.install
+options=('!lto' '!debug')
+
+# The repository root, two levels up from packaging/arch.
+_root() {
+  cd "$startdir/../.." && pwd
+}
+
+# A release (the commit tagged v<version>) is plain <version>, which is what
+# the update manifest points at and what the meter's updater installs. Any
+# other commit is <version>.r<commits>.g<hash>, which pacman ranks after that
+# release, so a test build is never "downgraded" by the updater.
+pkgver() {
+  cd "$(_root)"
+  local version
+  version=$(grep -m1 '^version' src-tauri/Cargo.toml | cut -d'"' -f2)
+  if git tag --points-at HEAD | grep -qx "v$version"; then
+    printf '%s' "$version"
+  else
+    printf '%s.r%s.g%s' "$version" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  fi
+}
+
+build() {
+  cd "$(_root)"
+  # Files a clean checkout lacks (they are gitignored mirrors of src/data).
+  mkdir -p public/i18n public/data public/src/data
+  cp -r src/data/i18n/* public/i18n/
+  cp src/data/skill_icons.json src/data/dot_skill_ids.json public/data/
+  cp src/data/skill_icons.json src/data/dot_skill_ids.json public/src/data/
+  npm ci
+  npx tauri build --no-bundle
+}
+
+package() {
+  local root
+  root="$(_root)"
+  install -Dm755 "$root/src-tauri/target/release/a2tools-dps-meter" "$pkgdir/usr/bin/a2tools-dps-meter"
+
+  # Tauri resolves resources to /usr/lib/<name>; ship both spellings of the
+  # name so either resolution finds the data.
+  install -d "$pkgdir/usr/lib/A2Tools DPS Meter"
+  cp -r "$root/src/data" "$pkgdir/usr/lib/A2Tools DPS Meter/data"
+  ln -s "A2Tools DPS Meter" "$pkgdir/usr/lib/a2tools-dps-meter"
+
+  install -Dm644 "$root/src-tauri/icons/128x128.png" \
+    "$pkgdir/usr/share/icons/hicolor/128x128/apps/a2tools-dps-meter.png"
+  install -Dm644 /dev/stdin "$pkgdir/usr/share/applications/a2tools-dps-meter.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=A2Tools DPS Meter
+Comment=Real-time DPS overlay for AION 2
+Exec=a2tools-dps-meter
+Icon=a2tools-dps-meter
+Categories=Game;Utility;
+DESKTOP
+  install -Dm644 "$root/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

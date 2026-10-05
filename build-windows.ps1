@@ -28,7 +28,6 @@ $taskBackend = (Resolve-Path -LiteralPath $BackendPath).Path
 $taskStamp = 'dev-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [Guid]::NewGuid().ToString('N').Substring(0, 6)
 $taskDist = Join-Path $taskRoot "dist/$taskStamp"
 $taskWork = Join-Path $taskRoot "build/$taskStamp"
-$taskVendor = & (Join-Path $taskRoot 'prepare-windivert.ps1') -Destination (Join-Path $taskWork 'windivert')
 $taskRustLicenses = Join-Path $taskWork 'rust-licenses'
 & $taskPython (Join-Path $taskRoot 'audit_dependencies.py') --output $taskRustLicenses
 if ($LASTEXITCODE -ne 0) { throw 'Rust dependency notice collection failed.' }
@@ -49,7 +48,6 @@ if ($LocalizationEnginePath) {
     --add-binary "${taskBackend}:bin" `
     --add-data "${taskRoot}/LICENSE:." `
     --add-data "${taskRoot}/THIRD_PARTY_NOTICES.md:." `
-    --add-data "${taskVendor}:vendor/windivert" `
     --add-data "${taskRustLicenses}:licenses/rust" `
     (Join-Path $taskRoot 'app.py')
 if ($LASTEXITCODE -ne 0) { throw 'Windows development bundle build failed.' }
@@ -64,7 +62,8 @@ if ($taskProcess.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $taskReport)) {
 $taskResult = Get-Content -Raw -LiteralPath $taskReport | ConvertFrom-Json
 if ($taskResult.status -ne 'passed' -or $taskResult.real_game_tested -ne $false -or
     $taskResult.packet_capture_started -ne $false -or
-    $taskResult.windivert_dll_filter_check -ne 'passed_without_driver_open') { throw 'Unexpected smoke-test result.' }
+    $taskResult.capture_provider -ne 'npcap' -or $taskResult.npcap_bundled -ne $false -or
+    $taskResult.driver_opened -ne $false) { throw 'Unexpected smoke-test result.' }
 if ($LocalizationEnginePath -and $taskResult.localization_engine_check -ne 'passed_read_only_fixture') {
     throw 'Bundled localization engine inspection failed.'
 }

@@ -1,0 +1,396 @@
+{
+  "header": {
+    "title": "A2Tools DPS Meter",
+    "display": {
+      "dps": "DPS",
+      "total": "DMG",
+      "ariaDps": "顯示 DPS",
+      "ariaDamage": "顯示總傷害",
+      "both": "兩者",
+      "ariaBoth": "顯示 DPS 和總傷害"
+    }
+  },
+  "details": {
+    "header": "詳細",
+    "title": "{name} 詳細",
+    "tooltip": "持續傷害（DOT）不包含在總暴擊、雙重、完美、背擊或格擋比率中。",
+    "settings": {
+      "ariaLabel": "開啟詳細設定"
+    },
+    "panelBackground": "面板背景",
+    "fontSize": {
+      "label": "字體大小"
+    },
+    "iconSize": {
+      "label": "技能圖示大小"
+    },
+    "screenshots": {
+      "label": "螢幕截圖",
+      "includeMeter": "包含主 DPS 計量器",
+      "saveToFolder": "將截圖儲存到資料夾"
+    },
+    "columns": {
+      "label": "技能欄位"
+    },
+    "screenshot": {
+      "ariaLabel": "將截圖儲存到剪貼簿",
+      "captured": "已擷取截圖",
+      "savedToClipboard": "已儲存到剪貼簿"
+    },
+    "sort": {
+      "recent": "最近",
+      "time": "時間",
+      "damage": "傷害"
+    },
+    "skills": {
+      "skill": "技能",
+      "skillTooltip": "技能名稱",
+      "hits": "施放",
+      "hitsTooltip": "施放次數",
+      "dmg": "傷害",
+      "dmgTooltip": "傷害量",
+      "dmgPct": "傷%",
+      "dmgPctTooltip": "傷害 %",
+      "crit": "暴擊",
+      "critTooltip": "暴擊 %",
+      "parry": "格擋",
+      "parryTooltip": "格擋 %",
+      "perfect": "完美",
+      "perfectTooltip": "完美 %",
+      "double": "雙重",
+      "doubleTooltip": "雙重 %",
+      "back": "背擊",
+      "backTooltip": "背擊 %",
+      "frontal": "正面",
+      "frontalTooltip": "正面攻擊 %",
+      "powershard": "碎片",
+      "powershardTooltip": "能量碎片 %",
+      "regen": "回復",
+      "regenTooltip": "吸血回復量",
+      "multiHit": "MH%",
+      "multiHitTooltip": "多段打擊 %",
+      "multiHitDamage": "MHD",
+      "multiHitDamageTooltip": "額外傷害",
+      "minDmg": "最小",
+      "minDmgTooltip": "最小傷害",
+      "avgDmg": "平均",
+      "avgDmgTooltip": "平均傷害",
+      "maxDmg": "最大",
+      "maxDmgTooltip": "最大傷害"
+    },
+    "stats": {
+      "totalDamage": "總傷害",
+      "contribution": "貢獻度",
+      "critRate": "暴擊率",
+      "perfectRate": "完美率",
+      "doubleRate": "雙重率",
+      "backRate": "背擊率",
+      "parryRate": "格擋率",
+      "combatTime": "戰鬥時間",
+      "multiHitDamage": "額外傷害",
+      "multiHitHits": "多段打擊",
+      "maxHp": "最大HP",
+      "hits": "命中次數",
+      "selfHealing": "自我治療"
+    },
+    "titleFor": "針對",
+    "titleVs": "vs",
+    "fightVs": "戰鬥 vs",
+    "all": "全部",
+    "history": {
+      "allPlayers": "全體玩家"
+    },
+    "dpsChart": "DPS 圖表",
+    "historyBtn": "歷史",
+    "timeline": "時間軸"
+  },
+  "history": {
+    "title": "戰鬥歷史",
+    "empty": "尚無BOSS戰鬥記錄。",
+    "delete": "刪除",
+    "showTraining": "顯示訓練",
+    "hideTraining": "隱藏訓練",
+    "showTrainingBattles": "顯示訓練戰鬥",
+    "hideTrainingBattles": "隱藏訓練戰鬥",
+    "trainBadge": "訓練",
+    "liveBadge": "進行中",
+    "filterBoss": "Boss名稱...",
+    "filterPlayer": "玩家職業...",
+    "filterDate": "日期 (YYYY-MM-DD)...",
+    "viewList": "清單檢視",
+    "viewDungeon": "依副本分組",
+    "viewGrouped": "依王分組",
+    "fightCount": "{n} 場",
+    "fightCountOne": "1 場",
+    "previewUpload": "預覽上傳內容",
+    "previewUploadTip": "把分享這場戰鬥時會上傳的內容寫成檔案。不會傳送。",
+    "previewWorking": "正在產生預覽…",
+    "previewDone": "已寫入 {slice} KB（壓縮後 {sent} KB，即實際上傳大小）。在 {seen} 個封包中保留 {kept} 個，已遮蔽 {blinded} 個名稱。沒有上傳任何內容。儲存於 {dir}",
+    "uploadTip": "將這場戰鬥上傳到 a2tools.app 並取得分享連結",
+    "uploadOpen": "在 a2tools.app 開啟這場戰鬥的紀錄",
+    "uploadWorking": "上傳中…",
+    "uploadDonePublic": "已上傳。連結已複製：{url}",
+    "uploadDonePrivate": "已以私人方式上傳。連結已複製：{url}",
+    "openWorld": "野外"
+  },
+  "settings": {
+    "title": "設定",
+    "lockedPort": "偵測到的裝置/連接埠",
+    "resetDetection": "重置偵測",
+    "characterName": "Name#ID",
+    "characterNamePlaceholder": "輸入你的角色名稱",
+    "pinMeToTop": "將我置頂",
+    "slimMode": "精簡模式",
+    "meterLayout": {
+      "label": "儀表佈局",
+      "beta": "Beta 介面",
+      "betaSlim": "Beta 精簡",
+      "classic": "經典介面",
+      "classicSlim": "經典精簡"
+    },
+    "detailsMonitor": {
+      "label": "在螢幕上顯示詳情",
+      "off": "關閉",
+      "primary": "主螢幕",
+      "missing": "該螢幕未連接。",
+      "single": "僅偵測到一個螢幕 — 請連接第二块螢幕。",
+      "badge": "螢幕",
+      "side": {
+        "left": "左側",
+        "right": "右側",
+        "above": "上方",
+        "below": "下方"
+      }
+    },
+    "appearance": "外觀",
+    "connection": "連線",
+    "diagnostics": "診斷",
+    "device": {
+      "label": "擷取網卡",
+      "autoDetect": "自動偵測"
+    },
+    "advanced": "進階",
+    "bossLogs": "啟用每場Boss記錄",
+    "saveRawPackets": "啟用封包日誌",
+    "resetAllSettings": "重置所有設定",
+    "bold": {
+      "label": "加粗",
+      "names": "名稱",
+      "dps": "DPS"
+    },
+    "showPing": "顯示延遲",
+    "showTotalDps": "顯示總DPS/DMG",
+    "roundDps": "DPS取整",
+    "autoHideMeter": "自動隱藏面板",
+    "showSuspendBtn": "顯示暫停按鈕",
+    "showLockBtn": "顯示鎖定按鈕（點擊穿透）",
+    "playerLimit": {
+      "label": "最大顯示人數"
+    },
+    "debugLogging": "啟用除錯記錄",
+    "quit": "結束",
+    "discord": {
+      "title": "Discord",
+      "activity": "在 Discord 顯示我正在玩的內容",
+      "activityHint": "AION2 開啟時，你的 Discord 狀態會顯示角色名稱、職業、等級、伺服器，以及正在對戰的首領。透過這台電腦上的 Discord 應用程式顯示，不需要帳號。"
+    },
+    "version": "版本",
+    "theme": {
+      "label": "主題",
+      "options": {
+        "aion2": "AION2",
+        "asmodian": "魔族",
+        "cogni": "認知",
+        "elyos": "天族",
+        "ember": "餘燼",
+        "fera": "菲拉",
+        "frost": "霜寒",
+        "natura": "自然",
+        "obsidian": "黑曜",
+        "varian": "瓦里安"
+      }
+    },
+    "language": {
+      "label": "語言"
+    },
+    "windowOpacity": {
+      "label": "主視窗不透明度"
+    },
+    "meterOpacity": {
+      "label": "計量條不透明度"
+    },
+    "bossNameSize": {
+      "label": "目標名稱大小"
+    },
+    "targetWindow": {
+      "label": "目標時間範圍",
+      "options": {
+        "5s": "5秒",
+        "10s": "10秒",
+        "15s": "15秒",
+        "20s": "20秒",
+        "30s": "30秒"
+      }
+    },
+    "targetSelection": {
+      "label": "目標選擇（實驗性）",
+      "options": {
+        "mostDamage": "最高傷害（目前）",
+        "mostRecent": "最近受傷目標",
+        "lastHitByMe": "我最近攻擊的目標",
+        "allTargets": "所有目標合計"
+      }
+    },
+    "allTargetsWindow": {
+      "label": "所有目標時間窗",
+      "options": {
+        "30s": "30秒",
+        "1m": "1分鐘",
+        "2m": "2分鐘",
+        "3m": "3分鐘",
+        "5m": "5分鐘"
+      }
+    },
+    "meterSettings": "計量設定",
+    "keybinds": "快捷鍵",
+    "keybind": {
+      "reload": "重新載入數據",
+      "toggle": "顯示/隱藏視窗",
+      "pressKeys": "請按下按鍵...",
+      "needModifiers": "需要2個以上修飾鍵",
+      "lock": "鎖定/解鎖懸浮視窗"
+    },
+    "defaultMeterMode": {
+      "label": "預設計量模式"
+    },
+    "trainingMode": {
+      "label": "訓練模式",
+      "options": {
+        "all": "全部",
+        "highestDamage": "最高傷害"
+      }
+    },
+    "showSupporterColors": "顯示贊助者顏色",
+    "showSupporterColorsHint": "贊助者的名字顯示為金色。僅為外觀，不會改變任何數值。",
+    "account": {
+      "title": "A2 Tools 帳號",
+      "signedOut": "尚未登入",
+      "signedIn": "已登入：{name}",
+      "hint": "登入後可將角色與設定同步至 a2tools.app。",
+      "connect": "登入",
+      "signOut": "登出",
+      "codePrompt": "請在瀏覽器中確認此代碼：",
+      "codeHint": "頁面應該已經開啟。代碼將在 10 分鐘後失效。",
+      "working": "等待確認…",
+      "failed": "登入失敗：{error}",
+      "supporter": "贊助者",
+      "autoUpload": "自動上傳首領戰",
+      "autoUploadHint": "首領戰結束時會以你在 a2tools.app 選擇的公開設定上傳到你的帳號。其他玩家的名稱會被遮蔽。木樁戰鬥不會上傳。"
+    },
+    "sendLogs": {
+      "hint": "將最新的 3 個封包紀錄傳送給開發者，用於回報問題。",
+      "button": "傳送紀錄給開發者",
+      "confirm": "要將最新的 3 個封包紀錄傳送給 A2 Tools 開發者嗎？\n\n封包紀錄是開啟封包紀錄期間錄下的原始遊戲通訊，包含角色名稱。只有開發者能開啟，並會在 30 天後刪除。",
+      "sending": "傳送中...",
+      "sent": "已傳送。你的回報代碼是 {code}，請在 Discord 上告訴開發者。",
+      "failed": "無法傳送：{error}"
+    }
+  },
+  "support": {
+    "button": "支持我一下",
+    "title": "在愛發電支持作者",
+    "titleWechat": "在微信支持作者",
+    "label": {
+      "wechat": "微信"
+    },
+    "copy": {
+      "btc": "已複製 BTC 地址",
+      "eth": "已複製 ETH 地址",
+      "usdc": "已複製 USDC 地址"
+    },
+    "aria": {
+      "afdian": "開啟愛發電",
+      "kofi": "開啟 Ko-fi",
+      "close": "關閉支持視窗",
+      "wechat": "顯示微信 QR 碼",
+      "paypal": "開啟 PayPal",
+      "btc": "複製 BTC 地址",
+      "eth": "複製 ETH 地址",
+      "usdc": "複製 USDC 地址"
+    }
+  },
+  "battleTime": {
+    "analysing": "正在監控資料...",
+    "idle": "閒置",
+    "notRunning": "AION2 not running",
+    "suspended": "應用程式已暫停",
+    "waitingBoss": "等待首領"
+  },
+  "meter": {
+    "identifyingPlayer": "#{id}",
+    "dpsSuffix": "/秒"
+  },
+  "skills": {
+    "fallback": "技能 {code}",
+    "dot": "{name} - DOT"
+  },
+  "update": {
+    "title": "有新更新",
+    "install": "立即安裝",
+    "notes": "更新說明",
+    "manual": "手動安裝",
+    "later": "稍後更新",
+    "text": "有新更新可用！\n\n目前版本：{current}\n最新版本：{latest}",
+    "installing": "正在安裝更新...",
+    "downloadError": "下載失敗。請重試或手動安裝。"
+  },
+  "connection": {
+    "auto": "自動",
+    "detecting": "Detecting AION2 connection...",
+    "loopback": "本地回環"
+  },
+  "target": {
+    "all": "所有目標",
+    "identifying": "正在識別你...",
+    "train": "訓練用稻草人",
+    "boss": "首領目標"
+  },
+  "classes": {
+    "GLADIATOR": "劍聖",
+    "TEMPLAR": "守護聖",
+    "RANGER": "弓聖",
+    "ASSASSIN": "殺聖",
+    "SORCERER": "魔道聖",
+    "CLERIC": "治癒聖",
+    "ELEMENTALIST": "精靈聖",
+    "CHANTER": "護法聖",
+    "FIGHTER": "拳聖"
+  },
+  "dungeon": {
+    "difficulty": {
+      "exploration": "探索",
+      "normal": "普通",
+      "hard": "困難",
+      "level": "第 {n} 階"
+    }
+  },
+  "presence": {
+    "level": "Lv {level}",
+    "fighting": "正在挑戰 {boss}",
+    "inGame": "遊戲中",
+    "elyos": "天族",
+    "asmodian": "魔族",
+    "korea": "韓國",
+    "taiwan": "台灣",
+    "tierExpedition": "遠征",
+    "tierConquestNormal": "征服（普通）",
+    "tierConquestHard": "征服（困難）"
+  },
+  "discordPromo": {
+    "title": "新功能：Discord 狀態顯示",
+    "text": "在 Discord 狀態中向好友顯示你的角色、職業、等級、伺服器，以及所在的首領戰或副本。",
+    "hint": "透過這台電腦上的 Discord 應用程式顯示，不需要帳號。可隨時在設定中變更。",
+    "done": "完成",
+    "close": "關閉"
+  }
+}

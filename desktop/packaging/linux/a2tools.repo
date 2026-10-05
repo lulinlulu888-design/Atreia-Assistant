@@ -1,0 +1,13 @@
+# A2Tools DPS Meter, for Fedora and the image-based Fedoras (Bazzite,
+# Silverblue, Kinoite, Aurora, Bluefin). Served at
+# https://cdn.a2tools.app/linux/a2tools.repo; install it with
+#   sudo curl -Lo /etc/yum.repos.d/a2tools.repo https://cdn.a2tools.app/linux/a2tools.repo
+# The packages are not signed yet, hence gpgcheck=0; they come over HTTPS
+# from the same CDN as the Windows installer.
+[a2tools]
+name=A2Tools DPS Meter
+baseurl=https://cdn.a2tools.app/linux/rpm/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+metadata_expire=6h

@@ -1,0 +1,389 @@
+{
+  "header": {
+    "title": "A2Tools DPS-Meter",
+    "display": {
+      "dps": "DPS",
+      "total": "SCH",
+      "ariaDps": "Zeigt DPS",
+      "ariaDamage": "Zeigt Gesamtschaden",
+      "both": "BEIDE",
+      "ariaBoth": "Zeigt DPS und Gesamtschaden"
+    }
+  },
+  "details": {
+    "header": "Details",
+    "title": "Details zu {name}",
+    "tooltip": "Schaden über Zeit wird in den Gesamtquoten für Kritisch, Doppelt, Perfekt, Rückenangriff und Parade nicht mitgezählt.",
+    "settings": {
+      "ariaLabel": "Detaileinstellungen öffnen"
+    },
+    "panelBackground": "Panel-Hintergrund",
+    "fontSize": {
+      "label": "Schriftgröße"
+    },
+    "iconSize": {
+      "label": "Größe der Skill-Symbole"
+    },
+    "screenshots": {
+      "label": "Screenshots",
+      "includeMeter": "Haupt-DPS-Meter einschließen",
+      "saveToFolder": "Screenshots in Ordner speichern"
+    },
+    "columns": {
+      "label": "Skill-Spalten"
+    },
+    "screenshot": {
+      "ariaLabel": "Screenshot in die Zwischenablage",
+      "captured": "Screenshot aufgenommen",
+      "savedToClipboard": "In Zwischenablage gespeichert"
+    },
+    "sort": {
+      "recent": "Zuletzt",
+      "time": "Zeit",
+      "damage": "Schaden"
+    },
+    "skills": {
+      "skill": "Skill",
+      "skillTooltip": "Skill-Name",
+      "hits": "Wirk.",
+      "hitsTooltip": "Wirkungen",
+      "dmg": "Sch",
+      "dmgTooltip": "Schaden",
+      "dmgPct": "S%",
+      "dmgPctTooltip": "Schaden %",
+      "crit": "Krit",
+      "critTooltip": "Kritisch %",
+      "parry": "Par",
+      "parryTooltip": "Parade %",
+      "perfect": "Perf",
+      "perfectTooltip": "Perfekt %",
+      "double": "Dpl",
+      "doubleTooltip": "Doppelt %",
+      "back": "Rück",
+      "backTooltip": "Rückenangriff %",
+      "frontal": "Front",
+      "frontalTooltip": "Frontal %",
+      "powershard": "PS",
+      "powershardTooltip": "Kraftsplitter %",
+      "regen": "Reg",
+      "regenTooltip": "Lebensraub-Regeneration",
+      "multiHit": "MT%",
+      "multiHitTooltip": "Mehrfachtreffer %",
+      "multiHitDamage": "MTS",
+      "multiHitDamageTooltip": "Mehrfachtreffer-Schaden",
+      "minDmg": "Min",
+      "minDmgTooltip": "Minimaler Schaden",
+      "avgDmg": "Ø",
+      "avgDmgTooltip": "Durchschnittlicher Schaden",
+      "maxDmg": "Max",
+      "maxDmgTooltip": "Maximaler Schaden"
+    },
+    "stats": {
+      "totalDamage": "Gesamtschaden",
+      "contribution": "Anteil",
+      "hits": "Treffer",
+      "critRate": "Kritrate",
+      "perfectRate": "Perfekt-Rate",
+      "doubleRate": "Doppel-Rate",
+      "backRate": "Rückenangriffsrate",
+      "parryRate": "Paradenrate",
+      "combatTime": "Kampfzeit",
+      "selfHealing": "Selbstheilung",
+      "multiHitDamage": "Mehrfachtreffer-Schaden",
+      "multiHitHits": "Mehrfachtreffer",
+      "maxHp": "Max. LP"
+    },
+    "titleFor": "für",
+    "titleVs": "gegen",
+    "fightVs": "Kampf gegen",
+    "all": "Alle",
+    "history": {
+      "allPlayers": "Alle Spieler"
+    },
+    "dpsChart": "DPS-Diagramm",
+    "historyBtn": "Verlauf",
+    "timeline": "Zeitleiste"
+  },
+  "history": {
+    "title": "Kampfverlauf",
+    "empty": "Noch keine Bosskämpfe aufgezeichnet.",
+    "delete": "Löschen",
+    "showTraining": "Training zeigen",
+    "hideTraining": "Training ausblenden",
+    "showTrainingBattles": "Trainingskämpfe zeigen",
+    "hideTrainingBattles": "Trainingskämpfe ausblenden",
+    "trainBadge": "Training",
+    "liveBadge": "Live",
+    "filterBoss": "Bossname...",
+    "filterPlayer": "Spielerklasse...",
+    "filterDate": "Datum (JJJJ-MM-TT)...",
+    "viewList": "Listenansicht",
+    "viewDungeon": "Nach Dungeon gruppieren",
+    "viewGrouped": "Nach Boss gruppieren",
+    "fightCount": "{n} Kämpfe",
+    "fightCountOne": "1 Kampf",
+    "previewUpload": "Upload-Vorschau",
+    "previewUploadTip": "Schreibt, was das Teilen dieses Kampfes hochladen würde. Es wird nichts gesendet.",
+    "previewWorking": "Vorschau wird erstellt…",
+    "previewDone": "{slice} KB geschrieben ({sent} KB komprimiert — so viel würde ein Upload senden). {kept} von {seen} Paketen behalten, {blinded} Namen unkenntlich gemacht. Es wurde nichts hochgeladen. Gespeichert unter {dir}",
+    "openWorld": "Offene Welt"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "lockedPort": "Erkanntes Gerät/Port",
+    "resetDetection": "Zurücksetzen",
+    "characterName": "Name#ID",
+    "characterNamePlaceholder": "Charakternamen eingeben",
+    "pinMeToTop": "Mich immer oben anzeigen",
+    "slimMode": "Schlanker Modus",
+    "meterLayout": {
+      "label": "Meter-Layout",
+      "beta": "Beta UI",
+      "betaSlim": "Beta schlank",
+      "classic": "Klassische UI",
+      "classicSlim": "Klassisch schlank"
+    },
+    "detailsMonitor": {
+      "label": "Details auf Monitor anzeigen",
+      "off": "Aus",
+      "primary": "primär",
+      "missing": "Dieser Bildschirm ist nicht angeschlossen.",
+      "single": "Nur ein Bildschirm erkannt — für diese Funktion wird ein zweiter benötigt.",
+      "badge": "Monitor",
+      "side": {
+        "left": "links",
+        "right": "rechts",
+        "above": "oben",
+        "below": "unten"
+      }
+    },
+    "appearance": "Darstellung",
+    "connection": "Verbindung",
+    "diagnostics": "Diagnose",
+    "device": {
+      "label": "Aufzeichnungsgerät",
+      "autoDetect": "Automatisch"
+    },
+    "advanced": "Erweitert",
+    "bossLogs": "Logs pro Boss aktivieren",
+    "saveRawPackets": "Paket-Logging aktivieren",
+    "resetAllSettings": "Alle Einstellungen zurücksetzen",
+    "bold": {
+      "label": "Fett",
+      "names": "Namen",
+      "dps": "DPS"
+    },
+    "showPing": "Ping anzeigen",
+    "showTotalDps": "Gesamt-DPS/SCH anzeigen",
+    "roundDps": "DPS runden",
+    "autoHideMeter": "Meter automatisch ausblenden",
+    "showSuspendBtn": "Pause-Schaltfläche anzeigen",
+    "showLockBtn": "Sperrtaste anzeigen (durchklickbar)",
+    "playerLimit": {
+      "label": "Max. angezeigte Spieler"
+    },
+    "debugLogging": "Debug-Logging aktivieren",
+    "quit": "Beenden",
+    "discord": {
+      "title": "Discord",
+      "activity": "In Discord anzeigen, was ich spiele",
+      "activityHint": "Solange AION2 läuft, zeigt dein Discord-Status deinen Charakternamen, deine Klasse, Stufe und deinen Server sowie den Boss, gegen den du kämpfst. Das läuft über die Discord-App auf diesem Computer; ein Konto ist nicht nötig."
+    },
+    "version": "Version",
+    "theme": {
+      "label": "Design",
+      "options": {
+        "aion2": "AION2",
+        "asmodian": "Asmodian",
+        "cogni": "Cogni",
+        "elyos": "Elyos",
+        "ember": "Ember",
+        "fera": "Fera",
+        "frost": "Frost",
+        "natura": "Natura",
+        "obsidian": "Obsidian",
+        "varian": "Varian"
+      }
+    },
+    "language": {
+      "label": "Sprache"
+    },
+    "windowOpacity": {
+      "label": "Deckkraft des Hauptfensters"
+    },
+    "meterOpacity": {
+      "label": "Deckkraft der Meter-Balken"
+    },
+    "bossNameSize": {
+      "label": "Größe des Zielnamens"
+    },
+    "targetWindow": {
+      "label": "Ziel-Zeitfenster",
+      "options": {
+        "5s": "5 Sekunden",
+        "10s": "10 Sekunden",
+        "15s": "15 Sekunden",
+        "20s": "20 Sekunden",
+        "30s": "30 Sekunden"
+      }
+    },
+    "targetSelection": {
+      "label": "Zielauswahl (experimentell)",
+      "options": {
+        "mostDamage": "Meister Schaden (aktuell)",
+        "mostRecent": "Zuletzt beschädigt",
+        "lastHitByMe": "Zuletzt von mir getroffen",
+        "allTargets": "Alle Ziele zusammen"
+      }
+    },
+    "allTargetsWindow": {
+      "label": "Zeitfenster für alle Ziele",
+      "options": {
+        "30s": "30 Sekunden",
+        "1m": "1 Minute",
+        "2m": "2 Minuten",
+        "3m": "3 Minuten",
+        "5m": "5 Minuten"
+      }
+    },
+    "meterSettings": "Meter-Einstellungen",
+    "keybinds": "Tastenbelegung",
+    "keybind": {
+      "reload": "Daten neu laden",
+      "toggle": "Fenster ein-/ausblenden",
+      "pressKeys": "Tasten drücken...",
+      "needModifiers": "2+ Modifikatoren nötig",
+      "lock": "Overlay sperren/entsperren"
+    },
+    "defaultMeterMode": {
+      "label": "Standardmodus"
+    },
+    "trainingMode": {
+      "label": "Trainingsmodus-Ziel",
+      "options": {
+        "all": "Alle",
+        "highestDamage": "Höchster Schaden"
+      }
+    },
+    "showSupporterColors": "Unterstützerfarben anzeigen",
+    "showSupporterColorsHint": "Namen von Unterstützern erscheinen golden. Rein kosmetisch — es ändert keine Zahl.",
+    "account": {
+      "title": "A2 Tools-Konto",
+      "signedOut": "Nicht angemeldet",
+      "signedIn": "Angemeldet als {name}",
+      "hint": "Melde dich an, um Charaktere und Einstellungen mit a2tools.app zu synchronisieren.",
+      "connect": "Anmelden",
+      "signOut": "Abmelden",
+      "codePrompt": "Bestätige diesen Code im Browser:",
+      "codeHint": "Die Seite sollte sich bereits geöffnet haben. Der Code läuft in 10 Minuten ab.",
+      "working": "Warte auf Bestätigung…",
+      "failed": "Anmeldung fehlgeschlagen: {error}",
+      "supporter": "Unterstützer"
+    },
+    "sendLogs": {
+      "hint": "Sendet deine 3 neuesten Paket-Logs für einen Fehlerbericht an den Entwickler.",
+      "button": "Logs an Entwickler senden",
+      "confirm": "Deine 3 neuesten Paket-Logs an den A2-Tools-Entwickler senden?\n\nPaket-Logs sind der rohe Spielverkehr, aufgezeichnet während die Paketaufzeichnung an war, einschließlich Charakternamen. Nur der Entwickler kann sie öffnen, und sie werden nach 30 Tagen gelöscht.",
+      "sending": "Wird gesendet...",
+      "sent": "Gesendet. Dein Berichtscode ist {code}: gib ihn dem Entwickler auf Discord.",
+      "failed": "Senden fehlgeschlagen: {error}"
+    }
+  },
+  "support": {
+    "button": "Unterstütze mich",
+    "title": "Unterstütze den Autor auf Ko-fi",
+    "titleWechat": "Unterstütze den Autor über WeChat",
+    "label": {
+      "wechat": "WeChat"
+    },
+    "copy": {
+      "btc": "BTC-Adresse kopiert",
+      "eth": "ETH-Adresse kopiert",
+      "usdc": "USDC-Adresse kopiert"
+    },
+    "aria": {
+      "afdian": "Afdian öffnen",
+      "kofi": "Ko-fi öffnen",
+      "close": "Unterstützungsfenster schließen",
+      "wechat": "WeChat-QR-Code anzeigen",
+      "paypal": "PayPal öffnen",
+      "btc": "BTC-Adresse kopieren",
+      "eth": "ETH-Adresse kopieren",
+      "usdc": "USDC-Adresse kopieren"
+    }
+  },
+  "battleTime": {
+    "analysing": "Daten werden überwacht...",
+    "idle": "Inaktiv",
+    "notRunning": "AION2 läuft nicht",
+    "suspended": "App pausiert",
+    "waitingBoss": "Warte auf einen Boss"
+  },
+  "meter": {
+    "identifyingPlayer": "#{id}",
+    "dpsSuffix": "/s"
+  },
+  "skills": {
+    "fallback": "Skill {code}",
+    "dot": "{name} - DoT"
+  },
+  "update": {
+    "title": "Neues Update verfügbar",
+    "install": "Jetzt installieren",
+    "notes": "Versionshinweise",
+    "manual": "Manuelle Installation",
+    "later": "Später aktualisieren",
+    "text": "Ein neues Update ist verfügbar!\n\nAktuelle Version: {current}\nNeueste Version: {latest}",
+    "installing": "Update wird installiert...",
+    "downloadError": "Download fehlgeschlagen. Bitte erneut versuchen oder manuell installieren."
+  },
+  "connection": {
+    "auto": "Auto",
+    "detecting": "AION2-Verbindung wird erkannt...",
+    "loopback": "Lokales Loopback"
+  },
+  "target": {
+    "all": "Alle Ziele",
+    "identifying": "Identifiziere dich...",
+    "train": "Trainingspuppe",
+    "boss": "Boss-Ziele"
+  },
+  "classes": {
+    "GLADIATOR": "Gladiator",
+    "TEMPLAR": "Templer",
+    "RANGER": "Waldläufer",
+    "ASSASSIN": "Assassine",
+    "SORCERER": "Magier",
+    "CLERIC": "Kleriker",
+    "ELEMENTALIST": "Beschwörer",
+    "CHANTER": "Kantor",
+    "FIGHTER": "Faustkämpfer"
+  },
+  "dungeon": {
+    "difficulty": {
+      "exploration": "Erkundung",
+      "normal": "Normal",
+      "hard": "Schwer",
+      "level": "Stufe {n}"
+    }
+  },
+  "presence": {
+    "level": "Stufe {level}",
+    "fighting": "Kämpft gegen {boss}",
+    "inGame": "Im Spiel",
+    "elyos": "Elyos",
+    "asmodian": "Asmodier",
+    "korea": "Korea",
+    "taiwan": "Taiwan",
+    "tierExpedition": "Expedition",
+    "tierConquestNormal": "Eroberung (Normal)",
+    "tierConquestHard": "Eroberung (Schwer)"
+  },
+  "discordPromo": {
+    "title": "Neu: Discord-Aktivität",
+    "text": "Zeige Freunden in deinem Discord-Status deinen Charakter, deine Klasse, Stufe und deinen Server sowie den Boss oder Dungeon, in dem du gerade bist.",
+    "hint": "Läuft über die Discord-App auf diesem PC, kein Konto nötig. Du kannst das jederzeit in den Einstellungen ändern.",
+    "done": "Fertig",
+    "close": "Schließen"
+  }
+}

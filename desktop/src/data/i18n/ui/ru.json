@@ -1,0 +1,394 @@
+{
+  "header": {
+    "title": "A2Tools DPS Meter",
+    "display": {
+      "dps": "DPS",
+      "total": "УРН",
+      "ariaDps": "Показан DPS",
+      "ariaDamage": "Показан общий урон",
+      "both": "ОБА",
+      "ariaBoth": "Показаны DPS и общий урон"
+    }
+  },
+  "details": {
+    "hoverTooltip": {
+      "loading": "Загрузка...",
+      "empty": "Нет данных об умениях для этого боя",
+      "error": "Не удалось загрузить умения"
+    },
+    "header": "Детали",
+    "title": "Детали: {name}",
+    "tooltip": "Периодический урон не учитывается в общих показателях крита, двойного удара, идеального удара, удара в спину и парирования.",
+    "settings": {
+      "ariaLabel": "Открыть настройки деталей"
+    },
+    "panelBackground": "Фон панели",
+    "fontSize": {
+      "label": "Размер шрифта"
+    },
+    "iconSize": {
+      "label": "Размер значков умений"
+    },
+    "screenshots": {
+      "label": "Скриншоты",
+      "includeMeter": "Включить основной счётчик DPS",
+      "saveToFolder": "Сохранять скриншоты в папку"
+    },
+    "columns": {
+      "label": "Столбцы умений"
+    },
+    "screenshot": {
+      "ariaLabel": "Скопировать скриншот в буфер обмена",
+      "captured": "Скриншот сделан",
+      "savedToClipboard": "Скопировано в буфер обмена"
+    },
+    "sort": {
+      "recent": "Недавние",
+      "time": "Время",
+      "damage": "Урон"
+    },
+    "skills": {
+      "skill": "Умение",
+      "skillTooltip": "Название умения",
+      "hits": "Прим.",
+      "hitsTooltip": "Применения",
+      "dmg": "Урн",
+      "dmgTooltip": "Урон",
+      "dmgPct": "У%",
+      "dmgPctTooltip": "Урон %",
+      "crit": "Крит",
+      "critTooltip": "Крит %",
+      "parry": "Пар",
+      "parryTooltip": "Парирование %",
+      "perfect": "Идл",
+      "perfectTooltip": "Идеальный %",
+      "double": "Двн",
+      "doubleTooltip": "Двойной %",
+      "back": "Спн",
+      "backTooltip": "Удар в спину %",
+      "frontal": "Фрнт",
+      "frontalTooltip": "Фронтальный %",
+      "powershard": "ОС",
+      "powershardTooltip": "Осколок силы %",
+      "regen": "Рег",
+      "regenTooltip": "Регенерация от вампиризма",
+      "multiHit": "МУ%",
+      "multiHitTooltip": "Мультиудар %",
+      "multiHitDamage": "УМУ",
+      "multiHitDamageTooltip": "Урон мультиудара",
+      "minDmg": "Мин",
+      "minDmgTooltip": "Минимальный урон",
+      "avgDmg": "Срд",
+      "avgDmgTooltip": "Средний урон",
+      "maxDmg": "Макс",
+      "maxDmgTooltip": "Максимальный урон"
+    },
+    "stats": {
+      "totalDamage": "Общий урон",
+      "contribution": "Вклад",
+      "hits": "Попадания",
+      "critRate": "Частота крита",
+      "perfectRate": "Частота идеальных",
+      "doubleRate": "Частота двойных",
+      "backRate": "Частота ударов в спину",
+      "parryRate": "Частота парирований",
+      "combatTime": "Время боя",
+      "selfHealing": "Самолечение",
+      "multiHitDamage": "Урон мультиудара",
+      "multiHitHits": "Мультиудары",
+      "maxHp": "Макс. HP"
+    },
+    "titleFor": "для",
+    "titleVs": "против",
+    "fightVs": "Бой против",
+    "all": "Все",
+    "history": {
+      "allPlayers": "Все игроки"
+    },
+    "dpsChart": "График DPS",
+    "historyBtn": "История",
+    "timeline": "Хронология"
+  },
+  "history": {
+    "title": "История боёв",
+    "empty": "Боёв с боссами пока не записано.",
+    "delete": "Удалить",
+    "showTraining": "Показать тренировку",
+    "hideTraining": "Скрыть тренировку",
+    "showTrainingBattles": "Показать тренировочные бои",
+    "hideTrainingBattles": "Скрыть тренировочные бои",
+    "trainBadge": "Тренировка",
+    "liveBadge": "В прямом эфире",
+    "filterBoss": "Имя босса...",
+    "filterPlayer": "Класс игрока...",
+    "filterDate": "Дата (ГГГГ-ММ-ДД)...",
+    "viewList": "Списком",
+    "viewDungeon": "По подземельям",
+    "viewGrouped": "Сгруппировать по боссу",
+    "fightCount": "Боёв: {n}",
+    "fightCountOne": "1 бой",
+    "previewUpload": "Предпросмотр отправки",
+    "previewUploadTip": "Записывает то, что было бы отправлено при публикации этого боя. Ничего не отправляется.",
+    "previewWorking": "Создание предпросмотра…",
+    "previewDone": "Записано {slice} КБ ({sent} КБ в сжатом виде — столько отправила бы публикация). Сохранено {kept} из {seen} пакетов, скрыто имён: {blinded}. Ничего не отправлено. Сохранено в {dir}",
+    "openWorld": "Открытый мир"
+  },
+  "settings": {
+    "title": "Настройки",
+    "lockedPort": "Обнаруженное устройство/порт",
+    "resetDetection": "Сбросить",
+    "characterName": "Имя#ID",
+    "characterNamePlaceholder": "Введите имя персонажа",
+    "pinMeToTop": "Всегда показывать меня сверху",
+    "slimMode": "Компактный режим",
+    "meterLayout": {
+      "label": "Макет счётчика",
+      "beta": "Beta UI",
+      "betaSlim": "Бета компактный",
+      "classic": "Классический интерфейс",
+      "classicSlim": "Классический компактный"
+    },
+    "detailsMonitor": {
+      "label": "Показывать детали на мониторе",
+      "off": "Выкл.",
+      "primary": "основной",
+      "missing": "Этот экран не подключён.",
+      "single": "Обнаружен только один экран — подключите второй, чтобы использовать это.",
+      "badge": "Монитор",
+      "side": {
+        "left": "слева",
+        "right": "справа",
+        "above": "сверху",
+        "below": "снизу"
+      }
+    },
+    "appearance": "Внешний вид",
+    "connection": "Подключение",
+    "diagnostics": "Диагностика",
+    "device": {
+      "label": "Устройство захвата",
+      "autoDetect": "Автоопределение"
+    },
+    "advanced": "Дополнительно",
+    "bossLogs": "Включить журналы по боссам",
+    "saveRawPackets": "Включить журнал пакетов",
+    "resetAllSettings": "Сбросить все настройки",
+    "bold": {
+      "label": "Жирный",
+      "names": "Имена",
+      "dps": "DPS"
+    },
+    "showPing": "Показывать пинг",
+    "showTotalDps": "Показывать общий DPS/урон",
+    "roundDps": "Округлять DPS",
+    "autoHideMeter": "Автоматически скрывать счётчик",
+    "showSuspendBtn": "Показывать кнопку паузы",
+    "showLockBtn": "Показывать кнопку блокировки (клики насквозь)",
+    "playerLimit": {
+      "label": "Макс. игроков на экране"
+    },
+    "debugLogging": "Включить отладочный журнал",
+    "quit": "Выход",
+    "discord": {
+      "title": "Discord",
+      "activity": "Показывать в Discord, во что я играю",
+      "activityHint": "Пока AION2 открыта, в статусе Discord видны имя вашего персонажа, класс, уровень и сервер, а также босс, с которым вы сражаетесь. Это идёт через приложение Discord на этом компьютере; учётная запись не нужна."
+    },
+    "version": "Версия",
+    "theme": {
+      "label": "Тема",
+      "options": {
+        "aion2": "AION2",
+        "asmodian": "Asmodian",
+        "cogni": "Cogni",
+        "elyos": "Elyos",
+        "ember": "Ember",
+        "fera": "Fera",
+        "frost": "Frost",
+        "natura": "Natura",
+        "obsidian": "Obsidian",
+        "varian": "Varian"
+      }
+    },
+    "language": {
+      "label": "Язык"
+    },
+    "windowOpacity": {
+      "label": "Непрозрачность главного окна"
+    },
+    "meterOpacity": {
+      "label": "Непрозрачность полос"
+    },
+    "bossNameSize": {
+      "label": "Размер имени цели"
+    },
+    "targetWindow": {
+      "label": "Временное окно цели",
+      "options": {
+        "5s": "5 секунд",
+        "10s": "10 секунд",
+        "15s": "15 секунд",
+        "20s": "20 секунд",
+        "30s": "30 секунд"
+      }
+    },
+    "targetSelection": {
+      "label": "Выбор цели (экспериментально)",
+      "options": {
+        "mostDamage": "Больше всего урона (текущее)",
+        "mostRecent": "Последняя получившая урон",
+        "lastHitByMe": "Последняя атакованная мной",
+        "allTargets": "Все цели вместе"
+      }
+    },
+    "allTargetsWindow": {
+      "label": "Временное окно для всех целей",
+      "options": {
+        "30s": "30 секунд",
+        "1m": "1 минута",
+        "2m": "2 минуты",
+        "3m": "3 минуты",
+        "5m": "5 минут"
+      }
+    },
+    "meterSettings": "Настройки счётчика",
+    "keybinds": "Горячие клавиши",
+    "keybind": {
+      "reload": "Перезагрузить данные",
+      "toggle": "Показать/скрыть окно",
+      "pressKeys": "Нажмите клавиши...",
+      "needModifiers": "Нужно 2+ модификатора",
+      "lock": "Заблокировать/разблокировать оверлей"
+    },
+    "defaultMeterMode": {
+      "label": "Режим по умолчанию"
+    },
+    "trainingMode": {
+      "label": "Цель режима тренировки",
+      "options": {
+        "all": "Все",
+        "highestDamage": "Наибольший урон"
+      }
+    },
+    "showSupporterColors": "Показывать цвета спонсоров",
+    "showSupporterColorsHint": "Имена спонсоров отображаются золотым. Только внешний вид — ни одно число не меняется.",
+    "account": {
+      "title": "Аккаунт A2 Tools",
+      "signedOut": "Вы не вошли",
+      "signedIn": "Вы вошли как {name}",
+      "hint": "Войдите, чтобы синхронизировать персонажей и настройки с a2tools.app.",
+      "connect": "Войти",
+      "signOut": "Выйти",
+      "codePrompt": "Подтвердите этот код в браузере:",
+      "codeHint": "Страница уже должна была открыться. Код действует 10 минут.",
+      "working": "Ожидание подтверждения…",
+      "failed": "Не удалось войти: {error}",
+      "supporter": "Спонсор"
+    },
+    "sendLogs": {
+      "hint": "Отправляет 3 последних лога пакетов разработчику для отчёта об ошибке.",
+      "button": "Отправить логи разработчику",
+      "confirm": "Отправить 3 последних лога пакетов разработчику A2 Tools?\n\nЛоги пакетов — это необработанный игровой трафик, записанный при включённой записи пакетов, включая имена персонажей. Открыть их может только разработчик, через 30 дней они удаляются.",
+      "sending": "Отправка...",
+      "sent": "Отправлено. Код отчёта: {code}. Сообщите его разработчику в Discord.",
+      "failed": "Не удалось отправить: {error}"
+    }
+  },
+  "support": {
+    "button": "Поддержать",
+    "title": "Поддержать автора на Ko-fi",
+    "titleWechat": "Поддержать автора через WeChat",
+    "label": {
+      "wechat": "WeChat"
+    },
+    "copy": {
+      "btc": "BTC-адрес скопирован",
+      "eth": "ETH-адрес скопирован",
+      "usdc": "USDC-адрес скопирован"
+    },
+    "aria": {
+      "afdian": "Открыть Afdian",
+      "kofi": "Открыть Ko-fi",
+      "close": "Закрыть окно поддержки",
+      "wechat": "Показать QR-код WeChat",
+      "paypal": "Открыть PayPal",
+      "btc": "Скопировать BTC-адрес",
+      "eth": "Скопировать ETH-адрес",
+      "usdc": "Скопировать USDC-адрес"
+    }
+  },
+  "battleTime": {
+    "analysing": "Отслеживание данных...",
+    "idle": "Ожидание",
+    "notRunning": "AION2 не запущен",
+    "suspended": "Приложение приостановлено",
+    "waitingBoss": "Ожидание босса"
+  },
+  "meter": {
+    "identifyingPlayer": "#{id}",
+    "dpsSuffix": "/s"
+  },
+  "skills": {
+    "fallback": "Умение {code}",
+    "dot": "{name} - периодический"
+  },
+  "update": {
+    "title": "Доступно новое обновление",
+    "install": "Установить сейчас",
+    "notes": "Список изменений",
+    "manual": "Установить вручную",
+    "later": "Обновить позже",
+    "text": "Доступно новое обновление!\n\nТекущая версия: {current}\nПоследняя версия: {latest}",
+    "installing": "Установка обновления...",
+    "downloadError": "Не удалось скачать. Повторите попытку или установите вручную."
+  },
+  "connection": {
+    "auto": "Авто",
+    "detecting": "Определение подключения AION2...",
+    "loopback": "Локальная петля"
+  },
+  "target": {
+    "all": "Все цели",
+    "identifying": "Определяем вас...",
+    "train": "Тренировочное чучело",
+    "boss": "Цели-боссы"
+  },
+  "classes": {
+    "GLADIATOR": "Гладиатор",
+    "TEMPLAR": "Страж",
+    "RANGER": "Стрелок",
+    "ASSASSIN": "Убийца",
+    "SORCERER": "Волшебник",
+    "CLERIC": "Целитель",
+    "ELEMENTALIST": "Заклинатель",
+    "CHANTER": "Чародей",
+    "FIGHTER": "Мастер кулака"
+  },
+  "dungeon": {
+    "difficulty": {
+      "exploration": "Исследование",
+      "normal": "Обычный",
+      "hard": "Сложный",
+      "level": "Уровень {n}"
+    }
+  },
+  "presence": {
+    "level": "Ур. {level}",
+    "fighting": "Сражается с {boss}",
+    "inGame": "В игре",
+    "elyos": "Элийцы",
+    "asmodian": "Асмодианы",
+    "korea": "Корея",
+    "taiwan": "Тайвань",
+    "tierExpedition": "Экспедиция",
+    "tierConquestNormal": "Завоевание (обычное)",
+    "tierConquestHard": "Завоевание (сложное)"
+  },
+  "discordPromo": {
+    "title": "Новое: активность в Discord",
+    "text": "Показывайте друзьям в статусе Discord своего персонажа, класс, уровень и сервер, а также босса или подземелье, где вы находитесь.",
+    "hint": "Работает через приложение Discord на этом ПК, аккаунт не нужен. Это можно изменить в любой момент в настройках.",
+    "done": "Готово",
+    "close": "Закрыть"
+  }
+}

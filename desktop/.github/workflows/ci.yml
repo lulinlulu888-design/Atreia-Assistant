@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # By hand, for a branch: gh workflow run ci.yml --ref <branch>
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  desktop:
+    name: Desktop build and tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: Test
+        working-directory: src-tauri
+        # The replay tests skip without A2_REPLAY_CAPTURE, which is a real packet
+        # capture and not something to commit — it is a recording of five real
+        # people playing. They run locally; everything else runs here.
+        run: cargo test --all-targets
+      - name: Build binaries
+        working-directory: src-tauri
+        run: cargo build --bins
+
+  platform-boundary:
+    name: OS code stays in src/platform
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Windows and (later) Linux builds share one codebase. What keeps them from
+      # getting tangled is that only src/platform/ may know which OS it is on:
+      # it picks one implementation (win32/ or unsupported/, later linux/) and
+      # everything else calls platform::... A cfg or a Windows API call anywhere
+      # else is how the muddle starts, so it fails here. Put it behind a
+      # platform:: function instead, with a twin in every OS folder.
+      - name: No OS-specific code outside src/platform
+        run: |
+          leaks=$(grep -rnE --include='*.rs' \
+            'cfg\((not\()?(windows|unix|target_os|target_family)|windows::|std::os::windows' \
+            src-tauri/src | grep -v '^src-tauri/src/platform/' || true)
+          if [ -n "$leaks" ]; then
+            echo "OS-specific code outside src-tauri/src/platform/:"
+            echo "$leaks"
+            exit 1
+          fi
+
+  desktop-linux:
+    name: Desktop builds and tests on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      # Tauri's Linux build dependencies (WebKitGTK and friends).
+      - name: System libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential libxdo-dev \
+            libssl-dev libayatana-appindicator3-dev librsvg2-dev \
+            gnome-keyring dbus-daemon
+      # Builds platform/linux/ and keeps it in step with platform/win32/ (same
+      # functions, same signatures).
+      - name: Test
+        working-directory: src-tauri
+        run: cargo test --all-targets --no-default-features --features desktop
+      # The account token lives in the desktop keyring on Linux, and the step
+      # above has none, so its tests skip there. Here they run against a real
+      # GNOME Keyring in a private D-Bus session.
+      - name: Keyring
+        working-directory: src-tauri
+        env:
+          A2_REQUIRE_KEYRING: "1"
+        run: |
+          dbus-run-session -- sh -c '
+            printf "ci" | gnome-keyring-daemon --unlock --components=secrets >/dev/null
+            cargo test --no-default-features --features desktop --lib secret -- --nocapture
+          '
+
+  parser-wasm:
+    name: Parser compiles to wasm32
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      # This is not a nice-to-have. The log service re-derives an uploaded fight
+      # by running this parser compiled to wasm32, rather than trusting the
+      # numbers a client sent — that is what makes it safe for the client to be
+      # open source. If a Tauri, pcap, HTTP or Windows dependency creeps into the
+      # parser core, this job fails here instead of the divergence surfacing
+      # later as a log whose numbers nobody can reproduce.
+      - name: Check parser core
+        working-directory: src-tauri
+        run: cargo check --lib --no-default-features --target wasm32-unknown-unknown
+
+# No `cargo fmt --check` job. The codebase predates one and is currently about
+# 3,700 diff lines away from rustfmt's opinion; adding the check without doing
+# the reformat would mean a permanently red build, and doing the reformat would
+# bury every real change under it. Worth doing deliberately, on its own, as a
+# single commit — not smuggled in beside a feature.

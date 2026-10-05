@@ -8,6 +8,8 @@
 
 ## A2Tools DPS Meter 解析核心
 
+新增 `desktop/` 目录直接保存以下固定提交的完整上游源码，并作启动页、汉化入口和本地化分支修改；上游 LICENSE 和原有作者署名保留。该整合分支不是本项目原创统计软件，继续按 GPL v3 提供对应源码。账号、上传、上游更新和 Discord 活动不作为整合版功能启用。
+
 - 上游：https://github.com/taengu/A2Tools-DPS-Meter
 - 固定源码提交：`70aade3fef1ef8b15fe5ce3d27cfdbfc5f854b98`
 - 上游许可：GNU GPL v3，保留上游版权与署名；解析器源码注释记载由 Kotlin StreamProcessor 移植。
@@ -24,7 +26,7 @@ Npcap 不打包分发；用户需按其官网许可自行安装。Rust 传递依
 
 ### WinDivert 采集组件
 
-新版 Windows 开发包包含官方 [WinDivert 2.2.2-A](https://github.com/basil00/WinDivert/releases/tag/v2.2.2) 的原始 x64 DLL 和已签名驱动，选择 LGPL v3 许可，保留随包完整 LICENSE、README、VERSION。官方源码见 [v2.2.2 源码](https://github.com/basil00/WinDivert/tree/v2.2.2)。未修改库或驱动，也未将其声称为本项目原创；本项目只读适配器为新增代码。打包归档摘要来自本地对官方资产的核查，不能称为上游发布的摘要。公开二进制发布前仍需提供对应组件源码、构建资料及完整运行时通知，当前未完成发布审计。
+历史开发包曾包含官方 [WinDivert 2.2.2-A](https://github.com/basil00/WinDivert/releases/tag/v2.2.2) 的原始 x64 DLL 和已签名驱动，选择 LGPL v3 许可。当前已切回 Npcap，构建脚本不再加入 WinDivert 组件。历史包中的 LICENSE、README、VERSION 和许可要求仍有效；官方源码见 [v2.2.2 源码](https://github.com/basil00/WinDivert/tree/v2.2.2)。研究适配器源码保留，不自动加载。
 
 组件仅在用户确认采集后调用 WinDivertOpen；这可能加载系统驱动，需管理员权限。只使用 SNIFF 和 RECV_ONLY，不阻断、修改或注入游戏封包；不代表第三方游戏规则允许使用，也不保证驱动与所有安全软件兼容。
 

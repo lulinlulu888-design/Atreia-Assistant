@@ -1,0 +1,64 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+packets_*.txt
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Build artifacts
+/src-tauri/target/
+/src-tauri/gen/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local config
+settings.properties
+
+# Copied static files (generated from src/ at build/dev time)
+/public/*
+!/public/src/
+/public/src/*
+!/public/src/js/
+# ...and the images the UI loads (class icons, logo, support buttons). They have
+# no other source in the repo, so without them a clean checkout (CI, the Arch
+# package, a build from source) shows broken class icons.
+!/public/assets/
+!/public/src/assets/
+# ...except vendored third-party libs, which are source, not generated. Without
+# these a fresh clone builds an app whose icons 404.
+!/public/vendor/
+/assets/
+/data/
+/i18n/
+
+# Debug binaries
+/src-tauri/src/bin/
+.claude/
+
+# log service build output
+/log-service/target/
+/log-service/build/
+/log-service/.dev.vars
+/log-service/.wrangler/
+
+# makepkg output (packaging/arch)
+/packaging/arch/src/
+/packaging/arch/pkg/
+/packaging/arch/*.pkg.tar.zst
