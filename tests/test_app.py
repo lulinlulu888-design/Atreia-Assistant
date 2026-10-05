@@ -192,6 +192,27 @@ class AppTests(unittest.TestCase):
         self.app.poll()
         self.assertIn("连接已变化", self.app.status.get())
 
+    def test_localization_discovery_is_read_only_and_does_not_finish_capture(self):
+        from pathlib import Path
+        from localization_paths import LocalizationInstallation
+        record = LocalizationInstallation(Path("fixture-game"), "steam", True, False, False, False)
+        self.app.running = True
+        self.app.localization_busy = True
+        self.app.events.put(("localization", "Steam / Global", [record], None))
+        self.app.poll()
+        self.assertEqual(self.app.localization_game, record)
+        self.assertFalse(self.app.localization_busy)
+        self.assertTrue(self.app.running)
+        self.assertFalse(self.app.consent.get())
+        self.assertIn("尚未检查", self.app.localization_status.get())
+
+    def test_client_change_rejects_stale_localization_detection(self):
+        self.app.client.set("PURPLE")
+        self.app.events.put(("localization", "Steam / Global", [], None))
+        self.app.poll()
+        self.assertIsNone(self.app.localization_game)
+        self.assertIn("客户端选择已变化", self.app.localization_status.get())
+
     def test_start_button_requires_ready_scope_interface_and_manual_consent(self):
         scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)
         self.app.selected_connection = GameConnection(100, "127.0.0.1", 1111, "unknown", scope)

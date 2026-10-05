@@ -16,6 +16,7 @@ from capture_live import Npcap, capture_filter
 from connections import find_game_discovery
 from auto_capture import AutoCapturePlan, prepare_auto_capture
 from capture_windivert import WinDivertReader
+from localization_paths import discover_steam, windows_steam_roots, inspect_installation
 
 
 class AssistantApp:
@@ -33,6 +34,8 @@ class AssistantApp:
         self.row_skills = {}
         self.npcap = None
         self.windivert = None
+        self.localization_game = None
+        self.localization_busy = False
         self.devices = []
         self.connections = []
         self.selected_connection = None
@@ -200,6 +203,12 @@ class AssistantApp:
         ttk.Label(localization_tab, text="简体中文 · 国服风味", style="Title.TLabel").pack(anchor="w", pady=(12, 10))
         ttk.Label(localization_tab, text="汉化安装功能正在整合。当前可使用原版汉化工具。\nSteam / Global 可前往正式下载页；PURPLE 暂未验证。",
                   wraplength=650).pack(anchor="w", pady=(0, 18))
+        self.localization_status = tk.StringVar(value="先检测游戏目录；这里只读检查，不会修改游戏文件。")
+        ttk.Label(localization_tab, textvariable=self.localization_status, wraplength=650).pack(anchor="w", pady=(0, 12))
+        localization_actions = ttk.Frame(localization_tab)
+        localization_actions.pack(fill="x", pady=(0, 16))
+        ttk.Button(localization_actions, text="检测游戏目录", command=self.detect_localization).pack(side="left")
+        ttk.Button(localization_actions, text="选择游戏目录", command=self.choose_localization).pack(side="left", padx=8)
         ttk.Button(localization_tab, text="打开现有汉化工具下载页", command=lambda: webbrowser.open(
             "https://github.com/lulinlulu888-design/Aion2-Steam-CN/releases/latest")).pack(anchor="w")
         self.damage = self.table(damage_tab,
@@ -211,6 +220,38 @@ class AssistantApp:
         self.empty_hint = ttk.Label(self.damage, text="等待战斗数据\n进入游戏后，点击开启统计", style="Empty.TLabel", justify="center")
         self.empty_hint.place(relx=.5, rely=.55, anchor="center")
         root.after(100, self.poll)
+
+    def detect_localization(self):
+        if self.localization_busy:
+            return
+        client = self.client.get()
+        if client != "Steam / Global":
+            self.localization_game = None
+            self.localization_status.set("PURPLE 目录请先手动选择；目前不会猜测安装位置，也未启用汉化安装。")
+            return
+        self.localization_busy = True
+        self.localization_game = None
+        self.localization_status.set("正在读取 Steam 游戏库，检查语言包与安装标记……")
+        def discover():
+            try:
+                records = discover_steam(windows_steam_roots())
+                self.notify(("localization", client, records, None))
+            except Exception as error:
+                self.notify(("localization", client, [], str(error)))
+        threading.Thread(target=discover, daemon=True).start()
+
+    def choose_localization(self):
+        if self.localization_busy:
+            return
+        path = filedialog.askdirectory(parent=self.root, title="选择 AION2 游戏目录（只读检测）")
+        if not path:
+            return
+        try:
+            self.localization_game = inspect_installation(path, "steam" if self.client.get() == "Steam / Global" else "purple")
+            self.localization_status.set(str(self.localization_game.root) + "\n" + self.localization_game.status)
+        except (OSError, ValueError) as error:
+            self.localization_game = None
+            self.localization_status.set("目录检查失败：" + str(error))
 
     def toggle_advanced(self):
         self.advanced_visible = not self.advanced_visible
@@ -540,6 +581,21 @@ class AssistantApp:
                 event = self.events.get_nowait()
             except queue.Empty:
                 break
+            if event[0] == "localization":
+                self.localization_busy = False
+                self.localization_game = None
+                if event[1] != self.client.get():
+                    self.localization_status.set("客户端选择已变化，请重新检测目录。")
+                elif event[3]:
+                    self.localization_status.set("目录检测失败：" + event[3])
+                elif len(event[2]) == 1:
+                    self.localization_game = event[2][0]
+                    self.localization_status.set(str(self.localization_game.root) + "\n" + self.localization_game.status)
+                elif event[2]:
+                    self.localization_status.set("找到多个游戏安装目录，请手动选择；不会自动修改任一目录。")
+                else:
+                    self.localization_status.set("未找到游戏目录，可点“选择游戏目录”；尚未修改任何文件。")
+                continue
             if event[0] == "ready":
                 self.reset_button.configure(state="normal" if self.running and self.is_live else "disabled")
                 continue
