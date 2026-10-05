@@ -15,6 +15,8 @@ Push-Location $taskDesktop
 try {
     npm ci --ignore-scripts --no-audit --no-fund --fetch-retries=0 --fetch-timeout=20000
     if ($LASTEXITCODE -ne 0) { throw 'Frontend dependencies failed.' }
+    npm run build
+    if ($LASTEXITCODE -ne 0) { throw 'Frontend resource generation failed.' }
     node --test tests/*.test.cjs tests/*.test.mjs
     if ($LASTEXITCODE -ne 0) { throw 'Launcher tests failed.' }
     if ($DebugBuild) { npm run tauri build -- --no-bundle --debug }

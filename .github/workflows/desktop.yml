@@ -18,6 +18,8 @@ jobs:
           cache-dependency-path: desktop/package-lock.json
       - run: rustup default 1.93.0
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Generate frontend resources for tests
+        run: npm run build
       - name: Frontend and launcher tests
         run: node --test tests/*.test.cjs tests/*.test.mjs
       - name: Native parser and application tests
