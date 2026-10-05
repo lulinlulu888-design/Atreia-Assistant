@@ -2619,6 +2619,7 @@ pub fn run() {
             replay_file,
             test_auto_hide,
             fetch_url,
+            crate::atreia_localization::inspect_localization_target,
             crate::atreia_localization::localization_execute,
             crate::atreia_localization::open_combat,
         ])

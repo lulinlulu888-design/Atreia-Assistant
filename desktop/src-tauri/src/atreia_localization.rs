@@ -88,13 +88,7 @@ pub async fn open_combat(app: tauri::AppHandle) -> Result<(), String> {
     Ok(())
 }
 
-fn validate_target(root: &str, client: &str, operation: &str) -> Result<PathBuf, String> {
-    if !["inspect", "install", "restore"].contains(&operation) {
-        return Err("未知汉化操作".into());
-    }
-    if client != "steam" {
-        return Err("PURPLE 汉化安装尚未验证，不能套用 Steam 引擎。".into());
-    }
+fn validate_target_root(root: &str) -> Result<PathBuf, String> {
     let path = Path::new(root)
         .canonicalize()
         .map_err(|_| "游戏目录不存在")?;
@@ -102,6 +96,43 @@ fn validate_target(root: &str, client: &str, operation: &str) -> Result<PathBuf,
         return Err("请选择包含 Aion2/Content 的游戏根目录。".into());
     }
     Ok(path)
+}
+
+fn validate_target(root: &str, client: &str, operation: &str) -> Result<PathBuf, String> {
+    if !["inspect", "install", "restore"].contains(&operation) {
+        return Err("未知汉化操作".into());
+    }
+    if client != "steam" {
+        return Err("PURPLE 汉化安装尚未验证，不能套用 Steam 引擎。".into());
+    }
+    validate_target_root(root)
+}
+
+/// Read-only compatibility check used by the launcher before offering an action.
+/// In particular, it never invokes the Steam-only engine for a PURPLE install.
+#[tauri::command]
+pub fn inspect_localization_target(root: String, client: String) -> Result<Value, String> {
+    let root = validate_target_root(&root)?;
+    let text_packages = root.join("Aion2/Content/Paks/L10N/Text");
+    if !text_packages.is_dir() {
+        return Err("未找到本地化文本包目录 Aion2/Content/Paks/L10N/Text。".into());
+    }
+
+    match client.as_str() {
+        "steam" => Ok(serde_json::json!({
+            "ok": true,
+            "supported": true,
+            "root": root,
+            "message": "已检测到 Steam / Global 游戏目录和本地化文本包；可继续使用 Steam 汉化组件检测、安装或还原。"
+        })),
+        "purple" => Ok(serde_json::json!({
+            "ok": true,
+            "supported": false,
+            "root": root,
+            "message": "已检测到 PURPLE 游戏目录和本地化文本包。当前仅支持只读检测：Steam 汉化引擎尚未验证 PURPLE 的包与更新校验，安装和还原已禁用，不会修改游戏文件。"
+        })),
+        _ => Err("未知客户端。".into()),
+    }
 }
 
 struct BusyGuard;
@@ -175,6 +206,17 @@ mod tests {
         assert!(validate_target(".", "steam", "execute").is_err());
         assert!(validate_target(".", "purple", "install").is_err());
         assert!(validate_target(".", "steam", "install").is_err());
+    }
+
+    #[test]
+    fn a_valid_purple_layout_is_inspectable_but_not_installable() {
+        let root = std::env::temp_dir().join(format!("atreia-purple-{}", std::process::id()));
+        std::fs::create_dir_all(root.join("Aion2/Content/Paks/L10N/Text")).unwrap();
+        let path = root.to_string_lossy().into_owned();
+        let result = inspect_localization_target(path.clone(), "purple".into()).unwrap();
+        assert_eq!(result["supported"], false);
+        assert!(validate_target(&path, "purple", "install").is_err());
+        std::fs::remove_dir_all(root).unwrap();
     }
     #[test]
     fn busy_guard_releases_after_worker_finishes() {
