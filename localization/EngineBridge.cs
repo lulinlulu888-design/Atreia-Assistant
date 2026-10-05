@@ -12,7 +12,7 @@ static class EngineBridge
     const BindingFlags PrivateInstance = BindingFlags.NonPublic | BindingFlags.Instance;
     const BindingFlags CodecFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance;
 
-    static string Inspect(object form, Assembly assembly, string root, string client)
+    static string Inspect(object form, Assembly assembly, string root, string client, out int supplemented)
     {
         string source = (string)form.GetType().GetMethod("FindSourcePak", PrivateInstance).Invoke(form, null);
         if (source == null) throw new InvalidDataException("找不到当前版本的原始英文语言包。");
@@ -24,7 +24,6 @@ static class EngineBridge
         using (var buffer = new MemoryStream()) { stream.CopyTo(buffer); translatedBytes = buffer.ToArray(); }
         object current = type.GetMethod("Decode", CodecFlags).Invoke(codec, new object[] {sourceBytes});
         object translated = type.GetMethod("Decode", CodecFlags).Invoke(codec, new object[] {translatedBytes});
-        int supplemented;
         EquivalentTranslations.Merge(codec, current, translated, out supplemented);
         int count = ((System.Collections.ICollection)current.GetType().GetField("Rows", CodecFlags).GetValue(current)).Count;
         return "已验证 " + client + " 当前语言表：" + count + " 个键，额外补译 " + supplemented + " 条，编码回读及缺译检查通过。安装后请将游戏文字语言设置为 English。检测未修改游戏。";
@@ -76,7 +75,7 @@ static class EngineBridge
                 int supplemented = 0;
                 string inspection = null;
                 if (operation == "install") supplemented = SupplementInstaller.Install(form, assembly, root);
-                else if (operation == "inspect") inspection = Inspect(form, assembly, root, args[3]);
+                else if (operation == "inspect") inspection = Inspect(form, assembly, root, args[3], out supplemented);
                 else type.GetMethod("Restore", PrivateInstance).Invoke(form, null);
                 string state = State(root);
                 bool cancelled = operation == "install" &&

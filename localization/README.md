@@ -71,10 +71,15 @@ duoluoyuji/Aion2-Steam-CN 的脚本也使用此共同路径：发现两个客户
 另外，在打包助手的实际界面点击两端“检测”，验证了前端、Rust 后端、
 桥接组件与本地真实资源的完整只读调用链。Windows 规范化路径使用兼容格式，
 不把 `\\?\` 前缀传给旧版 .NET Framework；此问题已有 Windows 回归测试。
+检测的 JSON `supplemented` 字段与界面消息一致。真实目录只读回归检查
+同时核对当前键数、补译数量，以及检测前后英文语言包和独立语言目录的文件名、
+SHA-256；本机两端均通过，原有 Steam 汉化状态未被修改。
 
 ```powershell
 ./test-localization-safety.ps1
 cargo test --locked --manifest-path desktop/src-tauri/Cargo.toml --lib
+./test-localization-inspection.ps1 -Component './build/dual-localization/component' `
+  -GameRoot 'D:/AION2_TW' -Client purple -ExpectedKeys 156439 -ExpectedSupplemented 18779
 ```
 
 安全测试使用自造文本，不需游戏数据；覆盖来源绑定、同键分端版本、
