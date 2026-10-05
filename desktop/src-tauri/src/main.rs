@@ -1,5 +1,6 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+// The desktop app never needs a console, including local preview builds.
+// Command-line tools have separate entry points and retain their consoles.
+#![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
 fn main() {
     a2tools_dps_meter_lib::run()
