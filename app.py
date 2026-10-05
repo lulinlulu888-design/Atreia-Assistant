@@ -17,6 +17,7 @@ from connections import find_game_discovery
 from auto_capture import AutoCapturePlan, prepare_auto_capture
 from capture_windivert import WinDivertReader
 from localization_paths import discover_steam, windows_steam_roots, inspect_installation
+from localization_engine import LocalizationEngine
 
 
 class AssistantApp:
@@ -36,6 +37,13 @@ class AssistantApp:
         self.windivert = None
         self.localization_game = None
         self.localization_busy = False
+        self.localization_writing = False
+        self.localization_engine = None
+        self.localization_log = ""
+        try:
+            self.localization_engine = LocalizationEngine(Path(__file__).resolve().parent / "vendor/localization")
+        except (OSError, ValueError):
+            pass  # Missing or untrusted components never enable file writes.
         self.devices = []
         self.connections = []
         self.selected_connection = None
@@ -49,8 +57,8 @@ class AssistantApp:
         self.advanced_visible = False
         root.title("亚特雷亚助手")
         dpi_scale = max(1.0, root.winfo_fpixels("1i") / 96)
-        root.geometry(f"{round(780 * dpi_scale)}x{round(620 * dpi_scale)}")
-        root.minsize(round(740 * dpi_scale), round(590 * dpi_scale))
+        root.geometry(f"{round(760 * dpi_scale)}x{round(570 * dpi_scale)}")
+        root.minsize(round(720 * dpi_scale), round(550 * dpi_scale))
         root.configure(background="#101827")
         root.protocol("WM_DELETE_WINDOW", self.close)
         style = ttk.Style(root)
@@ -86,9 +94,9 @@ class AssistantApp:
         style.map("TCheckbutton", background=[("active", "#101827")],
                   foreground=[("disabled", "#62738b")])
         style.configure("TNotebook", background="#101827", borderwidth=0)
-        style.configure("TNotebook.Tab", background="#1c293c", foreground="#92a4bf", padding=(14, 7))
+        style.configure("TNotebook.Tab", background="#1c293c", foreground="#92a4bf", padding=(14, 6))
         style.map("TNotebook.Tab", background=[("selected", "#24344c")],
-                  foreground=[("selected", "#7ad9ee")])
+                  foreground=[("selected", "#e5d2a2")])
         style.configure("Vertical.TScrollbar", background="#34455d", troughcolor="#182337",
                         arrowcolor="#92a4bf", bordercolor="#182337")
         style.configure("Treeview", background="#1c293c", fieldbackground="#1c293c", foreground="#e4edf7", rowheight=25)
@@ -96,7 +104,7 @@ class AssistantApp:
                         background="#24344c", foreground="#aebed4", relief="flat")
         style.map("Treeview.Heading", background=[("active", "#344b69")])
         style.map("Treeview", background=[("selected", "#235367")], foreground=[("selected", "#ffffff")])
-        body = ttk.Frame(root, padding=14)
+        body = ttk.Frame(root, padding=12)
         body.pack(fill="both", expand=True)
         header = ttk.Frame(body)
         header.pack(fill="x")
@@ -114,13 +122,16 @@ class AssistantApp:
                              fill="#1d4c64", outline="#e5d2a2", width=2)
         crest.scale("all", 0, 0, dpi_scale, dpi_scale)
         crest.configure(width=round(48 * dpi_scale), height=round(50 * dpi_scale))
-        ttk.Label(header, text="亚特雷亚助手", style="Title.TLabel").pack(side="left")
+        identity = ttk.Frame(header)
+        identity.pack(side="left")
+        ttk.Label(identity, text="亚特雷亚助手", style="Title.TLabel").pack(anchor="w")
+        ttk.Label(identity, text="战斗统计  /  游戏汉化", style="Muted.TLabel").pack(anchor="w")
         ttk.Label(header, text="ATREIA\n开发测试版", style="Muted.TLabel", justify="right").pack(side="right")
         tk.Frame(body, height=1, bg="#756d56").pack(fill="x", pady=(8, 0))
         self.compatibility = ttk.Label(body, text="战斗统计 · 当前客户端兼容性未验证", style="Warning.TLabel")
         self.compatibility.pack(anchor="w", pady=(7, 0))
         controls = ttk.Frame(body)
-        controls.pack(fill="x", pady=10)
+        controls.pack(fill="x", pady=8)
         self.client = tk.StringVar(value="Steam / Global")
         self.client_box = ttk.Combobox(controls, textvariable=self.client,
             values=("Steam / Global", "PURPLE"), state="readonly", width=16)
@@ -181,45 +192,93 @@ class AssistantApp:
             variable=self.consent, command=self.update_live_state)
         self.consent_box.pack(anchor="w", pady=(0, 8))
         self.status = tk.StringVar(value="进入游戏，点击开启统计。连接由助手自动识别。")
-        ttk.Label(body, textvariable=self.status, wraplength=730).pack(anchor="w", pady=(0, 6))
+        status_card = ttk.Frame(body, style="Card.TFrame", padding=(10, 7))
+        status_card.pack(fill="x", pady=(0, 6))
+        ttk.Label(status_card, textvariable=self.status, style="Card.TLabel", wraplength=680).pack(anchor="w")
         self.integrity = tk.StringVar(value="")
-        ttk.Label(body, textvariable=self.integrity, style="Warning.TLabel", wraplength=730).pack(anchor="w", pady=(0, 4))
+        ttk.Label(body, textvariable=self.integrity, style="Warning.TLabel", wraplength=680).pack(anchor="w", pady=(0, 2))
         results = ttk.Frame(body)
         results.pack(fill="both", expand=True)
         footer = ttk.Frame(results)
-        footer.pack(side="bottom", fill="x", pady=(10, 0))
+        footer.pack(side="bottom", fill="x", pady=(6, 0))
         self.diagnostics = tk.StringVar(value="仅本地分析 · 不上传数据 · 不修改游戏")
-        ttk.Label(footer, textvariable=self.diagnostics, style="Muted.TLabel", wraplength=420).pack(side="left")
+        ttk.Label(footer, textvariable=self.diagnostics, style="Muted.TLabel", wraplength=380).pack(side="left")
         self.export_button = ttk.Button(footer, text="导出报告", command=self.export_report, state="disabled")
         self.export_button.pack(side="right")
         self.reset_button = ttk.Button(footer, text="新的一场", command=self.reset_encounter, state="disabled")
         self.reset_button.pack(side="right", padx=6)
         tabs = ttk.Notebook(results)
         tabs.pack(fill="both", expand=True)
-        damage_tab, healing_tab, localization_tab = ttk.Frame(tabs), ttk.Frame(tabs), ttk.Frame(tabs, padding=20)
+        damage_tab, healing_tab, localization_tab = ttk.Frame(tabs), ttk.Frame(tabs), ttk.Frame(tabs, padding=14)
         tabs.add(damage_tab, text="伤害与技能")
         tabs.add(healing_tab, text="治疗统计")
         tabs.add(localization_tab, text="游戏汉化")
-        ttk.Label(localization_tab, text="简体中文 · 国服风味", style="Title.TLabel").pack(anchor="w", pady=(12, 10))
-        ttk.Label(localization_tab, text="汉化安装功能正在整合。当前可使用原版汉化工具。\nSteam / Global 可前往正式下载页；PURPLE 暂未验证。",
-                  wraplength=650).pack(anchor="w", pady=(0, 18))
+        ttk.Label(localization_tab, text="简体中文 · 国服风味", style="Title.TLabel").pack(anchor="w", pady=(4, 8))
+        ttk.Label(localization_tab, text="Steam / Global 简体中文汉化 · PURPLE 安装暂未验证。",
+                  wraplength=650).pack(anchor="w", pady=(0, 10))
         self.localization_status = tk.StringVar(value="先检测游戏目录；这里只读检查，不会修改游戏文件。")
-        ttk.Label(localization_tab, textvariable=self.localization_status, wraplength=650).pack(anchor="w", pady=(0, 12))
+        ttk.Label(localization_tab, textvariable=self.localization_status, wraplength=650).pack(anchor="w", pady=(0, 6))
         localization_actions = ttk.Frame(localization_tab)
-        localization_actions.pack(fill="x", pady=(0, 16))
+        localization_actions.pack(fill="x", pady=(0, 6))
         ttk.Button(localization_actions, text="检测游戏目录", command=self.detect_localization).pack(side="left")
         ttk.Button(localization_actions, text="选择游戏目录", command=self.choose_localization).pack(side="left", padx=8)
+        engine_actions = ttk.Frame(localization_tab)
+        engine_actions.pack(fill="x", pady=(0, 8))
+        engine_state = "normal" if self.localization_engine else "disabled"
+        self.localization_buttons = []
+        for label, operation in (("安装 / 更新汉化", "install"), ("还原游戏", "restore"), ("检查安装状态", "inspect")):
+            button = ttk.Button(engine_actions, text=label, state=engine_state,
+                                command=lambda op=operation: self.run_localization(op))
+            button.pack(side="left", padx=(0, 8))
+            self.localization_buttons.append(button)
+        if not self.localization_engine:
+            self.localization_status.set("当前包未包含汉化引擎，可先检测目录，或使用原工具。")
         ttk.Button(localization_tab, text="打开现有汉化工具下载页", command=lambda: webbrowser.open(
             "https://github.com/lulinlulu888-design/Aion2-Steam-CN/releases/latest")).pack(anchor="w")
         self.damage = self.table(damage_tab,
-            ("目标", "玩家", "总伤害", "DPS", "贡献", "暴击命中率"), height=4)
+            ("目标", "玩家", "总伤害", "DPS", "贡献", "暴击命中率"), height=3)
         self.damage.bind("<<TreeviewSelect>>", self.select_player)
-        ttk.Label(damage_tab, text="选中玩家查看技能分解；数字 ID 表示名称尚未识别。", padding=8).pack(anchor="w")
-        self.skills = self.table(damage_tab, ("技能 ID", "持续伤害", "伤害", "命中次数", "暴击命中"), height=3)
-        self.healing = self.table(healing_tab, ("玩家 ID", "技能 ID", "持续治疗", "治疗总量", "记录次数"), height=10)
+        ttk.Label(damage_tab, text="选中玩家查看技能分解；数字 ID 表示名称尚未识别。", padding=5, style="Muted.TLabel").pack(anchor="w")
+        self.skills = self.table(damage_tab, ("技能 ID", "持续伤害", "伤害", "命中次数", "暴击命中"), height=2)
+        self.healing = self.table(healing_tab, ("玩家 ID", "技能 ID", "持续治疗", "治疗总量", "记录次数"), height=8)
         self.empty_hint = ttk.Label(self.damage, text="等待战斗数据\n进入游戏后，点击开启统计", style="Empty.TLabel", justify="center")
         self.empty_hint.place(relx=.5, rely=.55, anchor="center")
         root.after(100, self.poll)
+
+    def run_localization(self, operation):
+        if self.localization_busy or self.running or self.detecting:
+            self.localization_status.set("请先结束当前操作，再进行汉化。")
+            return
+        game = self.localization_game
+        if not self.localization_engine or not game:
+            self.localization_status.set("需要可用的汉化组件，并先检测或选择游戏目录。")
+            return
+        client = "steam" if self.client.get() == "Steam / Global" else "purple"
+        if game.client != client or client != "steam":
+            self.localization_status.set("请重新选择 Steam 目录；PURPLE 汉化安装尚未验证。")
+            return
+        if operation not in ("inspect", "install", "restore"):
+            return
+        if operation != "inspect":
+            action = "安装或更新汉化，备份并修改语言文件" if operation == "install" else "从已验证备份还原游戏语言文件"
+            if not messagebox.askyesno("确认游戏文件操作", f"目标目录：\n{game.root}\n\n将{action}。"
+                                      "\n请先退出游戏。第三方汉化可能存在账号或兼容性风险。"
+                                      "\n操作期间请勿关闭工具。继续？", parent=self.root):
+                return
+        self.localization_busy = True
+        self.localization_writing = operation != "inspect"
+        for button in self.localization_buttons:
+            button.configure(state="disabled")
+        self.localization_status.set("正在" + {"inspect": "检查安装状态", "install": "安装汉化", "restore": "还原游戏"}[operation] + "……")
+        engine = self.localization_engine
+        def execute():
+            try:
+                response = engine.execute(operation, game, consented=operation != "inspect")
+                self.notify(("localization_result", response, None))
+            except Exception as error:
+                self.notify(("localization_result", None, str(error)))
+        # Transactional helper must finish or roll back, not die with the UI.
+        threading.Thread(target=execute, daemon=False).start()
 
     def detect_localization(self):
         if self.localization_busy:
@@ -581,6 +640,22 @@ class AssistantApp:
                 event = self.events.get_nowait()
             except queue.Empty:
                 break
+            if event[0] == "localization_result":
+                self.localization_busy = False
+                self.localization_writing = False
+                for button in self.localization_buttons:
+                    button.configure(state="normal" if self.localization_engine else "disabled")
+                if event[2]:
+                    self.localization_status.set("操作未完成：" + event[2])
+                elif event[1].get("cancelled"):
+                    self.localization_status.set("已取消安装，未宣称汉化成功。")
+                else:
+                    response = event[1]
+                    self.localization_log = response["message"]
+                    summary = {"inspect": "状态检查完成", "install": "汉化安装完成", "restore": "游戏语言已还原"}[response["operation"]]
+                    lines = response["message"].strip().splitlines()
+                    self.localization_status.set(summary + ("\n" + lines[-1][:160] if lines else ""))
+                continue
             if event[0] == "localization":
                 self.localization_busy = False
                 self.localization_game = None
@@ -779,6 +854,9 @@ class AssistantApp:
             threading.Thread(target=self.bridge.close, daemon=True).start()
 
     def close(self):
+        if self.localization_writing:
+            messagebox.showinfo("操作尚未完成", "正在安装或还原语言文件，请等待完成或回滚后再关闭。", parent=self.root)
+            return
         self.stop()
         self.root.destroy()
 

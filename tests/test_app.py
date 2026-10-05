@@ -1,5 +1,6 @@
 import os
 import copy
+import gc
 import unittest
 import tkinter as tk
 from tkinter import ttk
@@ -18,6 +19,11 @@ class AppTests(unittest.TestCase):
 
     def tearDown(self):
         self.app.close()
+        self.app = None
+        self.root = None
+        # Collect destroyed Tk variables on their owning thread, before later
+        # backend-worker tests can trigger Python's cyclic garbage collector.
+        gc.collect()
 
     def test_chinese_view_renders_damage_skills_and_healing(self):
         snapshot = {"status": "combat_detected", "compatibility": "unverified",
@@ -84,14 +90,47 @@ class AppTests(unittest.TestCase):
         self.assertEqual(style.lookup("TButton", "background"), "#24344c")
         self.assertEqual(style.lookup("Treeview.Heading", "background"), "#24344c")
 
+    def test_localization_missing_components_and_declined_confirmation_do_not_write(self):
+        self.app.localization_engine = Mock()
+        self.app.localization_game = Mock(client="steam", root="isolated-fixture")
+        with patch("app.messagebox.askyesno", return_value=False):
+            self.app.run_localization("install")
+        self.app.localization_engine.execute.assert_not_called()
+        self.assertFalse(self.app.localization_writing)
+        self.app.localization_game.client = "purple"
+        self.app.client.set("PURPLE")
+        with patch("app.messagebox.askyesno") as confirm:
+            self.app.run_localization("install")
+        confirm.assert_not_called()
+        self.app.localization_engine.execute.assert_not_called()
+
+    def test_localization_result_does_not_end_capture_or_claim_cancelled_success(self):
+        self.app.running = True
+        self.app.localization_busy = True
+        self.app.localization_writing = True
+        self.app.events.put(("localization_result", {"cancelled": True}, None))
+        self.app.poll()
+        self.assertTrue(self.app.running)
+        self.assertFalse(self.app.localization_busy)
+        self.assertFalse(self.app.localization_writing)
+        self.assertIn("已取消", self.app.localization_status.get())
+
+    def test_window_cannot_close_during_transaction(self):
+        self.app.localization_writing = True
+        with patch("app.messagebox.showinfo") as notice, patch.object(self.root, "destroy") as destroy:
+            self.app.close()
+        notice.assert_called_once()
+        destroy.assert_not_called()
+        self.app.localization_writing = False
+
     def test_compact_window_keeps_settings_out_of_statistics_layout(self):
         self.root.update_idletasks()
         scale = max(1.0, self.root.winfo_fpixels("1i") / 96)
         self.assertEqual(self.app.settings_window.state(), "withdrawn")
         self.assertEqual(self.app.advanced.master, self.app.settings_window)
-        self.assertIn(f"{round(780 * scale)}x{round(620 * scale)}", self.root.geometry())
-        self.assertLessEqual(self.root.winfo_reqwidth(), round(780 * scale))
-        self.assertLessEqual(self.root.winfo_reqheight(), round(620 * scale))
+        self.assertIn(f"{round(760 * scale)}x{round(570 * scale)}", self.root.geometry())
+        self.assertLessEqual(self.root.winfo_reqwidth(), round(760 * scale))
+        self.assertLessEqual(self.root.winfo_reqheight(), round(570 * scale))
         self.assertEqual(str(self.app.auto_start_button["state"]), "normal")
         self.assertFalse(self.app.consent.get())
         self.assertIn("检查环境", self.app.detect_button["text"])
