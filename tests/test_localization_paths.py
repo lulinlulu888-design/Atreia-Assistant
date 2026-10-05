@@ -8,7 +8,9 @@ class LocalizationPathTests(unittest.TestCase):
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)
-        self.library = Path(self.directory.name)
+        # Windows runners can return an 8.3 TEMP alias (RUNNER~1). Production
+        # normalizes paths; compare against the same canonical fixture path.
+        self.library = Path(self.directory.name).resolve()
         self.game = self.library / "steamapps/common/AION2"
         self.pak = self.game / PAK
         self.pak.parent.mkdir(parents=True)
@@ -28,6 +30,14 @@ class LocalizationPathTests(unittest.TestCase):
         self.assertEqual(normalize_game_root(self.pak), self.game)
         with self.assertRaises(ValueError):
             normalize_game_root(Path(self.directory.name) / "unknown")
+
+    def test_directory_alias_resolves_to_same_installation_without_duplicates(self):
+        alias = self.library / "steamapps" / ".."
+        records = discover_steam([self.library, alias])
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].root, self.game.resolve())
+        self.assertTrue(records[0].root.samefile(self.game))
+        self.assertEqual(self.pak.read_bytes(), b"synthetic original PAK")
 
     def test_marker_and_backup_presence_are_not_declared_valid(self):
         self.pak.write_bytes(b"AION2CN 2.4.0")
