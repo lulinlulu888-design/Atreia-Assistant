@@ -74,9 +74,13 @@ Windows 64 位上安装 Python（含 Tk）和 Rust 后，在 PowerShell 运行�
 ./build-windows.ps1
 # 已有后端时可跳过重复编译：
 ./build-windows.ps1 -SkipBackendBuild -BackendPath '完整路径/atreia-combat-backend.exe'
+# 仅限本地整合测试，可加入自行取得的原工具 v2.4.0 正式引擎：
+./build-windows.ps1 -LocalizationEnginePath '完整路径/Aion2-Steam-CN-v2.4.0.exe'
 ```
 
-脚本在项目专用 `.venv-build` 安装固定版本的打包依赖，构建独立文件夹版 `Atreia-Assistant-dev.exe`，输出到全新的 `dist/dev-时间-随机标识`，不会清理已有文件。必须保留整个应用文件夹及 `_internal`，不能只复制 EXE。构建后的应用在目标机无需另装 Python/Rust；Npcap 仍需用户自行安装，不随包分发。
+脚本在项目专用 `.venv-build` 安装固定版本的打包依赖，构建独立文件夹版 `Atreia-Assistant-dev.exe`，输出到全新的 `dist/dev-时间-随机标识`，不会清理已有文件。必须保留整个应用文件夹及 `_internal`，不能只复制 EXE。构建后的应用在目标机无需另装 Python/Rust；默认使用随包 WinDivert，Npcap 仅为手动采集的备用路径，不随包分发。
+
+可选汉化引擎参数会校验原工具正式资产摘要，并编译本项目的接口程序，加入本地开发包。打包自检只调用原引擎的只读检查，在临时合成目录中核对文件未变；不安装或还原真实游戏。原引擎许可及嵌入组件仍需独立审计，不能因为本项目开源而认定整个引擎可按 GPL 重新分发。未包含可用组件时汉化操作按钮禁用；PURPLE 安装暂不启用。详见 `localization/README.md`。
 
 每次打包执行隐藏的合成封包自检，检查 Tk 窗口创建、随包后端定位、Steam/PURPLE 候选解析、重传去重和手动分场，并输出 `synthetic-self-test.json`。报告始终注明没有测试真实游戏、没有启动采集。CI 只保存自检报告，不上传二进制。打包成功不等于实战或窗口视觉验收通过；在兼容性验证及对应源码/依赖许可审计完成前，不发布或分发该开发测试包。
 

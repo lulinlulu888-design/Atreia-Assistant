@@ -1,8 +1,29 @@
 """Synthetic local bundle smoke test. No driver, network or game operations."""
 import struct
+from pathlib import Path
+import tempfile
 from pipeline import BackendBridge, ConnectionRouter, ScopedConnectionRouter
 from transport import Packet
 from connection_scope import ConnectionScope
+
+
+def check_localization(engine):
+    """Call only Inspect on a synthetic temporary installation, never a game."""
+    from localization_paths import PAK, inspect_installation
+    with tempfile.TemporaryDirectory(prefix="atreia-inspect-") as fixture:
+        root = Path(fixture)
+        pak = root / PAK
+        pak.parent.mkdir(parents=True)
+        pak.write_bytes(b"synthetic language package; not a real game")
+        def contents():
+            return {str(path.relative_to(root)): path.read_bytes()
+                    for path in root.rglob("*") if path.is_file()}
+        before = contents()
+        response = engine.execute("inspect", inspect_installation(root, "steam"))
+        if (response.get("ok") is not True or response.get("state") != "not_installed"
+                or response.get("engine_version") != "2.4.0" or contents() != before):
+            raise RuntimeError("汉化组件只读隔离检查未通过")
+    return "passed_read_only_fixture"
 
 
 def packet(payload, sequence, flags):

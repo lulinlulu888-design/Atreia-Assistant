@@ -1,5 +1,6 @@
 param(
     [string]$BackendPath = '',
+    [string]$LocalizationEnginePath = '',
     [switch]$SkipBackendBuild
 )
 $ErrorActionPreference = 'Stop'
@@ -37,7 +38,13 @@ foreach ($taskPackage in $taskLicenseReport.packages) {
         throw "Missing dependency license evidence: $($taskPackage.name). Review before building."
     }
 }
-& $taskPython -m PyInstaller --onedir --windowed --name Atreia-Assistant-dev `
+$taskLocalizationArgs = @()
+if ($LocalizationEnginePath) {
+    # Local review only: no combined public release without redistribution audit.
+    $taskLocalization = & (Join-Path $taskRoot 'prepare-localization.ps1') -Engine $LocalizationEnginePath -Destination (Join-Path $taskWork 'localization')
+    $taskLocalizationArgs = @('--add-data', "${taskLocalization}:vendor/localization")
+}
+& $taskPython -m PyInstaller @taskLocalizationArgs --onedir --windowed --name Atreia-Assistant-dev `
     --distpath $taskDist --workpath $taskWork --specpath $taskWork `
     --add-binary "${taskBackend}:bin" `
     --add-data "${taskRoot}/LICENSE:." `
@@ -58,6 +65,9 @@ $taskResult = Get-Content -Raw -LiteralPath $taskReport | ConvertFrom-Json
 if ($taskResult.status -ne 'passed' -or $taskResult.real_game_tested -ne $false -or
     $taskResult.packet_capture_started -ne $false -or
     $taskResult.windivert_dll_filter_check -ne 'passed_without_driver_open') { throw 'Unexpected smoke-test result.' }
+if ($LocalizationEnginePath -and $taskResult.localization_engine_check -ne 'passed_read_only_fixture') {
+    throw 'Bundled localization engine inspection failed.'
+}
 Write-Output "Local development bundle: $taskExe"
 Write-Output "Synthetic smoke test: $taskReport"
 Write-Output 'Not a verified game release. Do not distribute before compatibility and corresponding-source/license audits.'

@@ -868,7 +868,7 @@ def main():
         help="Hidden synthetic bundle smoke test; does not capture game traffic")
     args = parser.parse_args()
     if args.self_test_report:
-        from healthcheck import check_backend
+        from healthcheck import check_backend, check_localization
         root = None
         result = {"status": "failed", "real_game_tested": False, "packet_capture_started": False}
         try:
@@ -876,6 +876,8 @@ def main():
             root.withdraw()
             app = AssistantApp(root, args.backend)
             result.update(check_backend(app.backend_executable()))
+            result["localization_engine_check"] = (
+                check_localization(app.localization_engine) if app.localization_engine else "not_bundled")
             if getattr(sys, "frozen", False):
                 from connection_scope import ConnectionScope
                 reader = WinDivertReader(Path(__file__).resolve().parent / "vendor/windivert")
