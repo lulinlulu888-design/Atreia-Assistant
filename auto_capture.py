@@ -22,7 +22,9 @@ class AutoCapturePlan:
             raise ValueError("游戏连接已变化，请重新点击开启；没有开始采集")
 
 
-def prepare_auto_capture(report, devices):
+def prepare_auto_capture(report, devices, provider="npcap"):
+    if provider not in ("npcap", "windivert"):
+        raise ValueError("未知采集组件")
     candidates = report.connections
     if not candidates:
         raise ValueError("尚未发现可用游戏连接，请确认游戏已进入服务器")
@@ -35,6 +37,10 @@ def prepare_auto_capture(report, devices):
             raise ValueError("连接信息不完整，请重新检测；不会退回宽泛端口过滤")
         unique.setdefault(frozenset((candidate.scope.local, candidate.scope.remote)), candidate.scope)
     scopes = validate_scopes(tuple(unique.values()))
+    if provider == "windivert":
+        # NETWORK-layer capture covers exact IPv4 tuples without choosing NICs.
+        return AutoCapturePlan(next(iter(pids)), "windivert", scopes,
+                               any(c.client_hint == "path_restricted" for c in candidates))
     loopbacks = [ipaddress.IPv4Address(scope.local_ip).is_loopback and
                  ipaddress.IPv4Address(scope.remote_ip).is_loopback for scope in scopes]
     if any(loopbacks) and not all(loopbacks):

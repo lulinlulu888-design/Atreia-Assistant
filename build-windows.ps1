@@ -27,11 +27,13 @@ $taskBackend = (Resolve-Path -LiteralPath $BackendPath).Path
 $taskStamp = 'dev-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [Guid]::NewGuid().ToString('N').Substring(0, 6)
 $taskDist = Join-Path $taskRoot "dist/$taskStamp"
 $taskWork = Join-Path $taskRoot "build/$taskStamp"
+$taskVendor = & (Join-Path $taskRoot 'prepare-windivert.ps1') -Destination (Join-Path $taskWork 'windivert')
 & $taskPython -m PyInstaller --onedir --windowed --name Atreia-Assistant-dev `
     --distpath $taskDist --workpath $taskWork --specpath $taskWork `
     --add-binary "${taskBackend}:bin" `
     --add-data "${taskRoot}/LICENSE:." `
     --add-data "${taskRoot}/THIRD_PARTY_NOTICES.md:." `
+    --add-data "${taskVendor}:vendor/windivert" `
     (Join-Path $taskRoot 'app.py')
 if ($LASTEXITCODE -ne 0) { throw 'Windows development bundle build failed.' }
 $taskExe = Join-Path $taskDist 'Atreia-Assistant-dev/Atreia-Assistant-dev.exe'
@@ -43,7 +45,9 @@ if (-not $taskProcess.WaitForExit(60000)) {
 }
 if ($taskProcess.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $taskReport)) { throw 'Bundle smoke test failed.' }
 $taskResult = Get-Content -Raw -LiteralPath $taskReport | ConvertFrom-Json
-if ($taskResult.status -ne 'passed' -or $taskResult.real_game_tested -ne $false) { throw 'Unexpected smoke-test result.' }
+if ($taskResult.status -ne 'passed' -or $taskResult.real_game_tested -ne $false -or
+    $taskResult.packet_capture_started -ne $false -or
+    $taskResult.windivert_dll_filter_check -ne 'passed_without_driver_open') { throw 'Unexpected smoke-test result.' }
 Write-Output "Local development bundle: $taskExe"
 Write-Output "Synthetic smoke test: $taskReport"
 Write-Output 'Not a verified game release. Do not distribute before compatibility and corresponding-source/license audits.'

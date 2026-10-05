@@ -35,6 +35,13 @@ class AutoCaptureTests(unittest.TestCase):
         plan = prepare_auto_capture(self.report([first, second]), self.devices)
         self.assertEqual(len(plan.scopes), 1)
 
+    def test_windivert_plan_needs_no_nic_even_for_mixed_routes(self):
+        report = self.report([candidate(), candidate(local="10.0.0.1", remote="10.0.0.2")])
+        plan = prepare_auto_capture(report, [], provider="windivert")
+        self.assertEqual(plan.device, "windivert")
+        self.assertEqual(len(plan.scopes), 2)
+        plan.verify(report)
+
     def test_ambiguous_or_incomplete_environment_does_not_guess_or_broaden(self):
         for records in ([], [candidate(), candidate(pid=101)],
                         [candidate(), candidate(local="10.0.0.1", remote="10.0.0.2")],

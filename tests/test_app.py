@@ -91,12 +91,12 @@ class AppTests(unittest.TestCase):
         self.assertFalse(self.app.advanced.winfo_manager())
 
     def test_guided_missing_driver_shows_next_step_without_modal_or_capture(self):
-        with patch("app.Npcap", side_effect=RuntimeError("missing")), \
+        with patch("app.WinDivertReader", side_effect=RuntimeError("missing")), \
                 patch("app.messagebox.showerror") as modal, patch.object(self.app, "detect_connections") as detect:
             self.app.check_setup()
         modal.assert_not_called()
         detect.assert_not_called()
-        self.assertIn("安装采集组件", self.app.status.get())
+        self.assertIn("内置采集组件未就绪", self.app.status.get())
         self.assertFalse(self.app.consent.get())
         self.assertFalse(self.app.running)
 
@@ -137,6 +137,49 @@ class AppTests(unittest.TestCase):
             question.assert_called_once()
             self.assertEqual(self.app.consent.get(), consent)
             self.assertEqual(start.call_count, int(consent))
+
+    def test_windivert_auto_entry_does_not_require_npcap_or_nic(self):
+        with patch("app.WinDivertReader") as factory, patch.object(self.app, "is_admin", return_value=True), \
+                patch.object(self.app, "detect_connections") as detect, patch("app.Npcap") as npcap:
+            self.app.begin_auto()
+        detect.assert_called_once()
+        npcap.assert_not_called()
+        factory.return_value.packets_for_scopes.assert_not_called()
+        self.assertTrue(self.app.pending_auto_start)
+        self.assertFalse(self.app.consent.get())
+
+    def test_missing_admin_does_not_elevate_or_open_capture_automatically(self):
+        with patch("app.WinDivertReader") as factory, patch.object(self.app, "is_admin", return_value=False), \
+                patch.object(self.app, "detect_connections") as detect, patch.object(self.app, "relaunch_admin") as elevate:
+            self.app.begin_auto()
+        detect.assert_not_called()
+        elevate.assert_not_called()
+        factory.return_value.packets_for_scopes.assert_not_called()
+        self.assertIn("管理员权限重开", self.app.status.get())
+
+    def test_windivert_confirmation_discloses_driver_and_cancel_never_opens(self):
+        self.app.windivert = Mock()
+        scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)
+        report = DiscoveryReport([GameConnection(100, "127.0.0.1", 1111, "unknown", scope)], 1, 0, 1)
+        with patch.object(self.app, "backend_executable", return_value="fixture"), \
+                patch("app.messagebox.askyesno", return_value=False) as question, \
+                patch.object(self.app, "start_replay") as start:
+            self.app.confirm_auto_start(report)
+        self.assertIn("WinDivert 驱动", question.call_args.args[1])
+        start.assert_not_called()
+        self.app.windivert.packets_for_scopes.assert_not_called()
+
+    def test_changed_windivert_plan_never_opens_driver(self):
+        from auto_capture import prepare_auto_capture
+        self.app.windivert = Mock()
+        scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)
+        report = DiscoveryReport([GameConnection(100, "127.0.0.1", 1111, "unknown", scope)], 1, 0, 1)
+        plan = prepare_auto_capture(report, [], provider="windivert")
+        with patch("app.BackendBridge"), patch("app.find_game_discovery", return_value=DiscoveryReport([], 1, 0, 0)):
+            self.app.work(None, "fixture", "steam", 0, plan)
+        self.app.windivert.packets_for_scopes.assert_not_called()
+        self.app.poll()
+        self.assertIn("连接已变化", self.app.status.get())
 
     def test_start_button_requires_ready_scope_interface_and_manual_consent(self):
         scope = ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111)

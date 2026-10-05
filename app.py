@@ -7,10 +7,15 @@ import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import webbrowser
+import ctypes
+import os
+import subprocess
+import sys
 from pipeline import BackendBridge, ConnectionRouter, ScopedConnectionRouter, replay_capture
 from capture_live import Npcap, capture_filter
 from connections import find_game_discovery
 from auto_capture import AutoCapturePlan, prepare_auto_capture
+from capture_windivert import WinDivertReader
 
 
 class AssistantApp:
@@ -27,6 +32,7 @@ class AssistantApp:
         self.last_diagnostics = {}
         self.row_skills = {}
         self.npcap = None
+        self.windivert = None
         self.devices = []
         self.connections = []
         self.selected_connection = None
@@ -144,9 +150,10 @@ class AssistantApp:
         ttk.Label(self.advanced, textvariable=self.scope_summary, style="Card.TLabel", wraplength=920).pack(anchor="w", pady=(8, 0))
         setup = ttk.Frame(body)
         setup.pack(fill="x", pady=(0, 8))
-        self.install_guide_button = ttk.Button(setup, text="安装采集组件", command=self.open_npcap_guide)
-        self.install_guide_button.pack(side="left", padx=(0, 8))
-        ttk.Label(setup, text="首次使用才需要安装 Npcap；安装后再点“检查环境”。", style="Muted.TLabel",
+        self.install_guide_button = ttk.Button(self.advanced, text="安装 Npcap（备用手动采集）", command=self.open_npcap_guide)
+        self.install_guide_button.pack(anchor="w", pady=(8, 0))
+        ttk.Button(setup, text="以管理员权限重开", command=self.relaunch_admin).pack(side="right")
+        ttk.Label(setup, text="一键统计使用内置采集组件；Windows 权限提示需自行确认。", style="Muted.TLabel",
                   wraplength=690).pack(side="left")
         self.consent = tk.BooleanVar(value=False)
         self.consent_box = ttk.Checkbutton(self.advanced, text="我同意仅采集所选游戏连接并在本地分析，理解第三方工具及未验证版本的风险。",
@@ -192,9 +199,13 @@ class AssistantApp:
     def check_setup(self):
         if self.running or self.detecting:
             return
-        if not self.refresh_devices(show_error=False):
+        self.windivert = None
+        self.consent.set(False)
+        try:
+            self.windivert = WinDivertReader(Path(__file__).resolve().parent / "vendor/windivert")
+        except Exception as error:
             self.pending_auto_start = False
-            self.status.set("还缺采集组件：点“安装采集组件”，自行完成安装后再点“检查环境”。")
+            self.status.set("内置采集组件未就绪：" + str(error))
             return
         self.guided_check = True
         self.detect_connections()
@@ -202,12 +213,53 @@ class AssistantApp:
     def begin_auto(self):
         if self.running or self.detecting:
             return
+        self.consent.set(False)
+        self.windivert = None
+        try:
+            self.windivert = WinDivertReader(Path(__file__).resolve().parent / "vendor/windivert")
+        except Exception as error:
+            self.status.set("内置采集组件未就绪：" + str(error))
+            return
+        if not self.is_admin():
+            self.status.set("请点“以管理员权限重开”并自行确认 Windows 提示，然后再点开启统计。")
+            return
         self.pending_auto_start = True
-        self.check_setup()
+        self.detect_connections()
+
+    @staticmethod
+    def is_admin():
+        return os.name == "nt" and bool(ctypes.windll.shell32.IsUserAnAdmin())
+
+    def relaunch_admin(self):
+        if self.running or self.detecting:
+            return
+        if self.is_admin():
+            self.status.set("已有管理员权限，可以点击开启战斗统计。")
+            return
+        if os.name != "nt":
+            self.status.set("实时统计目前只支持 Windows。")
+            return
+        if not messagebox.askyesno("Windows 权限", "采集组件需要管理员权限。将重开工具，Windows 提示请自行确认。"
+                                  "\n不会自动开始采集，重开后仍需点击开启统计。", parent=self.root):
+            return
+        arguments = [] if getattr(sys, "frozen", False) else [str(Path(__file__).resolve())]
+        if self.backend_path:
+            arguments += ["--backend", str(Path(self.backend_path).resolve())]
+        shell = ctypes.WinDLL("shell32", use_last_error=True)
+        shell.ShellExecuteW.argtypes = [ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_wchar_p,
+                                       ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_int]
+        shell.ShellExecuteW.restype = ctypes.c_void_p
+        result = shell.ShellExecuteW(None, "runas", sys.executable,
+                                    subprocess.list2cmdline(arguments), str(Path(__file__).resolve().parent), 1)
+        if result and result > 32:
+            self.close()
+        else:
+            self.status.set("重开未完成或权限被取消；没有开始采集。")
 
     def confirm_auto_start(self, report):
         try:
-            plan = prepare_auto_capture(report, self.devices)
+            plan = prepare_auto_capture(report, self.devices,
+                                        provider="windivert" if self.windivert is not None else "npcap")
             executable = self.backend_executable()
         except (ValueError, FileNotFoundError) as error:
             self.status.set(str(error))
@@ -219,6 +271,8 @@ class AssistantApp:
                 "\n第三方工具风险及真实游戏兼容性尚未验证。")
         if plan.identity_restricted:
             text += "\n程序路径读取受限，请确认所选 Steam/PURPLE 客户端正确。"
+        if plan.device == "windivert":
+            text += "\n将启用随包 WinDivert 驱动，仅复制接收封包，不阻断或重发流量。"
         if not messagebox.askyesno("确认开启战斗统计", text + "\n精确范围可在高级设置查看。\n\n确认采集这些游戏连接并开始？", parent=self.root):
             self.consent.set(False)
             self.status.set("已取消，没有开始采集。")
@@ -419,7 +473,12 @@ class AssistantApp:
                     if isinstance(live_options, AutoCapturePlan):
                         live_options.verify(find_game_discovery())
                         router = ScopedConnectionRouter(bridge, live_options.scopes)
-                        packets = self.npcap.packets_for_scopes(live_options.device, live_options.scopes, self.cancelled)
+                        if live_options.device == "windivert":
+                            if self.windivert is None:
+                                raise ValueError("内置采集组件未就绪")
+                            packets = self.windivert.packets_for_scopes(live_options.scopes, self.cancelled)
+                        else:
+                            packets = self.npcap.packets_for_scopes(live_options.device, live_options.scopes, self.cancelled)
                     else:
                         device, server_ip, candidate = live_options
                         scope = candidate.scope if candidate else None
@@ -429,10 +488,13 @@ class AssistantApp:
                                 raise ValueError("所选游戏连接已变化或关闭，请重新检测；没有开始采集")
                         router = ConnectionRouter(bridge, port, server_ip=server_ip, scope=scope)
                         packets = self.npcap.packets(device, server_ip, port, self.cancelled, scope=scope)
-                    for packet in packets:
-                        snapshot = router.feed(packet)
-                        if snapshot is not None:
-                            self.notify(("snapshot", snapshot, router.diagnostics()))
+                    try:
+                        for packet in packets:
+                            snapshot = router.feed(packet)
+                            if snapshot is not None:
+                                self.notify(("snapshot", snapshot, router.diagnostics()))
+                    finally:
+                        packets.close()
                     diagnostics = router.diagnostics()
                 else:
                     diagnostics = replay_capture(path, bridge, port,
@@ -498,7 +560,10 @@ class AssistantApp:
                         self.confirm_auto_start(event[1])
                 elif self.guided_check:
                     self.guided_check = False
-                    if len(self.connections) == 1:
+                    if self.windivert is not None:
+                        self.status.set("内置组件已就绪。点击“开启战斗统计”将自动准备游戏连接并请求确认。"
+                                        if self.connections else event[1].message() if event[0] == "discovery" else self.status.get())
+                    elif len(self.connections) == 1:
                         self.connection_box.current(0)
                         self.apply_connection()
                         if self.device_box.current() >= 0:
@@ -650,6 +715,12 @@ def main():
             root.withdraw()
             app = AssistantApp(root, args.backend)
             result.update(check_backend(app.backend_executable()))
+            if getattr(sys, "frozen", False):
+                from connection_scope import ConnectionScope
+                reader = WinDivertReader(Path(__file__).resolve().parent / "vendor/windivert")
+                reader.validate_filter((ConnectionScope("127.0.0.1", 50000, "127.0.0.1", 1111),
+                                        ConnectionScope("10.0.0.1", 50001, "10.0.0.2", 7777)))
+                result["windivert_dll_filter_check"] = "passed_without_driver_open"
             if app.consent.get() or app.running or app.npcap is not None:
                 raise RuntimeError("启动状态不能自动采集")
             result["status"] = "passed"
