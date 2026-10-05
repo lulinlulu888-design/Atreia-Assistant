@@ -90,6 +90,61 @@ class AppTests(unittest.TestCase):
         self.assertEqual(style.lookup("TButton", "background"), "#24344c")
         self.assertEqual(style.lookup("Treeview.Heading", "background"), "#24344c")
 
+    def test_overlay_is_hidden_by_default_and_hiding_does_not_stop_capture(self):
+        overlay = self.app.overlay
+        self.assertEqual(overlay.window.state(), "withdrawn")
+        self.assertTrue(overlay.window.attributes("-topmost"))
+        self.app.running = True
+        self.app.show_overlay()
+        overlay.toggle_lock()
+        with patch.object(overlay.window, "geometry") as geometry:
+            overlay.begin_drag(Mock(x_root=100, y_root=100))
+            overlay.drag(Mock(x_root=200, y_root=200))
+        geometry.assert_not_called()
+        overlay.hide()
+        self.assertTrue(self.app.running)
+        self.assertFalse(self.app.consent.get())
+        self.assertEqual(overlay.window.state(), "withdrawn")
+
+    def test_overlay_keeps_targets_separate_and_healing_is_record_total(self):
+        def player(actor, damage):
+            return {"actor_id": actor, "name": None, "damage": damage, "dps": damage/2,
+                    "contribution": 1, "skills": []}
+        snapshot = {"targets": [{"target_id": 1, "players": [player(10, 20), player(11, 40)]},
+                                {"target_id": 2, "players": [player(10, 500)]}],
+                    "healing": [{"actor_id": 10, "skill_id": 2, "healing": 30, "ticks": 1, "hot": False},
+                                {"actor_id": 10, "skill_id": 3, "healing": 50, "ticks": 2, "hot": True}]}
+        self.app.render(snapshot, {})
+        overlay = self.app.overlay
+        self.assertEqual([row["total"] for row in overlay.ranking], [40, 20])
+        overlay.target.current(1)
+        overlay.render_rows()
+        self.assertEqual(overlay.ranking[0]["dps"], 250)
+        overlay.metric.set("治疗")
+        overlay.refresh_targets()
+        self.assertEqual(overlay.ranking[0]["total"], 80)
+        self.assertNotIn("dps", overlay.ranking[0])
+        self.assertIn("非有效治疗", overlay.target.get())
+        overlay.show_details(0)
+        tree, = overlay.details.winfo_children()
+        self.assertEqual(len(tree.get_children()), 2)
+
+    def test_overlay_retains_history_selection_without_changing_live_snapshot(self):
+        past = {"targets": [{"target_id": 1, "players": [{"actor_id": 10,
+                "damage": 90, "dps": 45, "skills": []}]}]}
+        current = {"targets": [], "healing": []}
+        overlay = self.app.overlay
+        overlay.update(current, history=[past])
+        overlay.source.current(1)
+        overlay.refresh_targets()
+        self.assertEqual(overlay.ranking[0]["total"], 90)
+        overlay.update(current, history=[past])
+        self.assertEqual(overlay.source.current(), 1)
+        self.assertIs(overlay.snapshot, current)
+        overlay.update(current, history=[])
+        self.assertEqual(overlay.source.current(), 0)
+        self.assertFalse(overlay.ranking)
+
     def test_localization_missing_components_and_declined_confirmation_do_not_write(self):
         self.app.localization_engine = Mock()
         self.app.localization_game = Mock(client="steam", root="isolated-fixture")

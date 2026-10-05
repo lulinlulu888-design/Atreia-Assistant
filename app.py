@@ -18,6 +18,7 @@ from auto_capture import AutoCapturePlan, prepare_auto_capture
 from capture_windivert import WinDivertReader
 from localization_paths import discover_steam, windows_steam_roots, inspect_installation
 from localization_engine import LocalizationEngine
+from overlay import CombatOverlay
 
 
 class AssistantApp:
@@ -140,6 +141,7 @@ class AssistantApp:
         self.auto_start_button.pack(side="left", padx=4)
         self.stop_button = ttk.Button(controls, text="停止", command=self.stop, state="disabled")
         self.stop_button.pack(side="left", padx=4)
+        ttk.Button(controls, text="悬浮窗", command=self.show_overlay).pack(side="left", padx=4)
         self.advanced_button = ttk.Button(controls, text="设置", command=self.toggle_advanced)
         self.advanced_button.pack(side="right")
         self.settings_window = tk.Toplevel(root)
@@ -243,7 +245,11 @@ class AssistantApp:
         self.healing = self.table(healing_tab, ("玩家 ID", "技能 ID", "持续治疗", "治疗总量", "记录次数"), height=8)
         self.empty_hint = ttk.Label(self.damage, text="等待战斗数据\n进入游戏后，点击开启统计", style="Empty.TLabel", justify="center")
         self.empty_hint.place(relx=.5, rely=.55, anchor="center")
+        self.overlay = CombatOverlay(root)
         root.after(100, self.poll)
+
+    def show_overlay(self):
+        self.overlay.show()
 
     def run_localization(self, operation):
         if self.localization_busy or self.running or self.detecting:
@@ -810,6 +816,7 @@ class AssistantApp:
         if snapshot.get("discarded_protocol_bytes", 0):
             warnings.append("连接关闭时丢弃了残帧，部分记录可能未计入")
         self.integrity.set("；".join(warnings))
+        self.overlay.update(snapshot, incomplete=bool(warnings), history=self.history)
         self.export_button.configure(state="normal" if snapshot.get("status") == "combat_detected" or self.history else "disabled")
 
     def select_player(self, _=None):
