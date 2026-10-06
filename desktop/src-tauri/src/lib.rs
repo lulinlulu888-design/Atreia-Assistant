@@ -42,6 +42,8 @@ mod app;
 
 #[cfg(feature = "desktop")]
 mod atreia_localization;
+#[cfg(feature = "desktop")]
+mod atreia_update;
 
 #[cfg(feature = "desktop")]
 pub use app::run;

@@ -12,3 +12,6 @@
 .atreiaDialog button.primary:hover { background: #8cdde1; }
 .atreiaDialog button.ghost { background: transparent; color: #91a8ba; }
 .atreiaDialog button:disabled { opacity: .5; cursor: wait; }
+#update-status { display: block; font-size: 10px; color: #a7bbcc; min-height: 14px; margin-top: 5px; }
+#update-check, #update-install { border: 1px solid #365064; border-radius: 5px; padding: 4px 8px; color: #dce8f2; background: #203447; cursor: pointer; font: inherit; font-size: 11px; }
+#update-check:disabled, #update-install:disabled { opacity: .5; cursor: wait; }

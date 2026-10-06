@@ -24,6 +24,7 @@ pub fn is_capture_starting() -> bool {
 
 #[tauri::command]
 pub async fn open_combat(app: tauri::AppHandle) -> Result<(), String> {
+    if crate::atreia_update::is_busy() { return Err("请等待助手更新完成。".into()); }
     if LOCALIZATION_BUSY.load(Ordering::SeqCst) {
         return Err("请等待汉化操作完成。".into());
     }
@@ -37,6 +38,7 @@ pub async fn open_combat(app: tauri::AppHandle) -> Result<(), String> {
         }
     }
     let _guard = StartGuard;
+    if crate::atreia_update::is_busy() { return Err("请等待助手更新完成。".into()); }
     if let Some(window) = app.get_webview_window("main") {
         window.show().map_err(|e| e.to_string())?;
         return Ok(());
@@ -150,6 +152,7 @@ pub async fn localization_execute(
     client: String,
     operation: String,
 ) -> Result<Value, String> {
+    if crate::atreia_update::is_busy() { return Err("请等待助手更新完成。".into()); }
     if operation != "inspect"
         && (CAPTURE_STARTING.load(Ordering::SeqCst)
             || app.state::<CaptureControl>().0.lock().is_running())
@@ -160,6 +163,7 @@ pub async fn localization_execute(
         return Err("汉化操作正在进行，请等待完成。".into());
     }
     let guard = BusyGuard;
+    if crate::atreia_update::is_busy() { return Err("请等待助手更新完成。".into()); }
     // Own the guard in the blocking worker: closing the UI never kills an
     // engine transaction or releases its lock before it has finished.
     tauri::async_runtime::spawn_blocking(move || {

@@ -654,6 +654,7 @@ fn return_to_launcher(app: tauri::AppHandle) -> Result<(), String> {
 
 #[tauri::command]
 fn quit_app(app: tauri::AppHandle) {
+    if crate::atreia_update::is_busy() { platform::dialog::show_error("请等待完成", "助手更新正在进行。"); return; }
     if crate::atreia_localization::is_busy() {
         platform::dialog::show_error("请等待完成", "汉化操作正在进行，请等待完成后退出。");
         return;
@@ -2088,6 +2089,7 @@ pub fn run() {
                 }
             }
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                if crate::atreia_update::is_busy() { api.prevent_close(); }
                 if crate::atreia_localization::is_busy() {
                     api.prevent_close();
                     platform::dialog::show_error("请等待完成", "汉化操作正在进行，请等待完成后关闭窗口。");
@@ -2621,6 +2623,8 @@ pub fn run() {
             fetch_url,
             crate::atreia_localization::inspect_localization_target,
             crate::atreia_localization::localization_execute,
+            crate::atreia_update::atreia_check_update,
+            crate::atreia_update::atreia_install_update,
             crate::atreia_localization::open_combat,
         ])
         .run(tauri::generate_context!())
