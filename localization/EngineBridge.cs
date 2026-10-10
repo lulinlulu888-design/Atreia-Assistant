@@ -51,13 +51,15 @@ static class EngineBridge
     {
         Console.OutputEncoding = new System.Text.UTF8Encoding(false);
         string operation = args.Length > 1 ? args[1] : "invalid";
+        string root = null;
+        string client = args.Length == 4 ? args[3] : null;
         try
         {
             if (args.Length != 4 || (args[3] != "steam" && args[3] != "purple") ||
                 (operation != "inspect" && operation != "install" && operation != "restore"))
                 throw new ArgumentException("仅支持已明确选择的 Steam 或 PURPLE 客户端及检测、安装、还原操作");
             string engine = Path.GetFullPath(args[0]);
-            string root = Path.GetFullPath(args[2]);
+            root = Path.GetFullPath(args[2]);
             if (!Directory.Exists(Path.Combine(root, @"Aion2\Content")))
                 throw new DirectoryNotFoundException("目标不是可识别的 AION2 游戏目录");
             if (Hash(engine) != EngineHash)
@@ -86,6 +88,7 @@ static class EngineBridge
                     throw new InvalidDataException("引擎返回后未检测到完成的还原状态");
                 Console.WriteLine(new JavaScriptSerializer().Serialize(new {
                     ok = !cancelled, cancelled = cancelled, operation = operation,
+                    client = client, game_root = root,
                     engine_version = version, state = state, supplemented = supplemented,
                     message = cancelled ? "已取消兼容汉化安装" : inspection ?? ("客户端：" + args[3] + "；额外补译：" + supplemented + " 条。\n" + ((TextBox)type.GetField("log", PrivateInstance).GetValue(form)).Text.Replace("新增和变化文本保留当前原文", "新增和变化文本已经过补译完整性检查"))
                 }));
@@ -96,7 +99,8 @@ static class EngineBridge
         {
             while (error is TargetInvocationException && error.InnerException != null) error = error.InnerException;
             Console.WriteLine(new JavaScriptSerializer().Serialize(new {
-                ok = false, cancelled = false, operation = operation, message = error.Message
+                ok = false, cancelled = false, operation = operation,
+                client = client, game_root = root, message = error.Message
             }));
             return 1;
         }

@@ -78,6 +78,45 @@ SHA-256；本机两端均通过，原有 Steam 汉化状态未被修改。
 安装与还原（四种请求），目录内容逐字节不变；此测试不对真实游戏目录发起写操作。
 该运行中保护验证不等同于安装后的游戏内显示验证。
 
+## 2026-10-10 游戏更新适配（助手 2.0.49）
+
+本次以更新完成后的实际英文 PAK 为准，旧组件分别缺少 PURPLE 49 条、
+Steam 103 条新增/变更可见文本补译；检测拒绝安装，不改游戏文件。
+新组件使用本次官方 TW 表，并审查生成 217 条 Steam 独立来源变体。
+维护构建继续锁定整对客户端源表摘要，拒绝未审查的新版本或混合快照；
+Steam 的商店分类、服务器维护、处罚提示和创始者礼包不按 PURPLE 键名套译。
+翅膀描述保留 Steam 更新后的飞行力 1,000/2,500 及本端战斗属性。
+
+| 客户端 | 当前键数 | 额外补译 | 新增/变更可见文本缺译 |
+| --- | ---: | ---: | ---: |
+| PURPLE TW | 156,480 | 19,030 | 0 |
+| Steam / Global | 152,774 | 1,927 | 0 |
+
+两端真实目录的只读检测验证文件清单和 SHA-256 不变；桥接结果明确返回
+`client` 和 `game_root`，测试核对归属，避免将不同客户端报告错配。
+两端当前实际 PAK 的隔离副本通过安装、重复安装、模拟失败回滚、逐字节还原。
+另用独立格式解码器读取隔离安装生成的 DAT：全部键和顺序一致，运行时参数
+差异均为 0；检查 Steam 新版商店/维护文本和飞行力未回退为 TW/旧值。
+这些测试没有安装或还原真实游戏目录的汉化，也没有验证游戏内显示。
+
+```powershell
+./test-localization-inspection.ps1 -Component './build/dual-localization/component' `
+  -GameRoot 'D:/AION2_TW' -Client purple -ExpectedKeys 156480 -ExpectedSupplemented 19030
+./test-localization-inspection.ps1 -Component './build/dual-localization/component' `
+  -GameRoot 'D:/SteamLibrary/steamapps/common/AION2' -Client steam -ExpectedKeys 152774 -ExpectedSupplemented 1927
+python -m unittest discover -s tests -p test_localization_variants.py -v
+# TestEngine 必须是本地 DEBUG 引擎，非正式包；仅对新建临时隔离目录写入。
+./test-localization-roundtrip.ps1 -TestEngine 'C:/Local/DualEngine.Debug.exe' `
+  -GameRoot 'D:/AION2_TW' -Client purple `
+  -AdditionsPath './build/dual-localization/localization-additions.json.gz' `
+  -DecoderPath 'C:/Dependencies/oo2core_9_win64.dll'
+# 上一命令返回的隔离目录内保留 installed-payload.audit.dat，可独立审计。
+python localization/audit_generated_payload.py `
+  './build/dual-localization/manifest/L10NString.dat' `
+  'C:/Local/fixture/installed-payload.audit.dat' `
+  './build/dual-localization/purple-en-US.json' purple
+```
+
 2026-10-06：另在 Steam 实际目录进行了临时写入测试，预先保存了全部 7 个
 原有语言文件及状态。已写入 DAT 用独立格式解码器验证：152,723 个键和顺序
 与当前原始表完全相同，服务器选择菜单条目为中文。桥接进程曾停留在不可访问的

@@ -27,6 +27,9 @@ if ($taskBefore -cne $taskAfter) { throw 'Inspection changed game language files
 if ($taskExit -ne 0) { throw "Inspection failed: $taskRaw" }
 $taskResult = $taskRaw | ConvertFrom-Json
 if (-not $taskResult.ok -or $taskResult.operation -ne 'inspect') { throw 'Unexpected inspection result.' }
+if ($taskResult.client -ne $Client -or $taskResult.game_root.TrimEnd('\','/') -ine $taskRoot.TrimEnd('\','/')) {
+    throw 'Inspection result belongs to a different client or game root.'
+}
 if ($taskResult.supplemented -ne $ExpectedSupplemented) { throw 'Structured supplemental count is incorrect.' }
 if ($taskResult.message -notmatch ([regex]::Escape("$ExpectedKeys 个键，额外补译 $ExpectedSupplemented 条"))) {
     throw 'Inspection message does not match expected current-source coverage.'

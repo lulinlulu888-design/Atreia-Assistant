@@ -9,8 +9,6 @@ import json
 import re
 from pathlib import Path
 
-from opencc import OpenCC
-
 TOKENS = re.compile(r"<[^>]*>|\{[^}]*\}|%\d*\$?[a-zA-Z]|\\[nrt]")
 PARAMETERS = re.compile(r"\{[^}]*\}|%\d*\$?[a-zA-Z](?![a-zA-Z])|\\[nrt]")
 REVIEWED = {
@@ -28,6 +26,8 @@ REVIEWED_SOURCES = {
 
 
 def build(english, traditional):
+    from opencc import OpenCC
+
     if english.keys() != traditional.keys():
         raise ValueError("Official language tables must contain the same keys")
     convert = OpenCC("t2s")
