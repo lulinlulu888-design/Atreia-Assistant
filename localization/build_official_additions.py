@@ -24,6 +24,44 @@ REVIEWED_SOURCES = {
     "String_UI_SUBSCRIBE_ONBOARDING_PREMIUM_INFO_TOOLTIP_SUBSCRIBED_body": "You can obtain  premium rewards with a Quai Membership.",
 }
 
+# AION 1 mainland terminology takes precedence over a mechanical zh-TW to
+# zh-Hans conversion. Longer phrases are applied first so compound terms keep
+# their established mainland wording.
+MAINLAND_TERMS = {
+    "深渊点数": "欧比斯点数",
+    "欧比斯点数": "欧比斯点数",
+    "物理暴击": "物理致命一击",
+    "魔法暴击": "魔法致命一击",
+    "英德尔地卡": "因特尔蒂卡",
+    "泰奥勃莫斯": "泰奥勃莫斯",
+    "伊斯夏尔肯": "伊斯夏尔肯",
+    "阿尔特盖德": "阿尔特盖德",
+    "布鲁斯特豪宁": "布鲁斯特豪宁",
+    "贝尔特伦": "贝尔特伦",
+    "埃尔特内": "埃尔特内",
+    "莫尔海姆": "莫尔海姆",
+    "贝鲁斯兰": "贝鲁斯兰",
+    "凯西内尔": "凯西内尔",
+    "马尔库坦": "马勒库坦",
+    "马库坦": "马勒库坦",
+    "深渊": "欧比斯",
+    "以太": "奥德",
+    "公会": "军团",
+    "长剑": "长剑",
+    "巨剑": "大剑",
+    "魔法书": "法书",
+    "法珠": "宝珠",
+    "晕眩": "眩晕",
+    "击退": "击退",
+    "治愈量增加": "治愈量增加",
+}
+
+
+def mainland_terms(text):
+    for source in sorted(MAINLAND_TERMS, key=len, reverse=True):
+        text = text.replace(source, MAINLAND_TERMS[source])
+    return text
+
 
 def build(english, traditional):
     from opencc import OpenCC
@@ -40,7 +78,7 @@ def build(english, traditional):
             parts.extend((convert.convert(text[position:token.start()]), token.group()))
             position = token.end()
         parts.append(convert.convert(text[position:]))
-        translation = "".join(parts)
+        translation = mainland_terms("".join(parts))
         if key in REVIEWED and source == REVIEWED_SOURCES[key]:
             translation = REVIEWED[key]
         if key.startswith("NpcTalk_"):
