@@ -6,7 +6,7 @@
 
 > 2.0.50 整合发行包含汉化组件和桌面快捷方式。此次验证范围是 Steam Build 25800038：152,774 条语言记录的合并、编码回读、参数检查，以及隔离安装、重复安装、故障回滚和逐字节还原。游戏内所有界面尚未逐一验收；PURPLE 当前版本未通过本次验证，不能将 Steam 的结果视作双端兼容保证。详情见 [发行记录](releases/2.0.50.md)。
 
-**[亚特雷亚助手下载页](https://lulinlulu888-design.github.io/Atreia-Assistant/)** · 正式 MSI 发布后页面会自动显示最新版本与下载按钮。
+**[亚特雷亚助手官网](https://lulinlulu888-design.github.io/Atreia-Assistant/)** · 软件介绍、Windows 下载、版本更新与帮助反馈。
 
 桌面助手首页现支持启动时自动检查本项目正式版本、手动检查、确认后下载更新与进度显示。
 更新包须通过 GitHub SHA-256 和大小校验，统计/汉化事务进行中禁止更新。
@@ -26,7 +26,7 @@
 
 永恒之塔2 Steam / Global 与 PURPLE 简体中文汉化功能，提供检测、安装、更新与还原入口。汉化时请先退出游戏，并确认客户端和游戏目录。整合版调用独立汉化组件；源码仓库不附带该组件、解压依赖或游戏语言数据。PURPLE 补译从本地官方繁体中文表转换，并绑定原英文文本摘要，避免游戏更新后误套旧译文。
 
-请在 [亚特雷亚助手下载页](https://lulinlulu888-design.github.io/Atreia-Assistant/) 下载名称为 `Atreia-Assistant_<version>_x64.msi` 的 Windows 安装包，无需下载 Source code。升级助手后，请退出游戏，再进入汉化页面重新检测并安装汉化；升级 MSI 本身不会修改游戏资源。
+请在 [亚特雷亚助手官网](https://lulinlulu888-design.github.io/Atreia-Assistant/) 下载名称为 `Atreia-Assistant_<version>_x64.msi` 的 Windows 安装包，无需下载 Source code。升级助手后，请退出游戏，再进入汉化页面重新检测并安装汉化；升级 MSI 本身不会修改游戏资源。
 
 ## 使用流程
 
