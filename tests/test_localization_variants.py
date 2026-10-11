@@ -72,6 +72,20 @@ class ClientVariantsTests(unittest.TestCase):
             "伊斯拉斐尔",
         )
 
+    def test_race_selection_descriptions_use_mainland_terms(self):
+        light = ("Daeva of Elysea living in the South of Atreia\n"
+                 "An elegant and sacred faction")
+        dark = ("Daeva of Asmodae living in the North of Atreia\n"
+                "A rough, wild, and ambitious faction")
+        self.assertEqual(
+            variants.steam_update_replacement(light),
+            "生活在亚特雷亚南部的天族守护者\n优雅而神圣的种族",
+        )
+        self.assertEqual(
+            variants.steam_update_replacement(dark),
+            "生活在亚特雷亚北部的魔族守护者\n粗犷、野性且雄心勃勃的种族",
+        )
+
     def test_wings_preserve_steam_stats_order_and_flight_power(self):
         source = ("Grants [Ultimate Daeva Wings (Bound)].\n\n[Equipped Effect]\n"
                   "HP: 500\nMP: 250\nPenetration: 500\nCritical Hit: 35\n"

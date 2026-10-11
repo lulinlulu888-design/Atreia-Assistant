@@ -101,6 +101,10 @@ def steam_update_replacement(source):
         "Exploitation of Bugs or Game Limitations": "利用漏洞或游戏限制",
         "Founder's Pack": "创始者礼包", "Deluxe Skin": "豪华外形",
         "Ultimate Exclusive": "终极专属", "Title": "称号",
+        "Daeva of Elysea living in the South of Atreia\nAn elegant and sacred faction":
+            "生活在亚特雷亚南部的天族守护者\n优雅而神圣的种族",
+        "Daeva of Asmodae living in the North of Atreia\nA rough, wild, and ambitious faction":
+            "生活在亚特雷亚北部的魔族守护者\n粗犷、野性且雄心勃勃的种族",
     }
     if source in exact:
         return exact[source]
