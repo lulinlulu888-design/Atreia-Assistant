@@ -25,8 +25,8 @@ REVIEWED_SOURCES = {
 }
 
 # AION 1 mainland terminology takes precedence over a mechanical zh-TW to
-# zh-Hans conversion. Longer phrases are applied first so compound terms keep
-# their established mainland wording.
+# zh-Hans conversion. These additions cover simplified TW wording that is not
+# represented separately in the checked-in glossary.
 MAINLAND_TERMS = {
     "深渊点数": "欧比斯点数",
     "欧比斯点数": "欧比斯点数",
@@ -54,12 +54,41 @@ MAINLAND_TERMS = {
     "晕眩": "眩晕",
     "击退": "击退",
     "治愈量增加": "治愈量增加",
+    "服务器": "服务器",
+    "伺服器": "服务器",
+    "商人公会": "商团",
+    "舒戈公会": "术古商团",
+    "舒戈": "术古",
+    "巴劳尔": "龙族",
+    "用户端": "客户端",
+    "登入": "登录",
+    "讯息": "消息",
+    "档案": "文件",
+    "影片": "视频",
+    "有著": "有着",
+    "标示": "显示",
 }
+GLOSSARY_PATH = Path(__file__).with_name("mainland_glossary.tsv")
 
 
-def mainland_terms(text):
-    for source in sorted(MAINLAND_TERMS, key=len, reverse=True):
-        text = text.replace(source, MAINLAND_TERMS[source])
+def load_mainland_terms(converter=None):
+    terms = dict(MAINLAND_TERMS)
+    for line in GLOSSARY_PATH.read_text(encoding="utf-8-sig").splitlines():
+        if not line or line.startswith("#"):
+            continue
+        source, translation = line.split("\t", 1)
+        # Compound merchant terms are handled before the generic AION player
+        # organization term (公会 -> 军团).
+        terms[source] = translation
+        if converter is not None:
+            terms[converter.convert(source)] = translation
+    return terms
+
+
+def mainland_terms(text, terms=None):
+    terms = terms or load_mainland_terms()
+    for source in sorted(terms, key=len, reverse=True):
+        text = text.replace(source, terms[source])
     return text
 
 
@@ -69,6 +98,7 @@ def build(english, traditional):
     if english.keys() != traditional.keys():
         raise ValueError("Official language tables must contain the same keys")
     convert = OpenCC("t2s")
+    terms = load_mainland_terms(convert)
     entries, rejected = {}, []
     for key, source in english.items():
         # Preserve the exact spelling of tags, variable names and escapes.
@@ -78,7 +108,7 @@ def build(english, traditional):
             parts.extend((convert.convert(text[position:token.start()]), token.group()))
             position = token.end()
         parts.append(convert.convert(text[position:]))
-        translation = mainland_terms("".join(parts))
+        translation = mainland_terms("".join(parts), terms)
         if key in REVIEWED and source == REVIEWED_SOURCES[key]:
             translation = REVIEWED[key]
         if key.startswith("NpcTalk_"):

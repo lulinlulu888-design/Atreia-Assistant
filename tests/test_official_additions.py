@@ -24,6 +24,26 @@ class OfficialAdditionsTests(unittest.TestCase):
             "因特尔蒂卡、贝尔特伦、马勒库坦、凯西内尔",
         )
 
+    def test_glossary_matches_simplified_form_after_opencc(self):
+        converter = SimpleNamespace(convert=lambda text: {
+            "機率": "机率", "販售": "贩售", "組合包": "组合包"
+        }.get(text, text))
+        terms = additions.load_mainland_terms(converter)
+        self.assertEqual(additions.mainland_terms("机率、贩售、组合包", terms),
+                         "概率、出售、包袱")
+
+    def test_merchant_guild_is_a_trade_group_not_a_player_legion(self):
+        self.assertEqual(additions.mainland_terms("森卡商人公会"), "森卡商团")
+        self.assertEqual(additions.mainland_terms("舒戈公会"), "术古商团")
+        self.assertEqual(additions.mainland_terms("玩家公会"), "玩家军团")
+
+    def test_mainland_ui_and_lore_vocabulary(self):
+        source = "用户端登入伺服器后显示讯息，并开启档案和影片。巴劳尔与舒戈有著记录。"
+        self.assertEqual(
+            additions.mainland_terms(source),
+            "客户端登录服务器后显示消息，并开启文件和视频。龙族与术古有着记录。",
+        )
+
     def test_build_applies_terms_without_changing_runtime_parameters(self):
         english = {"key": "Gain {0} Abyss Points"}
         traditional = {"key": "获得{0}深渊点数"}
