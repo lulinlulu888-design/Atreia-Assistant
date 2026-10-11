@@ -4,6 +4,7 @@
 pub mod admin;
 pub mod clock;
 pub mod dialog;
+pub mod game_paths;
 pub mod hotkeys;
 pub mod pcap;
 pub mod process;

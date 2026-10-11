@@ -13,7 +13,10 @@
       const result = await invoke('atreia_check_update');
       status.textContent = result.message;
       install.hidden = result.status !== 'available';
-    } catch (error) { status.textContent = `更新检查失败：${error}`; }
+    } catch (error) {
+      const detail = String(error).replace(/^Error:\s*/, '').replace(/^(?:更新检查失败：\s*)+/, '');
+      status.textContent = `更新检查失败：${detail}`;
+    }
     finally { busy = false; check.disabled = false; }
   };
   check.addEventListener('click', checkUpdate);

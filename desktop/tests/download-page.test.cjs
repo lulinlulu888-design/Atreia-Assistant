@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const code = fs.readFileSync(path.join(__dirname, '../../docs/assets/site.js'), 'utf8');
 
-async function load(response) {
+async function load(response, cached = null) {
   const elements = Object.fromEntries(['#download-button', '#download-label', '#release-status'].map(id => [id, {
     textContent: '', disabled: true,
     classList: { add() {}, remove() {} },
@@ -13,6 +13,7 @@ async function load(response) {
     removeAttribute() { this.disabled = false; },
     addEventListener() {},
   }]));
+  if (cached) elements['#download-button'].dataset = cached;
   vm.runInNewContext(code, {
     document: { querySelector: id => elements[id] },
     window: { addEventListener() {} },
@@ -43,4 +44,15 @@ test('download page selects the versioned MSI from a successful release response
   assert.equal(elements['#download-button'].href, url);
   assert.equal(elements['#download-button'].disabled, false);
   assert.equal(elements['#download-label'].textContent, '下载 Windows 2.0.50');
+});
+
+test('website keeps the published installer directly downloadable when the release API is unavailable', async () => {
+  for (const status of [403, 404, 500]) {
+    const elements = await load({ ok: false, status }, { version: '2.0.50', size: '29503896' });
+    assert.equal(elements['#download-button'].disabled, false);
+    assert.equal(elements['#download-label'].textContent, '下载 Windows 2.0.50');
+    assert.equal(elements['#download-button'].href,
+      'https://github.com/lulinlulu888-design/Atreia-Assistant/releases/download/v2.0.50/Atreia-Assistant_2.0.50_x64.msi');
+    assert.match(elements['#release-status'].textContent, /28\.1 MB/);
+  }
 });

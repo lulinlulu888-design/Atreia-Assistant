@@ -1,0 +1,12 @@
+{
+  "tag_name": "v2.0.50",
+  "draft": false,
+  "prerelease": false,
+  "assets": [{
+    "name": "Atreia-Assistant_2.0.50_x64.msi",
+    "browser_download_url": "https://github.com/lulinlulu888-design/Atreia-Assistant/releases/download/v2.0.50/Atreia-Assistant_2.0.50_x64.msi",
+    "digest": "sha256:e05ca93a768f2c3a7dca241277553c2d96067b28dbbad26491caebe733a7746a",
+    "size": 29503896,
+    "state": "uploaded"
+  }]
+}

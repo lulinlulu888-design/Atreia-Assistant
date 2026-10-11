@@ -12,6 +12,8 @@ use tokio::io::AsyncWriteExt;
 
 const API: &str =
     "https://api.github.com/repos/lulinlulu888-design/Atreia-Assistant/releases/latest";
+const WEBSITE_API: &str =
+    "https://lulinlulu888-design.github.io/Atreia-Assistant/updates/latest.json";
 const PREFIX: &str = "https://github.com/lulinlulu888-design/Atreia-Assistant/releases/download/";
 const MAX_PACKAGE: u64 = 512 * 1024 * 1024;
 static BUSY: AtomicBool = AtomicBool::new(false);
@@ -148,6 +150,7 @@ fn client() -> Result<reqwest::Client, String> {
                             | "api.github.com"
                             | "release-assets.githubusercontent.com"
                             | "objects.githubusercontent.com"
+                            | "lulinlulu888-design.github.io"
                     )
                 )
             {
@@ -159,27 +162,19 @@ fn client() -> Result<reqwest::Client, String> {
         .build()
         .map_err(|e| e.to_string())
 }
-async fn check(current: &str) -> Result<Update, String> {
-    let mut response = client()?
-        .get(API)
+async fn fetch_metadata(http: &reqwest::Client, endpoint: &str) -> Result<Option<String>, String> {
+    let mut response = http
+        .get(endpoint)
         .header("Accept", "application/vnd.github+json")
         .timeout(Duration::from_secs(20))
         .send()
         .await
         .map_err(|_| "无法连接更新服务，请稍后重试")?;
     if response.status() == reqwest::StatusCode::NOT_FOUND {
-        return Ok(Update {
-            status: "no_release".into(),
-            current: current.into(),
-            latest: None,
-            message: "项目尚无正式 Release，不会下载未知更新包".into(),
-            url: String::new(),
-            hash: String::new(),
-            size: 0,
-        });
+        return Ok(None);
     }
     if !response.status().is_success() {
-        return Err(format!("更新检查失败：HTTP {}", response.status()));
+        return Err(format!("HTTP {}", response.status()));
     }
     let mut bytes = Vec::new();
     while let Some(chunk) = response.chunk().await.map_err(|_| "更新元数据读取失败")? {
@@ -188,10 +183,28 @@ async fn check(current: &str) -> Result<Update, String> {
         }
         bytes.extend_from_slice(&chunk);
     }
-    select(
-        std::str::from_utf8(&bytes).map_err(|_| "更新元数据编码无效")?,
-        current,
-    )
+    Ok(Some(String::from_utf8(bytes).map_err(|_| "更新元数据编码无效")?))
+}
+
+async fn check_sources(http: &reqwest::Client, current: &str, api: &str, website: &str) -> Result<Update, String> {
+    let primary = fetch_metadata(http, api).await;
+    if let Ok(Some(raw)) = &primary {
+        return select(raw, current);
+    }
+    // Both channels use the same release/package validation. The website
+    // publishes the release's actual size/hash, never a bare download URL.
+    match fetch_metadata(http, website).await {
+        Ok(Some(raw)) => select(&raw, current),
+        Ok(None) if matches!(primary, Ok(None)) => Ok(Update {
+            status: "no_release".into(), current: current.into(), latest: None,
+            message: "项目尚无正式版本".into(), url: String::new(), hash: String::new(), size: 0,
+        }),
+        _ => Err("暂时无法连接更新服务，请稍后重试，或从亚特雷亚助手官网下载新版。".into()),
+    }
+}
+
+async fn check(current: &str) -> Result<Update, String> {
+    check_sources(&client()?, current, API, WEBSITE_API).await
 }
 
 async fn download(
@@ -475,6 +488,36 @@ mod tests {
             std::fs::remove_dir_all(directory).unwrap();
         }
     }
+    #[tokio::test]
+    async fn website_fallback_handles_rate_limits_without_relaxing_package_validation() {
+        use std::io::{Read, Write};
+        for scenario in ["limited", "no-release", "invalid-fallback", "invalid-primary"] {
+            let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let valid = metadata("v2.0.49").to_string();
+            let mut invalid = metadata("v2.0.49"); invalid["assets"][0]["digest"] = serde_json::Value::Null;
+            let invalid = invalid.to_string();
+            let server = std::thread::spawn(move || {
+                for index in 0..if scenario == "invalid-primary" { 1 } else { 2 } {
+                    let (mut socket, _) = listener.accept().unwrap();
+                    let mut request = [0; 4096]; let _ = socket.read(&mut request);
+                    let (status, body) = if scenario == "no-release" { ("404 Not Found", "missing") }
+                        else if scenario == "invalid-primary" || (index == 1 && scenario == "invalid-fallback") { ("200 OK", invalid.as_str()) }
+                        else if index == 0 { ("403 Forbidden", "rate limited") }
+                        else { ("200 OK", valid.as_str()) };
+                    write!(socket, "HTTP/1.1 {status}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).unwrap();
+                }
+            });
+            let result = check_sources(&reqwest::Client::new(), "2.0.48", &format!("http://{address}/api"), &format!("http://{address}/website")).await;
+            server.join().unwrap();
+            match scenario {
+                "limited" => assert_eq!(result.unwrap().status, "available"),
+                "no-release" => assert_eq!(result.unwrap().status, "no_release"),
+                _ => assert!(result.is_err(), "{scenario}"),
+            }
+        }
+    }
+
     #[tokio::test]
     #[ignore = "explicit read-only live GitHub service verification"]
     async fn live_github_release_check() {

@@ -11,6 +11,7 @@
 pub mod admin;
 pub mod clock;
 pub mod dialog;
+pub mod game_paths;
 pub mod pcap;
 pub mod process;
 pub mod screen;

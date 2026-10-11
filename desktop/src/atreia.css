@@ -1,4 +1,13 @@
-.atreiaDialog { color-scheme: dark; font-size: 13px; box-shadow: 0 18px 60px #0006; }
+.atreiaDialog { color-scheme: dark; font-size: 13px; box-shadow: 0 18px 60px #0006; max-height: calc(100vh - 32px); overflow-y: auto; }
+.launcher-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+.launcher-brand img { width: 58px; height: 58px; object-fit: contain; flex-shrink: 0; }
+.launcher-brand .eyebrow { letter-spacing: 0; }
+.launcher-brand p { margin-bottom: 0; }
+.localization-path { display: flex; gap: 8px; margin: 12px 0; }
+.localization-path input { width: 100%; min-width: 0; }
+.atreiaDialog .browse-path { width: 40px; padding: 8px; flex-shrink: 0; display: grid; place-items: center; }
+.browse-path svg { width: 19px; height: 19px; }
+.localization-candidates { width: 100%; margin-bottom: 12px; }
 .atreiaDialog::backdrop { background: #050b13aa; backdrop-filter: blur(3px); }
 .atreiaDialog h3 { margin: 0 0 16px; font-size: 18px; font-weight: 600; }
 .atreiaDialog input, .atreiaDialog select { font: inherit; color: #dfeaf4; background: #0d1925; border: 1px solid #334b60; border-radius: 7px; padding: 9px 10px; outline: none; }

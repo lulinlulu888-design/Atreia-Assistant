@@ -2623,6 +2623,8 @@ pub fn run() {
             fetch_url,
             crate::atreia_localization::inspect_localization_target,
             crate::atreia_localization::localization_execute,
+            crate::atreia_localization::discover_localization_roots,
+            crate::atreia_localization::browse_localization_root,
             crate::atreia_update::atreia_check_update,
             crate::atreia_update::atreia_install_update,
             crate::atreia_localization::open_combat,

@@ -182,7 +182,7 @@ pub fn pick_folder(_owner: &tauri::WebviewWindow, start_in: Option<&str>) -> Opt
     let start_in = start_in.filter(|s| !s.is_empty()).map(PathBuf::from);
     on_gtk_thread(move || {
         let dialog = gtk::FileChooserNative::new(
-            Some("Choose a folder for screenshots"),
+            Some("Choose a folder"),
             None::<&gtk::Window>,
             gtk::FileChooserAction::SelectFolder,
             None,

@@ -146,6 +146,27 @@ impl Drop for BusyGuard {
 }
 
 #[tauri::command]
+pub async fn discover_localization_roots(client: String) -> Result<Vec<PathBuf>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let seeds = match client.as_str() {
+            "steam" => crate::platform::game_paths::steam_roots(),
+            "purple" => crate::platform::game_paths::purple_roots(),
+            _ => return Err("未知客户端。".into()),
+        };
+        crate::atreia_game_paths::discover(&client, &seeds)
+    }).await.map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn browse_localization_root(window: tauri::WebviewWindow, start: Option<String>) -> Result<Option<PathBuf>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let Some(selected) = crate::platform::screenshot::pick_folder(&window, start.as_deref()) else { return Ok(None); };
+        crate::atreia_game_paths::normalize(Path::new(&selected))
+            .map(Some).ok_or_else(|| "请选择包含 Aion2 文件夹的游戏目录。".into())
+    }).await.map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
 pub async fn localization_execute(
     app: tauri::AppHandle,
     root: String,
@@ -238,5 +259,23 @@ mod tests {
         LOCALIZATION_BUSY.store(true, Ordering::SeqCst);
         drop(BusyGuard);
         assert!(!LOCALIZATION_BUSY.load(Ordering::SeqCst));
+    }
+
+    #[test]
+    #[ignore = "explicit read-only inspection using the packaged bridge and an automatically found Steam game"]
+    fn live_auto_discovered_steam_inspection() {
+        let roots = crate::atreia_game_paths::discover("steam", &crate::platform::game_paths::steam_roots()).unwrap();
+        assert_eq!(roots.len(), 1, "Select a specific fixture when several installations exist");
+        let directory = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("vendor/localization");
+        let pak = roots[0].join("Aion2/Content/Paks/L10N/Text/en-US/pakchunk502000-Windows_0_P.pak");
+        let before = std::fs::read(&pak).unwrap();
+        let output = Command::new(directory.join("Atreia-Localization-Bridge.exe"))
+            .current_dir(&directory).arg(directory.join("Aion2-Steam-CN-v2.4.0.exe"))
+            .arg("inspect").arg(&roots[0]).arg("steam").output().unwrap();
+        let response: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert!(output.status.success(), "{}", response["message"]);
+        assert_eq!(response["ok"], true); assert_eq!(response["operation"], "inspect");
+        assert_eq!(std::fs::read(pak).unwrap(), before);
+        println!("{}", response["message"]);
     }
 }

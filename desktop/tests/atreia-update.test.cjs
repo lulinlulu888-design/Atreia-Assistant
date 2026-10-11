@@ -14,6 +14,11 @@ test('no release, latest, failure and retry remain actionable',async()=>{
  for(const status of ['no_release','up_to_date']){const f=fixture(async()=>({status,message:status}));await f.start();assert.equal(f.controls['update-install'].hidden,true);assert.equal(f.controls['update-check'].disabled,false);}
  const f=fixture(async()=>{throw Error('offline');});await f.start();assert.match(f.controls['update-status'].textContent,/offline/);assert.equal(f.controls['update-check'].disabled,false);
 });
+
+test('native errors have exactly one update failure prefix',async()=>{
+ const f=fixture(async()=>{throw '更新检查失败：更新检查失败：HTTP 403 Forbidden';});
+ await f.start();assert.equal(f.controls['update-status'].textContent,'更新检查失败：HTTP 403 Forbidden');
+});
 test('install is explicit, duplicate requests blocked, cancellation recovers',async()=>{
  const calls=[];let reject;const f=fixture(name=>{calls.push(name);if(name==='atreia_check_update')return Promise.resolve({status:'available',message:'new'});return new Promise((_,r)=>{reject=r;});});
  await f.start();const pending=f.controls['update-install'].listeners.click();await f.controls['update-install'].listeners.click();

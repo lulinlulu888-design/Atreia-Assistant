@@ -43,6 +43,8 @@ mod app;
 #[cfg(feature = "desktop")]
 mod atreia_localization;
 #[cfg(feature = "desktop")]
+mod atreia_game_paths;
+#[cfg(feature = "desktop")]
 mod atreia_update;
 
 #[cfg(feature = "desktop")]

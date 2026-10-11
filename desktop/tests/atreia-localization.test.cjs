@@ -8,7 +8,8 @@ const source = fs.readFileSync(path.join(__dirname, '../public/src/js/atreiaLoca
 function setup(invoke) {
   class Element {
     constructor(tag) { this.tag = tag; this.children = []; this.style = {}; this.events = {}; this.value = ''; this.disabled = false; }
-    append(...items) { this.children.push(...items); if (this.tag === 'select' && !this.value) this.value = items[0].value; }
+    append(...items) { this.children.push(...items); if (items.length && this.tag === 'select' && !this.value) this.value = items[0].value; }
+    replaceChildren(...items) { this.children = []; this.append(...items); }
     setAttribute() {}
     addEventListener(name, fn) { this.events[name] = fn; }
     querySelectorAll(tag) { return this.children.filter(child => child.tag === tag); }
@@ -21,8 +22,9 @@ function setup(invoke) {
   vm.runInNewContext(source, { window, document: { body, createElement: tag => new Element(tag), querySelector: () => null } });
   window.atreiaOpenLocalization();
   const dialog = body.children[0];
-  const [, client, root, status, actions] = dialog.children;
-  return { dialog, client, root, status, buttons: actions.children };
+  const [, client, pathRow, status, candidates, actions] = dialog.children;
+  const [root, browse] = pathRow.children;
+  return { dialog, client, root, browse, candidates, status, buttons: actions.children };
 }
 
 for (const clientName of ['steam', 'purple']) {
@@ -40,7 +42,7 @@ for (const clientName of ['steam', 'purple']) {
 test('empty target never invokes an operation', async () => {
   const ui = setup(() => { throw new Error('must not invoke'); });
   await ui.buttons[1].events.click();
-  assert.equal(ui.status.textContent, '请填写游戏目录。');
+  assert.equal(ui.status.textContent, '请先点击检测，或选择游戏目录。');
 });
 test('pending operation locks the selected client, root, actions and closing', async () => {
   let finish;
@@ -50,6 +52,7 @@ test('pending operation locks the selected client, root, actions and closing', a
   assert.equal(ui.client.disabled, true);
   assert.equal(ui.root.disabled, true);
   assert.ok(ui.buttons.every(button => button.disabled));
+  assert.equal(ui.browse.disabled, true);
   let prevented = false;
   ui.dialog.events.cancel({ preventDefault() { prevented = true; } });
   assert.equal(prevented, true);
@@ -57,6 +60,48 @@ test('pending operation locks the selected client, root, actions and closing', a
   assert.equal(ui.client.disabled, false);
   assert.equal(ui.root.disabled, false);
   assert.ok(ui.buttons.every(button => !button.disabled));
+});
+
+test('empty detection discovers the selected client and inspects the unique path without installing', async () => {
+  const calls = [];
+  const ui = setup(async (command, args) => {
+    calls.push([command, {...args}]);
+    return command === 'discover_localization_roots' ? ['D:/SteamLibrary/AION2'] : {message:'verified'};
+  });
+  await ui.buttons[0].events.click();
+  assert.equal(ui.root.value, 'D:/SteamLibrary/AION2');
+  assert.equal(ui.status.textContent, 'verified');
+  assert.deepEqual(calls, [
+    ['discover_localization_roots', {client:'steam'}],
+    ['localization_execute', {root:'D:/SteamLibrary/AION2',client:'steam',operation:'inspect'}],
+  ]);
+});
+
+test('missing or multiple installations do not start the engine until a target is chosen', async () => {
+  for (const roots of [[], ['D:/AION2', 'E:/AION2']]) {
+    const calls = [];
+    const ui = setup(async command => {calls.push(command); return roots;});
+    await ui.buttons[0].events.click();
+    assert.deepEqual(calls, ['discover_localization_roots']);
+    assert.equal(ui.root.value, '');
+    assert.ok(ui.buttons.every(button => !button.disabled));
+    if (roots.length) {
+      assert.equal(ui.candidates.hidden, false);
+      ui.candidates.value = roots[1]; ui.candidates.events.change();
+      assert.equal(ui.root.value, roots[1]);
+    } else assert.match(ui.status.textContent, /未找到/);
+  }
+});
+
+test('switching client clears a previous target and cancelled browsing preserves it', async () => {
+  const calls = [];
+  const ui = setup(async (command, args) => {calls.push([command,args]);return null;});
+  ui.root.value = 'D:/Steam/AION2'; ui.client.value = 'purple'; ui.client.events.change();
+  assert.equal(ui.root.value, '');
+  ui.root.value = 'E:/Purple/AION2'; await ui.browse.events.click();
+  assert.equal(ui.root.value, 'E:/Purple/AION2');
+  assert.equal(calls[0][0], 'browse_localization_root');
+  assert.equal(ui.browse.disabled, false);
 });
 test('component failure is visible and restores the controls', async () => {
   const ui = setup(async () => { throw new Error('missing translation'); });
