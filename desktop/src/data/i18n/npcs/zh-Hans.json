@@ -8781,7 +8781,7 @@
     "dungeonId": 610020
   },
   "2300261": {
-    "name": "克罗梅德深渊",
+    "name": "克罗梅内深渊",
     "isBoss": true,
     "category": "超越",
     "tier": "第1阶段",
@@ -8935,7 +8935,7 @@
     "isBoss": false
   },
   "2300317": {
-    "name": "克罗梅德深渊",
+    "name": "克罗梅内深渊",
     "isBoss": true,
     "category": "超越",
     "tier": "第2阶段",
@@ -9020,7 +9020,7 @@
     "dungeonId": 610022
   },
   "2300336": {
-    "name": "克罗梅德深渊",
+    "name": "克罗梅内深渊",
     "isBoss": true,
     "category": "超越",
     "tier": "第3阶段",
@@ -9105,7 +9105,7 @@
     "dungeonId": 610023
   },
   "2300355": {
-    "name": "克罗梅德深渊",
+    "name": "克罗梅内深渊",
     "isBoss": true,
     "category": "超越",
     "tier": "第4阶段",
@@ -9180,7 +9180,7 @@
     "isBoss": false
   },
   "2300371": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "激战",
     "tier": "征服",
@@ -11818,7 +11818,7 @@
     "isBoss": false
   },
   "2310371": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "激战",
     "tier": "探险",
@@ -12742,7 +12742,7 @@
     "isBoss": false
   },
   "2320371": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "激战",
     "tier": "征服[困难]",
@@ -14340,7 +14340,7 @@
     "isBoss": false
   },
   "2330371": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true
   },
   "2330401": {
@@ -14677,7 +14677,7 @@
     "isBoss": false
   },
   "2340110": {
-    "name": "树古秘密兵器",
+    "name": "术古秘密兵器",
     "isBoss": false
   },
   "2340111": {
@@ -29153,7 +29153,7 @@
     "isBoss": false
   },
   "2701463": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true
   },
   "2701469": {
@@ -31473,7 +31473,7 @@
     "isBoss": false
   },
   "2702132": {
-    "name": "玛尔库坦躯壳",
+    "name": "马勒库坦躯壳",
     "isBoss": true
   },
   "2702133": {
@@ -34294,7 +34294,7 @@
     "isBoss": false
   },
   "2920232": {
-    "name": "Kaisinel's Illusion",
+    "name": "凯西内尔的幻影",
     "isBoss": false
   },
   "2920233": {
@@ -34597,7 +34597,7 @@
     "isBoss": false
   },
   "2920325": {
-    "name": "Zikel's Apparition",
+    "name": "吉凯尔的幻影",
     "isBoss": false
   },
   "2920326": {
@@ -34797,7 +34797,7 @@
     "isBoss": false
   },
   "2920379": {
-    "name": "Zikel's Apparition",
+    "name": "吉凯尔的幻影",
     "isBoss": false
   },
   "2920380": {
@@ -34973,7 +34973,7 @@
     "isBoss": false
   },
   "2920432": {
-    "name": "Kaisinel's Illusion",
+    "name": "凯西内尔的幻影",
     "isBoss": false
   },
   "2920433": {
@@ -35249,7 +35249,7 @@
     "isBoss": false
   },
   "2920510": {
-    "name": "Zikel's Apparition",
+    "name": "吉凯尔的幻影",
     "isBoss": false
   },
   "2920511": {
@@ -37105,7 +37105,7 @@
     "isBoss": false
   },
   "2920998": {
-    "name": "Kaisinel's Illusion",
+    "name": "凯西内尔的幻影",
     "isBoss": false
   },
   "2920999": {
@@ -37113,7 +37113,7 @@
     "isBoss": false
   },
   "2921000": {
-    "name": "Kaisinel's Illusion",
+    "name": "凯西内尔的幻影",
     "isBoss": false
   },
   "2921001": {
@@ -40615,70 +40615,70 @@
     "dungeonId": 200003
   },
   "2980260": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "恶梦",
     "tier": "第1阶段",
     "dungeonId": 200003
   },
   "2980261": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "恶梦",
     "tier": "第2阶段",
     "dungeonId": 200003
   },
   "2980262": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "恶梦",
     "tier": "第3阶段",
     "dungeonId": 200003
   },
   "2980263": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "恶梦",
     "tier": "第4阶段",
     "dungeonId": 200003
   },
   "2980264": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "恶梦",
     "tier": "第5阶段",
     "dungeonId": 200003
   },
   "2980265": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "恶梦",
     "tier": "第6阶段",
     "dungeonId": 200003
   },
   "2980266": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "恶梦",
     "tier": "第7阶段",
     "dungeonId": 200003
   },
   "2980267": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "恶梦",
     "tier": "第8阶段",
     "dungeonId": 200003
   },
   "2980268": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "恶梦",
     "tier": "第9阶段",
     "dungeonId": 200003
   },
   "2980269": {
-    "name": "克罗梅德欲望",
+    "name": "克罗梅内欲望",
     "isBoss": true,
     "category": "恶梦",
     "tier": "第10阶段",

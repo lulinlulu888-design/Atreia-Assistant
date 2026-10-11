@@ -11,7 +11,9 @@ import re
 import subprocess
 from pathlib import Path
 
-from build_official_additions import PARAMETERS
+from build_official_additions import PARAMETERS, mainland_terms
+from mainland_names import MAINLAND_NAMES
+from reviewed_mainland import reviewed_translation
 
 SNAPSHOTS = {
     "2026-10-05": {
@@ -24,21 +26,8 @@ SNAPSHOTS = {
     },
 }
 
-# Mainland China server names shown by the legacy CN service. These are scoped
-# to ServerName_* rows: the same English names also identify lore characters,
-# where replacing them with a server label would be incorrect.
-MAINLAND_SERVER_NAMES = {
-    "Nezekan": "伊斯拉斐尔",
-    "Siel": "齐凯尔",
-    "Vaizel": "特里尼尔",
-    "Kaisinel": "露米尔",
-    "Yustiel": "马库坦",
-    "Ariel": "阿斯佩尔",
-    "Fregion": "埃列什基伽勒",
-    "Meslamtaeda": "贝里特拉",
-    "Hithanya": "尼蒙",
-    "Nania": "哈达拉",
-}
+# A server named after a character must retain that character's identity.
+MAINLAND_SERVER_NAMES = MAINLAND_NAMES
 
 
 def snapshots(purple_path, steam_path):
@@ -145,16 +134,18 @@ def steam_update_replacement(source):
 
 
 def replacement(key, source, official, english):
+    reviewed = reviewed_translation(key, source)
+    if reviewed is not None:
+        return reviewed
     reviewed_update = steam_update_replacement(source)
     if reviewed_update is not None:
         return reviewed_update
     if key.startswith("ServerName_"):
         # Server IDs are reused for different names between clients. Match the
         # actual name, never reuse TW text just because the numeric ID matches.
-        if source in MAINLAND_SERVER_NAMES:
-            return MAINLAND_SERVER_NAMES[source]
         candidates = {official[k]["translation"] for k, v in english.items()
-                      if k.startswith("ServerName_") and v.casefold() == source.casefold()}
+                      if k.startswith("ServerName_") and k in official
+                      and v.casefold() == source.casefold()}
         if len(candidates) == 1:
             return candidates.pop()
         names = {"Gauss": "高斯", "Tassin": "塔辛", "GAU": "高斯", "TAS": "塔辛",
@@ -205,6 +196,8 @@ def build(official, english, steam, keys):
     for key in keys:
         source = steam[key]
         text = replacement(key, source, official, english)
+        if text is not None:
+            text = mainland_terms(text, source=source)
         if text is None or sorted(PARAMETERS.findall(source)) != sorted(PARAMETERS.findall(text)):
             rejected.append(key)
             continue

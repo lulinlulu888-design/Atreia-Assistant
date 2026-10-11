@@ -11,6 +11,11 @@
     }
   },
   "details": {
+    "hoverTooltip": {
+      "loading": "正在加载…",
+      "empty": "本场战斗暂无技能数据",
+      "error": "无法加载技能数据"
+    },
     "header": "详情",
     "title": "{name} 详情",
     "tooltip": "持续伤害（DOT）不计入总暴击、双重、完美、背击或格挡比例。",

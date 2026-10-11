@@ -54,14 +54,22 @@ class ClientVariantsTests(unittest.TestCase):
         self.assertEqual(variants.replacement("maintenance", "This server is under maintenance.", official, {}),
                          "该服务器正在维护。")
 
-    def test_server_names_use_mainland_terms_without_replacing_lore_names(self):
-        for source, expected in variants.MAINLAND_SERVER_NAMES.items():
+    def test_server_and_character_names_keep_the_same_identity(self):
+        expected_names = {
+            "Israphel": "伊斯拉佩尔", "Nezekan": "奈萨肯", "Siel": "希埃尔",
+            "Vaizel": "白杰尔", "Kaisinel": "凯西内尔", "Yustiel": "尤斯迪埃",
+            "Ariel": "艾瑞尔", "Azphel": "阿斯佩尔", "Marchutan": "马勒库坦",
+            "Zikel": "吉凯尔", "Triniel": "崔妮尔", "Lumiel": "鲁米埃尔",
+            "Fregion": "普雷奇温", "Meslamtaeda": "梅斯兰泰达",
+            "Ereshkigal": "艾莱休奇卡", "Beritra": "布里特拉",
+        }
+        for source, expected in expected_names.items():
             self.assertEqual(
                 variants.replacement("ServerName_1001_desc", source, {}, {}),
                 expected,
             )
-            self.assertIsNone(
-                variants.replacement("String_STR_N_character_body", source, {}, {})
+            self.assertEqual(
+                variants.replacement("String_STR_N_character_body", source, {}, {}), expected
             )
 
     def test_mainland_server_names_override_tw_server_variants(self):
@@ -69,8 +77,22 @@ class ClientVariantsTests(unittest.TestCase):
         english = {"tw": "Nezekan"}
         self.assertEqual(
             variants.replacement("ServerName_1202_desc", "Nezekan", official, english),
-            "伊斯拉斐尔",
+            "奈萨肯",
         )
+
+    def test_unconfirmed_names_are_not_replaced_by_different_characters(self):
+        for source in ("Hithanya", "Nania"):
+            self.assertIsNone(variants.replacement("ServerName_1_desc", source, {}, {}))
+
+    def test_server_fallback_uses_same_identity_and_handles_missing_entries(self):
+        english = {"ServerName_2_desc": "Nania", "ServerName_3_desc": "Nania"}
+        self.assertIsNone(variants.replacement("ServerName_1_desc", "Nania", {}, english))
+        self.assertEqual(variants.replacement("ServerName_1_desc", "Nania",
+                         {"ServerName_2_desc": {"translation": "纳尼亚"}}, english), "纳尼亚")
+
+    def test_handwritten_variants_also_use_mainland_terminology(self):
+        payload, _ = variants.build({}, {}, {"key": "Collect 2 Types of Shugo Festival Artwork"}, ["key"])
+        self.assertEqual(payload["entries"]["key"][0]["translation"], "收集2种术古庆典画作")
 
     def test_race_selection_descriptions_use_mainland_terms(self):
         light = ("Daeva of Elysea living in the South of Atreia\n"

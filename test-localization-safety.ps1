@@ -13,3 +13,14 @@ if ($LASTEXITCODE -ne 0) { throw 'Synthetic fixture generation failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Embedded safety test compilation failed.' }
 & $taskRunner
 if ($LASTEXITCODE -ne 0) { throw 'Translation safety tests failed.' }
+$taskCorrectionRunner = Join-Path $taskStage 'MainlandCorrectionSafety.exe'
+$taskCorrectionFixture = Join-Path $taskStage 'corrections.json.gz'
+$taskCorrectionSources = @('tests/MainlandCorrectionSafety.cs', 'localization/OfficialTranslations.cs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
+& $taskCompiler /nologo /target:exe /platform:x64 /reference:System.Web.Extensions.dll "/out:$taskCorrectionRunner" @taskCorrectionSources
+if ($LASTEXITCODE -ne 0) { throw 'Correction test compilation failed.' }
+& $taskCorrectionRunner $taskCorrectionFixture
+if ($LASTEXITCODE -ne 0) { throw 'Correction fixture generation failed.' }
+& $taskCompiler /nologo /target:exe /platform:x64 /reference:System.Web.Extensions.dll "/out:$taskCorrectionRunner" "/resource:$taskCorrectionFixture,Atreia.Localization.OfficialAdditions.gz" @taskCorrectionSources
+if ($LASTEXITCODE -ne 0) { throw 'Embedded correction test compilation failed.' }
+& $taskCorrectionRunner
+if ($LASTEXITCODE -ne 0) { throw 'Correction safety tests failed.' }

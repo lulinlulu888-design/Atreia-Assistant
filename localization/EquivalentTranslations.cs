@@ -76,6 +76,11 @@ static class EquivalentTranslations
             // Image identifiers, runtime variables and the official upscaler
             // brand are not English dialogue and must not be translated.
             if (key == "String_UI_SETTING_TAB_GRAPHIC_SUBTAB_OPTIMIZE_UPSCALER_MOBILE1_body" && source == "Neural Frame Fusion") continue;
+            // Reviewed server codes are identifiers, not server display names.
+            // Keep the exact codes; unknown codes and all other fields still fail.
+            if (Regex.IsMatch(key, @"\AServerName_[0-9]+_short_desc\z") &&
+                (source == "RUT" || source == "TAS" || source == "RED" || source == "HIT" ||
+                 source == "GAU" || source == "LAM" || source == "TIE" || source == "HEL")) continue;
             string visible = Regex.Replace(source, @"<[^>]*>|\{[^}]*\}", "");
             if (Regex.IsMatch(visible, @"[A-Za-z]{3}")) missing.Add(key);
         }

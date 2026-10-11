@@ -136,6 +136,29 @@ cargo test --locked --manifest-path desktop/src-tauri/Cargo.toml --lib
 `tests/LocalizationRoundtrip.cs` 是仅接受 `isolated-test.marker` 的隔离事务测试器，
 必须配合原引擎 DEBUG 测试接口使用，不能对真实游戏根目录运行。
 
+## 国服术语定向纠错
+
+`build_mainland_corrections.py` 校对已生成的译文，不直接读写游戏目录。
+英文表与旧译表必须有完全一致的键及顺序。每条纠错同时绑定源文和旧译文摘要，
+只对审核过的内容生效；标签和参数不符时拒绝生成。审核依据与未完成项见
+[MAINLAND_AUDIT.md](MAINLAND_AUDIT.md)。
+
+```powershell
+python localization/build_mainland_corrections.py <english.json> <previous-translation.json> <new-output-directory> `
+  --additions <existing-localization-additions.json.gz>
+./test-localization-safety.ps1
+python -m unittest discover -s tests -q
+```
+
+输出 `corrections.json.gz` 为格式 3 资源，可作为本地构建的 `-LocalizationAdditionsPath`；
+`preview.json` 是校对预览，不是可安装 DAT。省略 `--additions` 只生成独立纠错表，
+不含完整补译，不能用于完整发行包。合并保留原格式 1/2 中的客户端源文变体；
+不能重复输入已生成的格式 3 资源。
+
+运行时先补未翻译条目，再按双摘要应用纠错。因此若新引擎或补译包已经改变旧译，
+对应纠错会安全跳过；应针对实际流水线重新生成预览并做隔离安装、回读测试。
+全表预览一致不等同于完整安装链路或游戏内显示已验证。
+
 格式研究参考：
 [CUE4Parse Aion2 格式说明代码](https://github.com/FabianFG/CUE4Parse/tree/master/CUE4Parse/GameTypes/Aion2)。
 本项目通过独立格式实现与版本固定组件互操作，不重新许可原引擎或游戏数据。

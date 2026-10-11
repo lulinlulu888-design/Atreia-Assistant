@@ -9,6 +9,9 @@ import json
 import re
 from pathlib import Path
 
+from mainland_names import embedded_names, name_terms
+from reviewed_mainland import reviewed_translation
+
 TOKENS = re.compile(r"<[^>]*>|\{[^}]*\}|%\d*\$?[a-zA-Z]|\\[nrt]")
 PARAMETERS = re.compile(r"\{[^}]*\}|%\d*\$?[a-zA-Z](?![a-zA-Z])|\\[nrt]")
 REVIEWED = {
@@ -42,11 +45,7 @@ MAINLAND_TERMS = {
     "莫尔海姆": "莫尔海姆",
     "贝鲁斯兰": "贝鲁斯兰",
     "凯西内尔": "凯西内尔",
-    "马尔库坦": "马勒库坦",
-    "马库坦": "马勒库坦",
-    "深渊": "欧比斯",
     "以太": "奥德",
-    "公会": "军团",
     "长剑": "长剑",
     "巨剑": "大剑",
     "魔法书": "法书",
@@ -63,7 +62,6 @@ MAINLAND_TERMS = {
     "用户端": "客户端",
     "登入": "登录",
     "讯息": "消息",
-    "档案": "文件",
     "影片": "视频",
     "有著": "有着",
     "标示": "显示",
@@ -77,19 +75,43 @@ def load_mainland_terms(converter=None):
         if not line or line.startswith("#"):
             continue
         source, translation = line.split("\t", 1)
-        # Compound merchant terms are handled before the generic AION player
-        # organization term (公会 -> 军团).
-        terms[source] = translation
-        if converter is not None:
-            terms[converter.convert(source)] = translation
+        for spelling in (source, converter.convert(source) if converter else source):
+            if spelling in terms and terms[spelling] != translation:
+                raise ValueError(f"Conflicting mainland term: {spelling}")
+            terms[spelling] = translation
     return terms
 
 
-def mainland_terms(text, terms=None):
-    terms = terms or load_mainland_terms()
-    for source in sorted(terms, key=len, reverse=True):
-        text = text.replace(source, terms[source])
-    return text
+def transform_prose(text, transform):
+    parts, position = [], 0
+    for token in TOKENS.finditer(text):
+        parts.extend((transform(text[position:token.start()]), token.group()))
+        position = token.end()
+    parts.append(transform(text[position:]))
+    return "".join(parts)
+
+
+def mainland_terms(text, terms=None, source=""):
+    source = TOKENS.sub("", source)
+    terms = dict(load_mainland_terms() if terms is None else terms)
+    terms.update(name_terms(source))
+    if re.search(r"\bEmpyrean Lords?\b", source, re.I):
+        terms["天界之主"] = "主神"
+        terms["天界领主"] = "主神"
+    if re.search(r"\bDragon Lords?\b", source, re.I):
+        terms["龙主"] = "龙帝"
+    if "Siel's Wings" in source:
+        terms.update({"谢尔之翼": "希埃尔之翼", "西尔之翼": "希埃尔之翼"})
+    if "Daeva Pass" in source:
+        terms.update({"天族通行证": "守护者通行证", "天培通行证": "守护者通行证"})
+    if re.search(r"[\u3400-\u9fff]", TOKENS.sub("", text)):
+        # Do not hide an untranslated English paragraph by translating only names.
+        text = transform_prose(text, lambda prose: embedded_names(prose, source))
+    if not terms:
+        return text
+    # Single-pass matching avoids replacement cascades and changing tokens.
+    pattern = re.compile("|".join(re.escape(term) for term in sorted(terms, key=len, reverse=True)))
+    return transform_prose(text, lambda prose: pattern.sub(lambda m: terms[m.group()], prose))
 
 
 def build(english, traditional):
@@ -103,14 +125,13 @@ def build(english, traditional):
     for key, source in english.items():
         # Preserve the exact spelling of tags, variable names and escapes.
         text = traditional[key]
-        parts, position = [], 0
-        for token in PARAMETERS.finditer(text):
-            parts.extend((convert.convert(text[position:token.start()]), token.group()))
-            position = token.end()
-        parts.append(convert.convert(text[position:]))
-        translation = mainland_terms("".join(parts), terms)
+        translation = transform_prose(text, convert.convert)
         if key in REVIEWED and source == REVIEWED_SOURCES[key]:
             translation = REVIEWED[key]
+        exact = reviewed_translation(key, source)
+        if exact is not None:
+            translation = exact
+        translation = mainland_terms(translation, terms, source)
         if key.startswith("NpcTalk_"):
             # Preserve the English table's character-name binding count while
             # retaining official dialogue. Extra vocatives become a noun.

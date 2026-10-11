@@ -58,7 +58,12 @@ static class TranslationSafety
             Coverage(hello, TableOf("test.key", "你好，{pcname}"));
             Table icon = TableOf("icon", "<img id=\"EnglishIdentifier\"/>"); Coverage(icon, icon);
             Table brand = TableOf("String_UI_SETTING_TAB_GRAPHIC_SUBTAB_OPTIMIZE_UPSCALER_MOBILE1_body", "Neural Frame Fusion"); Coverage(brand, brand);
-            Console.WriteLine("PASS: 11 translation safety checks (source binding, variants, parameters, conflicts, key order, coverage)");
+            Table code = TableOf("ServerName_1443_short_desc", "RUT"); Coverage(code, code);
+            Table unknownCode = TableOf("ServerName_1443_short_desc", "UNKNOWN");
+            Check(Fails(() => Coverage(unknownCode, unknownCode)), "Unknown abbreviation bypassed coverage");
+            Table wrongField = TableOf("ServerName_1443_desc", "RUT");
+            Check(Fails(() => Coverage(wrongField, wrongField)), "Display name bypassed coverage");
+            Console.WriteLine("PASS: 14 translation safety checks (source binding, variants, parameters, conflicts, key order, coverage)");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }

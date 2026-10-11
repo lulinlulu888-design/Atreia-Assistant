@@ -14,3 +14,5 @@ target/
 node_modules/
 desktop/src-tauri/vendor/localization/*.exe
 desktop/src-tauri/vendor/localization/dependencies/
+desktop/src-tauri/vendor/notices/*
+!desktop/src-tauri/vendor/notices/README.md
