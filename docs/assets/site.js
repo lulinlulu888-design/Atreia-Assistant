@@ -32,7 +32,17 @@ fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
     button.classList.remove("is-disabled");
     button.removeAttribute("aria-disabled");
   })
-  .catch(() => unavailable("当前没有正式安装包。首个 Release 发布后，本页会自动显示下载按钮。"));
+  .catch((error) => {
+    if (error.message === "404") {
+      unavailable("当前没有正式安装包。首个 Release 发布后，本页会自动显示下载按钮。");
+      return;
+    }
+    label.textContent = "前往 GitHub 下载";
+    status.textContent = "暂时无法读取版本信息，请前往 GitHub Releases 查看安装包。";
+    button.href = `https://github.com/${repo}/releases`;
+    button.classList.remove("is-disabled");
+    button.removeAttribute("aria-disabled");
+  });
 
 button.addEventListener("click", (event) => {
   if (button.getAttribute("aria-disabled") === "true") event.preventDefault();
