@@ -6,6 +6,8 @@
 
 > 当前为开发测试版，尚未发布正式整合安装包。桌面汉化入口已接入 Steam / Global 与 PURPLE，使用各端当前英文语言表生成汉化，不直接覆盖为另一端的旧语言表。两端当前资源的缺键补译、隔离安装、重复安装、故障回滚、更新后备份分代和逐字节还原已验证；游戏内显示仍待验证。维护与验证范围见 [双端汉化说明](localization/README.md)。
 
+**[亚特雷亚助手下载页](https://lulinlulu888-design.github.io/Atreia-Assistant/)** · 正式 MSI 发布后页面会自动显示最新版本与下载按钮。
+
 桌面助手首页现支持启动时自动检查本项目正式版本、手动检查、确认后下载更新与进度显示。
 更新包须通过 GitHub SHA-256 和大小校验，统计/汉化事务进行中禁止更新。
 发布包命名、测试范围及当前尚无正式 Release 的限制见 [自动更新说明](desktop/UPDATES.md)。
@@ -24,7 +26,7 @@
 
 永恒之塔2 Steam / Global 与 PURPLE 简体中文汉化功能，提供检测、安装、更新与还原入口。汉化时请先退出游戏，并确认客户端和游戏目录。整合版调用独立汉化组件；源码仓库不附带该组件、解压依赖或游戏语言数据。PURPLE 补译从本地官方繁体中文表转换，并绑定原英文文本摘要，避免游戏更新后误套旧译文。
 
-目前需要正式版 Steam 汉化工具的玩家，请前往 [Aion2-Steam-CN 正式 Release 下载页面](https://github.com/lulinlulu888-design/Aion2-Steam-CN/releases/latest)，在 Assets 中只下载对应的 **.exe 安装文件**，无需下载 Source code。
+当前尚无正式整合安装包。请关注 [亚特雷亚助手下载页](https://lulinlulu888-design.github.io/Atreia-Assistant/)；首个正式 Release 发布后，只需下载名称为 `Atreia-Assistant_<version>_x64.msi` 的 Windows 安装包，无需下载 Source code。
 
 ## 使用流程
 

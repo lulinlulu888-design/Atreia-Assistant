@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>亚特雷亚助手下载｜AION 2 汉化与战斗统计</title>
+  <meta name="description" content="亚特雷亚助手为 AION 2 Steam / Global 与 PURPLE 玩家提供简体中文汉化、DPS 战斗统计、备份与还原。">
+  <meta name="theme-color" content="#081017">
+  <meta property="og:title" content="亚特雷亚助手">
+  <meta property="og:description" content="AION 2 汉化与战斗统计，集中在一个安静、清晰的 Windows 工具里。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://lulinlulu888-design.github.io/Atreia-Assistant/">
+  <meta property="og:image" content="https://lulinlulu888-design.github.io/Atreia-Assistant/assets/aion2-logo.png">
+  <link rel="canonical" href="https://lulinlulu888-design.github.io/Atreia-Assistant/">
+  <link rel="icon" href="assets/app-icon.png">
+  <link rel="stylesheet" href="assets/site.css">
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+  <script src="assets/site.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="亚特雷亚助手首页">
+      <img src="assets/app-icon.png" alt="">
+      <span>亚特雷亚助手</span>
+    </a>
+    <nav aria-label="主导航">
+      <a href="#capabilities">功能</a>
+      <a href="#install">安装</a>
+      <a href="https://github.com/lulinlulu888-design/Atreia-Assistant">源代码</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <img class="hero-mark" src="assets/aion2-logo.png" alt="AION 2">
+      <div class="hero-copy">
+        <p class="eyebrow">AION 2 · Windows 社区工具</p>
+        <h1>亚特雷亚助手</h1>
+        <p class="lede">Steam / Global 与 PURPLE 简体中文汉化，加上专注战斗过程的 DPS 统计。检测、安装、备份、还原，各自有清楚的边界。</p>
+        <div class="actions">
+          <a class="button primary is-disabled" id="download-button" href="https://github.com/lulinlulu888-design/Atreia-Assistant/releases" aria-disabled="true">
+            <i data-lucide="download" aria-hidden="true"></i>
+            <span id="download-label">检查正式版本…</span>
+          </a>
+          <a class="button secondary" href="https://github.com/lulinlulu888-design/Atreia-Assistant">
+            <i data-lucide="github" aria-hidden="true"></i>
+            查看 GitHub
+          </a>
+        </div>
+        <p class="release-status" id="release-status" role="status">正在读取 GitHub Releases。</p>
+      </div>
+    </section>
+
+    <section class="product-band" aria-label="产品概览">
+      <div class="product-shell">
+        <div class="product-header">
+          <span class="window-title">亚特雷亚助手</span>
+          <span class="window-state">本地处理 · 不注入游戏</span>
+        </div>
+        <div class="product-grid">
+          <article class="module active">
+            <div class="module-icon cyan"><i data-lucide="languages" aria-hidden="true"></i></div>
+            <div><h2>游戏汉化</h2><p>识别 Steam / Global 与 PURPLE，安装前检测版本并保留可还原备份。</p></div>
+            <span class="module-tag">双客户端</span>
+          </article>
+          <article class="module">
+            <div class="module-icon amber"><i data-lucide="activity" aria-hidden="true"></i></div>
+            <div><h2>战斗统计</h2><p>查看 DPS、总伤害、治疗、玩家贡献和技能明细。</p></div>
+            <span class="module-tag">本地统计</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="capabilities">
+      <div class="section-heading">
+        <p class="eyebrow">一个助手，两个明确入口</p>
+        <h2>需要汉化时改语言，需要统计时才采集</h2>
+        <p>打开首页不会启动战斗统计。汉化和统计互相独立，任务进行中会阻止冲突操作。</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature">
+          <i data-lucide="shield-check" aria-hidden="true"></i>
+          <h3>更新前先核对</h3>
+          <p>语言资源绑定当前客户端源表；未知更新不会直接套用旧文本。</p>
+        </article>
+        <article class="feature">
+          <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+          <h3>可备份与还原</h3>
+          <p>安装、重复安装、故障回滚与逐字节还原均有隔离测试覆盖。</p>
+        </article>
+        <article class="feature">
+          <i data-lucide="scan-line" aria-hidden="true"></i>
+          <h3>精确战斗范围</h3>
+          <p>统计只在用户明确开启后工作，不修改游戏内存，也不自动上传战斗数据。</p>
+        </article>
+        <article class="feature">
+          <i data-lucide="refresh-cw" aria-hidden="true"></i>
+          <h3>内置安全更新</h3>
+          <p>正式 MSI 发布后，助手会校验 GitHub 提供的文件大小与 SHA-256。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section install" id="install">
+      <div class="section-heading">
+        <p class="eyebrow">Windows 安装</p>
+        <h2>正式版发布后，只需下载一个 MSI</h2>
+      </div>
+      <ol class="steps">
+        <li><span>01</span><div><h3>下载</h3><p>只从本页或 GitHub Releases 下载名称为 <code>Atreia-Assistant_版本_x64.msi</code> 的文件。</p></div></li>
+        <li><span>02</span><div><h3>安装</h3><p>运行 MSI。使用战斗统计前需另行安装官方 Npcap 驱动；仅使用汉化无需启动采集。</p></div></li>
+        <li><span>03</span><div><h3>选择功能</h3><p>首页进入“游戏汉化”或“战斗统计”。汉化前请退出游戏并核对客户端目录。</p></div></li>
+      </ol>
+      <div class="compatibility">
+        <div><span>当前开发版本</span><strong>2.0.49</strong></div>
+        <div><span>Steam 文本</span><strong>152,774 条</strong></div>
+        <div><span>客户端</span><strong>Steam / PURPLE</strong></div>
+        <div><span>平台</span><strong>Windows x64</strong></div>
+      </div>
+    </section>
+
+    <section class="notice" aria-labelledby="notice-title">
+      <i data-lucide="info" aria-hidden="true"></i>
+      <div>
+        <h2 id="notice-title">社区项目说明</h2>
+        <p>本项目与 NCSOFT、Steam 无隶属或背书关系。当前仓库仍是开发测试版；正式安装包上线前，下载按钮会保持不可用。游戏内显示仍需实际验证。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Atreia Assistant · GPL-3.0 开源社区项目</p>
+    <div><a href="https://github.com/lulinlulu888-design/Atreia-Assistant/issues">反馈问题</a><a href="https://npcap.com/#download">Npcap</a></div>
+  </footer>
+</body>
+</html>
