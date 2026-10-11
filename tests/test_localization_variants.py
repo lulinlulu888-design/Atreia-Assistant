@@ -54,6 +54,24 @@ class ClientVariantsTests(unittest.TestCase):
         self.assertEqual(variants.replacement("maintenance", "This server is under maintenance.", official, {}),
                          "该服务器正在维护。")
 
+    def test_server_names_use_mainland_terms_without_replacing_lore_names(self):
+        for source, expected in variants.MAINLAND_SERVER_NAMES.items():
+            self.assertEqual(
+                variants.replacement("ServerName_1001_desc", source, {}, {}),
+                expected,
+            )
+            self.assertIsNone(
+                variants.replacement("String_STR_N_character_body", source, {}, {})
+            )
+
+    def test_mainland_server_names_override_tw_server_variants(self):
+        official = {"tw": {"translation": "台服译名"}}
+        english = {"tw": "Nezekan"}
+        self.assertEqual(
+            variants.replacement("ServerName_1202_desc", "Nezekan", official, english),
+            "伊斯拉斐尔",
+        )
+
     def test_wings_preserve_steam_stats_order_and_flight_power(self):
         source = ("Grants [Ultimate Daeva Wings (Bound)].\n\n[Equipped Effect]\n"
                   "HP: 500\nMP: 250\nPenetration: 500\nCritical Hit: 35\n"

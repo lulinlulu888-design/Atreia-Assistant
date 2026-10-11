@@ -24,6 +24,22 @@ SNAPSHOTS = {
     },
 }
 
+# Mainland China server names shown by the legacy CN service. These are scoped
+# to ServerName_* rows: the same English names also identify lore characters,
+# where replacing them with a server label would be incorrect.
+MAINLAND_SERVER_NAMES = {
+    "Nezekan": "伊斯拉斐尔",
+    "Siel": "齐凯尔",
+    "Vaizel": "特里尼尔",
+    "Kaisinel": "露米尔",
+    "Yustiel": "马库坦",
+    "Ariel": "阿斯佩尔",
+    "Fregion": "埃列什基伽勒",
+    "Meslamtaeda": "贝里特拉",
+    "Hithanya": "尼蒙",
+    "Nania": "哈达拉",
+}
+
 
 def snapshots(purple_path, steam_path):
     purple, steam = purple_path.read_bytes(), steam_path.read_bytes()
@@ -131,6 +147,8 @@ def replacement(key, source, official, english):
     if key.startswith("ServerName_"):
         # Server IDs are reused for different names between clients. Match the
         # actual name, never reuse TW text just because the numeric ID matches.
+        if source in MAINLAND_SERVER_NAMES:
+            return MAINLAND_SERVER_NAMES[source]
         candidates = {official[k]["translation"] for k, v in english.items()
                       if k.startswith("ServerName_") and v.casefold() == source.casefold()}
         if len(candidates) == 1:
