@@ -524,4 +524,24 @@ mod tests {
         assert!(["available", "up_to_date", "no_release"].contains(&result.status.as_str()));
         println!("{}", serde_json::to_string(&result).unwrap());
     }
+
+    #[tokio::test]
+    #[ignore = "explicit live download/hash verification; never launches the installer"]
+    async fn live_release_download_without_installing() {
+        let update = check("2.0.0").await.unwrap();
+        assert_eq!(update.status, "available");
+        let directory = std::env::temp_dir().join(format!("atreia-live-download-{}-{}", std::process::id(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+        std::fs::create_dir(&directory).unwrap();
+        let launches = std::sync::atomic::AtomicUsize::new(0);
+        stage_and_handoff(&client().unwrap(), &update, &directory, |_| {}, |path| {
+            let bytes = std::fs::read(path).unwrap();
+            assert!(bytes.starts_with(&[0xd0,0xcf,0x11,0xe0,0xa1,0xb1,0x1a,0xe1]));
+            launches.fetch_add(1, Ordering::SeqCst);
+            Ok(())
+        }).await.unwrap();
+        assert_eq!(launches.load(Ordering::SeqCst), 1);
+        println!("Verified release {:?}, {} bytes, SHA-256 {}; installer NOT executed", update.latest, update.size, update.hash);
+        std::fs::remove_file(directory.join("Atreia-update.msi")).unwrap();
+        std::fs::remove_dir(directory).unwrap();
+    }
 }
