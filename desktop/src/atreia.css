@@ -4,6 +4,8 @@
 .atreiaDialog h3::before { content: "LOCALIZATION"; display: block; font: 600 9px/1.5 "Segoe UI", sans-serif; letter-spacing: 2px; margin-bottom: 5px; color: var(--neo-accent); }
 .atreiaDialog input, .atreiaDialog select { box-sizing: border-box; font: inherit; color: var(--neo-text); background: var(--neo-surface); border: 1px solid transparent; border-radius: 12px; padding: 11px 13px; outline: none; box-shadow: var(--neo-inset); }
 .atreiaDialog > select { width: 100%; }
+.atreiaDialog select { appearance: none; padding-right: 44px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23283e49' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; background-size: 16px 16px; }
+@media (forced-colors: active) { .atreiaDialog select { appearance: auto; background-image: none; } }
 .atreiaDialog input::placeholder { color: var(--neo-muted); }
 .atreiaDialog input:focus, .atreiaDialog select:focus { border-color: var(--neo-accent); }
 .localization-path { display: flex; gap: 12px; margin: 14px 0; }
