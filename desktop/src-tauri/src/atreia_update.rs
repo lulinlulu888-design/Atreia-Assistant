@@ -304,11 +304,10 @@ pub async fn atreia_install_update(app: tauri::AppHandle) -> Result<(), String> 
         "下载并安装 {}？\n校验通过后助手会退出，安装程序将重新启动助手。\n不会自动安装或修改游戏汉化。",
         update.latest.as_deref().unwrap_or("")
     );
-    let accepted = tokio::task::spawn_blocking(move || {
-        crate::platform::dialog::ask_yes_no("亚特雷亚助手更新", &prompt)
-    })
-    .await
-    .map_err(|e| e.to_string())?;
+    let accepted = crate::atreia_confirmation::ask(&app, crate::atreia_confirmation::Prompt {
+        title: "更新亚特雷亚助手".into(), message: prompt, confirm_label: "下载并更新".into(),
+        details: vec![("新版本".into(), update.latest.clone().unwrap_or_default())],
+    }).await?;
     if !accepted {
         return Err("已取消更新".into());
     }

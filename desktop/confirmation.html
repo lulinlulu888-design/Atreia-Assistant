@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>确认操作</title><link rel="stylesheet" href="/src/neumorphic.css"><link rel="stylesheet" href="/src/confirmation.css"></head>
+<body>
+<main aria-labelledby="confirmation-title">
+  <header><span class="eyebrow">PLEASE CONFIRM</span><h1 id="confirmation-title">正在读取操作信息…</h1></header>
+  <div class="confirmation-content"><dl id="confirmation-details"></dl><p id="confirmation-message"></p></div>
+  <p id="confirmation-status" role="status"></p>
+  <footer><button id="confirmation-cancel" type="button" autofocus>取消，返回</button><button id="confirmation-accept" type="button" disabled>确认</button></footer>
+</main>
+<script src="/src/js/atreiaConfirmation.js"></script>
+</body></html>

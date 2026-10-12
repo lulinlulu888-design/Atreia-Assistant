@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "confirmation",
+  "description": "Backend-owned confirmation window. Response commands also enforce the calling window label and a one-use pending request.",
+  "windows": ["atreia-confirmation"],
+  "permissions": ["core:default"]
+}

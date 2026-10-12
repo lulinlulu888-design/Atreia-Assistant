@@ -46,6 +46,8 @@ mod atreia_localization;
 mod atreia_game_paths;
 #[cfg(feature = "desktop")]
 mod atreia_update;
+#[cfg(feature = "desktop")]
+mod atreia_confirmation;
 
 #[cfg(feature = "desktop")]
 pub use app::run;

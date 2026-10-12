@@ -7,7 +7,7 @@ use std::{
     process::Command,
     sync::atomic::{AtomicBool, Ordering},
 };
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 pub struct CaptureControl(pub Mutex<crate::capture::pcap_capturer::PcapCapturer>);
 static LOCALIZATION_BUSY: AtomicBool = AtomicBool::new(false);
@@ -50,9 +50,10 @@ pub async fn open_combat(app: tauri::AppHandle) -> Result<(), String> {
     }
     // This upstream autodetector initially examines adapter TCP traffic. State
     // that scope honestly; it is not the older exact-PID Python collector.
-    let consent = tauri::async_runtime::spawn_blocking(|| crate::platform::dialog::ask_yes_no(
-        "开启战斗统计", "开始使用 Npcap 只读检测本机网卡上的 TCP 流量并识别游戏战斗连接吗？\n初始检测可能看到其他程序的流量，仅在本机处理，不上传，不发送封包。\n第三方工具仍有游戏规则风险。选择“否”不会开始采集。"
-    )).await.map_err(|e| e.to_string())?;
+    let consent = crate::atreia_confirmation::ask(&app, crate::atreia_confirmation::Prompt {
+        title: "开启战斗统计".into(), confirm_label: "确认开启".into(), details: vec![],
+        message: "使用 Npcap 只读检测本机网卡上的 TCP 流量并识别游戏战斗连接。\n初始检测可能看到其他程序的流量，仅在本机处理，不上传，不发送封包。\n第三方工具仍有游戏规则风险。取消不会开始采集。".into(),
+    }).await?;
     if !consent {
         return Err("已取消，未启动采集。".into());
     }
@@ -202,9 +203,18 @@ pub async fn localization_execute(
         if digest != ENGINE_HASH || !helper.is_file() {
             return Err("汉化组件缺失或校验不匹配。".into());
         }
-        if operation != "inspect" && !crate::platform::dialog::ask_yes_no("确认游戏汉化操作",
-            &format!("操作：{}\n目标：{}\n客户端：{}\n\n请先退出游戏。该操作会修改语言文件，原引擎保留备份、兼容检查和回滚。确定继续吗？", operation, root.display(), client)) {
-            return Ok(serde_json::json!({"ok":false,"cancelled":true,"operation":operation,"message":"已取消，未修改游戏。"}));
+        if operation != "inspect" {
+            let restoring = operation == "restore";
+            let accepted = tauri::async_runtime::block_on(crate::atreia_confirmation::ask(&app, crate::atreia_confirmation::Prompt {
+                title: if restoring { "还原游戏语言" } else { "安装 / 更新汉化" }.into(),
+                confirm_label: if restoring { "确认还原" } else { "确认安装" }.into(),
+                details: vec![("客户端".into(), if client == "purple" { "PURPLE" } else { "Steam / Global" }.into()), ("游戏目录".into(), root.display().to_string())],
+                message: if restoring { "请先完全退出游戏。\n将根据校验过的备份还原语言文件；若游戏版本或备份不匹配，会停止操作。\n取消会返回汉化面板，不修改游戏文件。" } else { "请先完全退出游戏。\n将重新核对当前语言资源并写入汉化文件。原引擎保留备份、兼容检查和失败回滚。\n取消会返回汉化面板，不修改游戏文件。" }.into(),
+            }))?;
+            if !accepted {
+                return Ok(serde_json::json!({"ok":false,"cancelled":true,"operation":operation,"message":"已取消，未修改游戏。"}));
+            }
+            let _ = app.emit_to("launcher", "atreia-localization-stage", serde_json::json!({"operation":operation,"client":client,"stage":"running"}));
         }
         let mut command = Command::new(helper);
         command.current_dir(dunce::simplified(&directory)).arg(dunce::simplified(&engine)).arg(&operation).arg(dunce::simplified(&root)).arg(&client);

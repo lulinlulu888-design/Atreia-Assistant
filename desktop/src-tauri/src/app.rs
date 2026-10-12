@@ -2628,6 +2628,9 @@ pub fn run() {
             crate::atreia_update::atreia_check_update,
             crate::atreia_update::atreia_install_update,
             crate::atreia_localization::open_combat,
+            crate::atreia_confirmation::confirmation_request,
+            crate::atreia_confirmation::confirmation_respond,
+            crate::atreia_confirmation::confirmation_cancel,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
