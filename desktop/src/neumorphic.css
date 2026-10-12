@@ -1,0 +1,22 @@
+/* Shared desktop material: raised surfaces, inset fields, crisp readable text. */
+:root {
+  color-scheme: light;
+  --neo-surface: #e9eef1;
+  --neo-text: #283e49;
+  --neo-muted: #596e79;
+  --neo-accent: #16766f;
+  --neo-light: #ffffff;
+  --neo-shade: #c6d0d7;
+  --neo-raised: 7px 7px 16px #c6d0d7, -7px -7px 16px #ffffff;
+  --neo-small: 3px 3px 7px #c6d0d7, -3px -3px 7px #ffffff;
+  --neo-inset: inset 3px 3px 7px #c6d0d7, inset -3px -3px 7px #ffffff;
+  --neo-radius: 20px;
+  --neo-font: "Microsoft YaHei UI", "Segoe UI Variable", "Segoe UI", sans-serif;
+}
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+@media (forced-colors: active) {
+  button, input, select, dialog { border: 1px solid ButtonText !important; }
+}

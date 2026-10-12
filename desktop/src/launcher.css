@@ -1,1 +1,65 @@
-:root{color-scheme:dark;font-family:"Microsoft YaHei UI","Segoe UI",sans-serif;background:#0d1620;color:#eaf1f6}*{box-sizing:border-box}body{margin:0}main{padding:24px 28px}header .eyebrow{font-size:10px;letter-spacing:3px;color:#b4aa91}h1{font-size:24px;margin:7px 0 5px;font-weight:600}header p{font-size:12px;color:#8093a6;margin:0 0 22px}.choices{display:flex;gap:12px}.choices button{flex:1;text-align:left;background:linear-gradient(145deg,#1e3344,#17232e);border:1px solid #304855;border-radius:12px;padding:16px;color:#edf4fa;cursor:pointer;transition:background .15s,transform .15s}.choices button:hover{background:#244455;transform:translateY(-2px)}.choices button:focus-visible{outline:2px solid #7dd5dc;outline-offset:3px}.choices button:disabled{opacity:.55;cursor:wait}.symbol{display:block;color:#91dde2;font-size:22px;height:32px}strong{display:block;font-size:16px;font-weight:500}small{display:block;font-size:10px;color:#94a8b8;margin-top:6px}#status{font-size:11px;color:#a7bbcc;min-height:16px;margin:15px 0}footer{font-size:9px;color:#586c7c}
+* { box-sizing: border-box; }
+html, .launcher-body { margin: 0; height: 100%; overflow: hidden; }
+.launcher-body { background: var(--neo-surface); color: var(--neo-text); font-family: var(--neo-font); }
+.launcher-shell { height: 100dvh; padding: 28px 30px 20px; display: grid; grid-template-rows: 66px minmax(142px, 1fr) 34px 78px 16px; gap: 18px; }
+.launcher-brand { display: flex; align-items: center; gap: 18px; min-width: 0; }
+.brand-emblem { width: 64px; height: 64px; flex: 0 0 auto; border-radius: 20px; background: var(--neo-surface); box-shadow: var(--neo-raised); display: grid; place-items: center; }
+.brand-emblem img { width: 48px; height: 48px; object-fit: contain; }
+.brand-copy { min-width: 0; }
+.eyebrow { font: 600 9px/1.4 "Segoe UI", sans-serif; letter-spacing: 2.3px; color: var(--neo-accent); }
+h1 { margin: 4px 0; font-size: 25px; font-weight: 700; letter-spacing: .5px; line-height: 1.35; }
+.brand-copy p { margin: 0; font-size: 12px; color: var(--neo-muted); }
+.version-badge { margin-left: auto; align-self: flex-start; margin-top: 8px; padding: 6px 10px; border-radius: 20px; font: 600 10px/1.3 "Segoe UI", sans-serif; color: var(--neo-muted); box-shadow: var(--neo-inset); }
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; min-height: 0; padding: 3px; }
+.feature-card { min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; padding: 20px 22px; background: var(--neo-surface); border: 1px solid #ffffff6b; border-radius: 22px; color: var(--neo-text); box-shadow: var(--neo-raised); text-align: left; font-family: inherit; cursor: pointer; transition: box-shadow .18s, transform .18s; }
+.feature-card:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 10px 10px 22px #c6d0d7, -9px -9px 20px #fff; }
+.feature-card:active:not(:disabled) { transform: none; box-shadow: var(--neo-inset); }
+.card-top { display: flex; align-items: center; justify-content: space-between; }
+.feature-icon { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; color: var(--neo-accent); box-shadow: var(--neo-inset); }
+.feature-icon svg { width: 23px; height: 23px; stroke-width: 1.7; }
+.card-arrow { width: 17px; height: 17px; color: #718893; }
+.card-copy strong { display: block; font-size: 20px; font-weight: 700; line-height: 1.4; }
+.card-copy small { display: block; margin-top: 6px; font-size: 11px; color: var(--neo-muted); line-height: 1.5; }
+.card-caption { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--neo-accent); }
+.card-caption svg { width: 14px; height: 14px; }
+.launcher-status { display: flex; align-items: center; gap: 9px; padding: 0 3px; min-width: 0; }
+.status-dot { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: var(--neo-accent); box-shadow: 0 0 0 4px #16766f10; }
+#status { margin: 0; min-width: 0; font-size: 11px; line-height: 17px; color: var(--neo-muted); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.local-badge { margin-left: auto; flex-shrink: 0; font-size: 9px; color: var(--neo-muted); }
+.update-strip { display: flex; align-items: center; gap: 14px; padding: 13px 17px; border-radius: 16px; box-shadow: var(--neo-inset); min-width: 0; }
+.update-icon { display: grid; place-items: center; flex-shrink: 0; width: 28px; height: 28px; color: var(--neo-accent); }
+.update-icon svg { width: 19px; height: 19px; }
+.update-copy { min-width: 0; flex: 1; }
+.update-copy strong { display: block; font-size: 12px; font-weight: 600; }
+#update-status { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; margin-top: 4px; font-size: 10px; line-height: 15px; color: var(--neo-muted); }
+.update-actions { display: flex; gap: 9px; align-items: center; flex-shrink: 0; }
+.update-actions button { font: 600 11px/1.3 var(--neo-font); padding: 10px 12px; border: 1px solid #ffffff65; border-radius: 11px; background: var(--neo-surface); color: var(--neo-accent); box-shadow: var(--neo-small); cursor: pointer; white-space: nowrap; }
+.update-actions button.primary { background: var(--neo-accent); color: white; border-color: transparent; }
+.update-actions button:active:not(:disabled) { box-shadow: var(--neo-inset); }
+button:focus-visible { outline: 2px solid var(--neo-accent); outline-offset: 4px; }
+button:disabled { opacity: .5; cursor: wait; }
+footer { display: flex; justify-content: space-between; gap: 12px; font-size: 9px; line-height: 16px; color: var(--neo-muted); }
+@media (max-height: 460px), (max-width: 600px) {
+  .launcher-shell { padding: 20px 24px 16px; grid-template-rows: 58px minmax(122px, 1fr) 30px 70px 14px; gap: 12px; }
+  .brand-emblem { width: 56px; height: 56px; border-radius: 17px; }
+  .brand-emblem img { width: 42px; height: 42px; }
+  h1 { font-size: 22px; }
+  .choices { gap: 20px; }
+  .feature-card { padding: 15px 18px; gap: 9px; }
+  .feature-icon { width: 35px; height: 35px; }
+  .card-copy strong { font-size: 18px; }
+  .card-copy small { font-size: 10px; margin-top: 3px; }
+  .update-strip { padding: 10px 13px; gap: 10px; }
+  footer { font-size: 8px; }
+}
+@media (max-height: 380px) {
+  .launcher-shell { padding: 14px 20px 12px; grid-template-rows: 52px minmax(98px, 1fr) 24px 66px 12px; gap: 10px; }
+  .brand-emblem { width: 48px; height: 48px; border-radius: 15px; }
+  .brand-emblem img { width: 36px; height: 36px; }
+  .brand-copy p { font-size: 10px; }
+  h1 { font-size: 20px; }
+  .feature-card { padding: 12px 15px; gap: 7px; }
+  .feature-icon { width: 30px; height: 30px; }
+  .feature-icon svg { width: 19px; height: 19px; }
+  .card-caption { display: none; }
+}

@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Atreia Assistant",
-  "version": "2.0.51",
+  "version": "2.0.52",
   "identifier": "community.atreia.assistant",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -16,8 +16,10 @@
         "label": "launcher",
         "url": "launcher.html",
         "title": "亚特雷亚助手",
-        "width": 480,
-        "height": 350,
+        "width": 680,
+        "height": 500,
+        "backgroundColor": "#e9eef1",
+        "theme": "Light",
         "center": true,
         "decorations": true,
         "transparent": false,

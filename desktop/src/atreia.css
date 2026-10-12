@@ -1,26 +1,24 @@
-.atreiaDialog { color-scheme: dark; font-size: 13px; box-shadow: 0 18px 60px #0006; max-height: calc(100vh - 32px); overflow-y: auto; }
-.launcher-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
-.launcher-brand img { width: 58px; height: 58px; object-fit: contain; flex-shrink: 0; }
-.launcher-brand .eyebrow { letter-spacing: 0; }
-.launcher-brand p { margin-bottom: 0; }
-.localization-path { display: flex; gap: 8px; margin: 12px 0; }
+.atreiaDialog { box-sizing: border-box; width: min(560px, calc(100vw - 48px)); max-height: calc(100dvh - 40px); overflow-y: auto; padding: 26px; border: 1px solid #ffffffb0; border-radius: 24px; font: 13px/1.6 var(--neo-font); color: var(--neo-text); background: var(--neo-surface); box-shadow: 12px 12px 30px #aebbc380, -8px -8px 24px #ffffff80; }
+.atreiaDialog::backdrop { background: #65778350; backdrop-filter: blur(5px); }
+.atreiaDialog h3 { margin: 0 0 17px; font-size: 22px; font-weight: 700; }
+.atreiaDialog h3::before { content: "LOCALIZATION"; display: block; font: 600 9px/1.5 "Segoe UI", sans-serif; letter-spacing: 2px; margin-bottom: 5px; color: var(--neo-accent); }
+.atreiaDialog input, .atreiaDialog select { box-sizing: border-box; font: inherit; color: var(--neo-text); background: var(--neo-surface); border: 1px solid transparent; border-radius: 12px; padding: 11px 13px; outline: none; box-shadow: var(--neo-inset); }
+.atreiaDialog > select { width: 100%; }
+.atreiaDialog input::placeholder { color: var(--neo-muted); }
+.atreiaDialog input:focus, .atreiaDialog select:focus { border-color: var(--neo-accent); }
+.localization-path { display: flex; gap: 12px; margin: 14px 0; }
 .localization-path input { width: 100%; min-width: 0; }
-.atreiaDialog .browse-path { width: 40px; padding: 8px; flex-shrink: 0; display: grid; place-items: center; }
+.atreiaDialog .browse-path { width: 44px; padding: 10px; flex-shrink: 0; display: grid; place-items: center; }
 .browse-path svg { width: 19px; height: 19px; }
-.localization-candidates { width: 100%; margin-bottom: 12px; }
-.atreiaDialog::backdrop { background: #050b13aa; backdrop-filter: blur(3px); }
-.atreiaDialog h3 { margin: 0 0 16px; font-size: 18px; font-weight: 600; }
-.atreiaDialog input, .atreiaDialog select { font: inherit; color: #dfeaf4; background: #0d1925; border: 1px solid #334b60; border-radius: 7px; padding: 9px 10px; outline: none; }
-.atreiaDialog select { min-width: 185px; }
-.atreiaDialog input:focus, .atreiaDialog select:focus { border-color: #79cbd4; box-shadow: 0 0 0 2px #79cbd41c; }
-.atreiaDialog p { line-height: 1.7; color: #9fb4c6; }
-.atreiaDialog button { font: inherit; padding: 8px 12px; border: 1px solid #365064; border-radius: 7px; color: #dce8f2; background: #203447; cursor: pointer; }
-.atreiaDialog button:hover { background: #2c495f; }
-.atreiaDialog button:focus-visible { outline: 2px solid #8fdae0; outline-offset: 2px; }
-.atreiaDialog button.primary { background: #66c7cd; border-color: #66c7cd; color: #08212b; font-weight: 600; }
-.atreiaDialog button.primary:hover { background: #8cdde1; }
-.atreiaDialog button.ghost { background: transparent; color: #91a8ba; }
-.atreiaDialog button:disabled { opacity: .5; cursor: wait; }
-#update-status { display: block; font-size: 10px; color: #a7bbcc; min-height: 14px; margin-top: 5px; }
-#update-check, #update-install { border: 1px solid #365064; border-radius: 5px; padding: 4px 8px; color: #dce8f2; background: #203447; cursor: pointer; font: inherit; font-size: 11px; }
-#update-check:disabled, #update-install:disabled { opacity: .5; cursor: wait; }
+.localization-candidates { margin-bottom: 14px; }
+.localization-status { margin: 0 0 19px; padding: 13px 15px; min-height: 68px; max-height: 120px; overflow-y: auto; border-radius: 12px; box-shadow: var(--neo-inset); color: var(--neo-muted); font-size: 12px; overflow-wrap: anywhere; }
+.localization-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.atreiaDialog button { font: 600 12px/1.5 var(--neo-font); padding: 10px 16px; border: 1px solid #ffffff90; border-radius: 11px; color: var(--neo-text); background: var(--neo-surface); box-shadow: var(--neo-small); cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.atreiaDialog button:hover:not(:disabled) { color: var(--neo-accent); transform: translateY(-1px); }
+.atreiaDialog button:active:not(:disabled) { box-shadow: var(--neo-inset); }
+.atreiaDialog button:focus-visible { outline: 2px solid var(--neo-accent); outline-offset: 3px; }
+.atreiaDialog button.primary { background: var(--neo-accent); border-color: transparent; color: #fff; }
+.atreiaDialog button.primary:hover { color: #fff; }
+.atreiaDialog button.ghost { margin-left: auto; box-shadow: none; border-color: transparent; color: var(--neo-muted); }
+.atreiaDialog button:disabled { opacity: .5; cursor: wait; transform: none; }
+@media (max-height: 460px) { .atreiaDialog { padding: 20px; } .localization-status { margin-bottom: 14px; padding: 10px 12px; } }

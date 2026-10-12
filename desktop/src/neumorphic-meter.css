@@ -1,0 +1,85 @@
+/* Unified material for the meter and its separate Settings/History/Details windows.
+   Keep geometry, resizing, opacity and user-selected combat bar colours intact. */
+:root:root {
+  --text-color: var(--neo-text);
+  --title: var(--neo-text);
+  --panel-bg: var(--neo-surface);
+  --panel-field-bg: var(--neo-surface);
+  --panel-border: #ffffff80;
+  --text-shadow: none;
+  --dps-shadow: none;
+  --player-name-shadow: none;
+  --hud-bg: 233, 238, 241;
+  --hud-hairline: #526a771a;
+  --hud-row-bg: #a0b1bc12;
+  --hud-name: var(--neo-text);
+  --hud-num: #213e49;
+  --hud-sub: var(--neo-muted);
+  --hud-faint: #637782;
+  --dps: #213e49;
+  --dps-text: #213e49;
+  --rounded-lg: 18px;
+  --rounded: 14px;
+}
+.meter { border-color: #ffffff80; box-shadow: 4px 4px 12px #778b9b40, -3px -3px 9px #ffffff70; }
+.header .bossNames .bossName { text-shadow: none; }
+.header .bossIcon, .header .headerBtns, .header .headerBtns .suspendBtn { color: var(--neo-muted); }
+.header .headerBtns .headerBtn:hover, .header .bossIcon:hover { color: var(--neo-accent); }
+.header .headerBtns .suspendBtn.isSuspended { color: #ac3535; }
+.meterFooter { background: #526a7710; border-color: var(--hud-hairline); }
+.meterTotalBar .meterTotalDps, .meterTotalBar .meterTotalDmg, .meterTotalBar .meterTotalSep { color: var(--neo-muted); }
+.list .item { box-shadow: inset 1px 1px 3px #b6c4cc60, inset -1px -1px 3px #ffffff60; }
+.list .item:hover { background: #ffffff40; }
+.list .item .dps { background: linear-gradient(90deg, transparent, #e9eef1cc 42%, #e9eef1ee); }
+.meter .list .item :is(.rank, .dpsContribution) { color: var(--neo-muted); text-shadow: none; }
+.meter .list .item :is(.name, .dps > p) { color: var(--neo-text); text-shadow: none; }
+.meter .bossHpText { color: #173e36; text-shadow: none; }
+.meter .battleTime :is(.tick, .analysisStatus) { color: var(--neo-muted); text-shadow: none; }
+.footerBtns .footerBtn { color: var(--neo-text); background: var(--neo-surface); border-color: #ffffff70; box-shadow: var(--neo-small); }
+.settingsPanel, .historyPanel, .detailsPanel, .updateModalCard { color: var(--neo-text); background: var(--neo-surface); border-color: #ffffffa0; box-shadow: var(--neo-raised); }
+.detailsPanel { background: rgba(var(--hud-bg), var(--details-bg-opacity, .9)); font-weight: 500; }
+.settingsPanel { --set-label: var(--neo-text); --set-field-bg: var(--neo-surface); --set-field-bg-hover: #e2e9ed; --set-field-border: transparent; --set-field-border-hover: #16766f60; --set-field-h: 30px; }
+.settingsPanel .settingsHeader { padding: 14px 18px; }
+.settingsPanel .settingsBody { padding: 16px 18px; gap: 18px; }
+.settingsPanel .settingsHeader .settingsTitle { font-size: 15px; letter-spacing: .05em; }
+.settingsPanel .settingsHeader .closeX:hover { color: var(--neo-accent); background: #fff5; }
+.settingsPanel :is(input:not([type="checkbox"]):not([type="range"]), select, .settingsDropdownBtn) { color: var(--neo-text); background: var(--neo-surface); box-shadow: var(--neo-inset); border-color: transparent; border-radius: 9px; }
+.settingsPanel :is(.settingsAction, .settingsAdvancedBtn), .historyPanel button, .detailsPanel button, .updateModalBtn { color: var(--neo-text); background: var(--neo-surface); border-color: #ffffff80; border-radius: 9px; box-shadow: var(--neo-small); }
+.settingsPanel :is(.settingsDropdownMenu, .settingsColourMenu), .detailsPanel :is(.detailsDropdownMenu, .detailsSettingsMenu) { color: var(--neo-text); background: var(--neo-surface); border-color: #ffffffb0; box-shadow: var(--neo-raised); }
+.settingsPanel .settingsDropdownItem { color: var(--neo-text); }
+.settingsPanel .settingsDropdownItem:hover, .settingsPanel .settingsDropdownItem.isActive { background: #16766f12; color: var(--neo-accent); }
+.historyPanel :is(.historyEmpty, .historyRowName), .detailsPanel :is(.detailsFightTitle, .detailsDropdownItem, .detailsSkillName, .detailsSkillValue) { color: var(--neo-text); text-shadow: none; }
+.historyPanel .historyRowMeta { color: var(--neo-muted); }
+.historyPanel :is(.historyHeader, .historyRow) { border-color: var(--hud-hairline); }
+.historyPanel .historyRow:hover { background: #ffffff55; }
+.historyPanel .historyRow { margin: 7px 12px; border-radius: 12px; box-shadow: var(--neo-inset); }
+.detailsPanel .detailsHeader { border-color: var(--hud-hairline); }
+.detailsPanel :is(.detailsModeBtn.isActive, .detailsDropdownItem.isActive) { color: var(--neo-accent); background: #16766f12; }
+.detailsPanel .detailsHeader .detailsModeBtn[data-mode].isActive { color: white; background: var(--neo-accent); }
+.detailsPanel .detailsSkills .skillHeader { background: var(--neo-surface); box-shadow: var(--neo-inset); border-radius: 10px; }
+.detailsPanel .detailsSkills .skillHeader .cell { color: var(--neo-text); text-shadow: none; }
+.detailsPanel :is(.detailsModeBtn, .detailsDropdownItem):hover { color: var(--neo-accent); background: #fff7; }
+.detailsPanel .detailsSettingsLabel { color: var(--neo-muted); }
+.skillTooltip, .detailsTooltip, .historyContextMenu { color: var(--neo-text); background: var(--neo-surface); border-color: #ffffffa0; box-shadow: var(--neo-raised); text-shadow: none; }
+.updateModalTitle, .updateModalText, .updateStatusText { color: var(--neo-text); }
+html:is(.settingsWindow, .historyWindow, .detailsWindow),
+html:is(.settingsWindow, .historyWindow, .detailsWindow) body { background: var(--neo-surface); }
+html:is(.settingsWindow, .historyWindow, .detailsWindow) :is(.settingsPanel, .historyPanel, .detailsPanel) { background: var(--neo-surface); color: var(--neo-text); box-shadow: none; }
+html.settingsWindow .settingsPanel { overflow: hidden; }
+html.settingsWindow .settingsHeader { flex-shrink: 0; zoom: 1; background: var(--neo-surface); padding: 17px 20px; }
+html.settingsWindow .settingsBody { zoom: 1; flex: 1; min-height: 0; overflow-y: auto; padding: 18px 20px; }
+html.settingsWindow .settingsFooter { flex-shrink: 0; background: var(--neo-surface); border-top: 1px solid var(--hud-hairline); padding: 16px 20px; margin: 0; gap: 12px; }
+.settingsPanel .themeDropdownBtn { background: var(--neo-surface) !important; color: var(--neo-text) !important; border-left: 3px solid var(--row-fill); }
+.settingsPanel .settingsFooter button { background: var(--neo-surface); color: var(--neo-accent); border: 1px solid #ffffff80; border-radius: 10px; padding: 9px 14px; box-shadow: var(--neo-small); }
+.settingsPanel .settingsFooter .quitButton { color: #a23c3c; }
+.settingsPanel :is(.settingsValue, .settingsRangeValue, .settingsCheckboxLabel) { color: var(--neo-text); }
+.settingsPanel .settingsToggleTrack { background: #bdcbd1; box-shadow: var(--neo-inset); }
+.settingsPanel input:checked + .settingsToggleTrack { background: var(--neo-accent); }
+.settingsPanel .settingsToggleControl input:checked + .settingsToggleTrack { background: var(--neo-accent); border-color: var(--neo-accent); box-shadow: inset 1px 1px 3px #0e565240; }
+.settingsPanel .keybindText { color: var(--neo-text); text-shadow: none; }
+.settingsPanel .keybindBtn { background: var(--neo-surface); box-shadow: var(--neo-inset); border-color: transparent; border-radius: 9px; }
+.historyPanel :is(.historyFilterSelect, .historyClassOption, .historyFilterSelect option) { color: var(--neo-text); background-color: var(--neo-surface); }
+.historyPanel .historyFilterSelect { border-radius: 10px; box-shadow: var(--neo-inset); border-color: transparent; }
+body.legacyUi .meter { background: rgba(var(--hud-bg), var(--window-opacity)); border-color: #ffffff80; box-shadow: 4px 4px 12px #778b9b40, -3px -3px 9px #ffffff70; }
+body.legacyUi .headerBtns { color: var(--neo-muted); }
+:is(.settingsPanel, .historyPanel, .detailsPanel) :is(button, input, select):focus-visible { outline: 2px solid var(--neo-accent); outline-offset: 2px; }

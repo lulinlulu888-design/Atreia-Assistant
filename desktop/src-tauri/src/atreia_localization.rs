@@ -58,7 +58,7 @@ pub async fn open_combat(app: tauri::AppHandle) -> Result<(), String> {
     }
     tauri::WebviewWindowBuilder::new(&app, "main", tauri::WebviewUrl::App("index.html".into()))
         .title("亚特雷亚助手 · 战斗统计")
-        .inner_size(320.0, 180.0)
+        .inner_size(400.0, 220.0)
         .decorations(false)
         .transparent(true)
         .always_on_top(true)

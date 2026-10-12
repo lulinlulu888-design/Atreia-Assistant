@@ -1140,7 +1140,7 @@ fn open_details_on_monitor_inner(
         tauri::WebviewUrl::App("index.html".into()),
     )
     .initialization_script("window.__A2_VIEW__ = 'details';")
-    .title("A2Tools DPS Meter — Details")
+    .title("亚特雷亚助手 · 战斗明细")
     .decorations(false)
     .transparent(false)
     // Intentional: the point of this window is to stay readable on a second
@@ -1154,7 +1154,7 @@ fn open_details_on_monitor_inner(
     // itself deadlocked: a hidden WebView2 window may never load its content,
     // so the reveal never ran. The background colour below covers the load so
     // there is no white flash.
-    .background_color(tauri::window::Color(10, 14, 22, 255))
+    .background_color(tauri::window::Color(233, 238, 241, 255))
     .build()
     .map_err(|e| e.to_string())?;
     platform::window::set_size(&window, tauri::Size::Logical(tauri::LogicalSize { width: lw, height: lh }));
@@ -1335,7 +1335,7 @@ fn build_settings_window(app: &tauri::AppHandle) -> Result<(), String> {
     // Injected before any page script. WebviewUrl::App is a path, so a ?query
     // gets percent-encoded — this is the one channel that is reliable.
     .initialization_script("window.__A2_VIEW__ = 'settings';")
-    .title("A2Tools DPS Meter — Settings")
+    .title("亚特雷亚助手 · 设置")
     .decorations(false)
     .transparent(false)
     // Matches Details: the overlay itself is always-on-top, so a settings window
@@ -1343,16 +1343,16 @@ fn build_settings_window(app: &tauri::AppHandle) -> Result<(), String> {
     .always_on_top(true)
     .resizable(true)
     .skip_taskbar(false)
-    .inner_size(760.0, 820.0)
+    .inner_size(760.0, 700.0)
     .min_inner_size(520.0, 420.0)
     // Built visible, with the app's background colour to cover the load rather
     // than flashing white. Building it hidden is not an option: a hidden
     // WebView2 window may never load its content, so a page-driven reveal
     // deadlocks.
-    .background_color(tauri::window::Color(10, 14, 22, 255))
+    .background_color(tauri::window::Color(233, 238, 241, 255))
     .build()
     .map_err(|e| e.to_string())?;
-    platform::window::set_size(&window, tauri::Size::Logical(tauri::LogicalSize { width: 760.0, height: 820.0 }));
+    platform::window::set_size(&window, tauri::Size::Logical(tauri::LogicalSize { width: 760.0, height: 700.0 }));
 
     if !restore_window_geometry(app, &window, "settings") {
         let _ = window.center();
@@ -1567,18 +1567,18 @@ fn open_fight_window(app: &tauri::AppHandle, label: &str) -> Result<(), String> 
         tauri::WebviewUrl::App("index.html".into()),
     )
     .initialization_script("window.__A2_VIEW__ = 'details';")
-    .title("A2Tools DPS Meter — Fight")
+    .title("亚特雷亚助手 · 战斗记录")
     .decorations(false)
     .transparent(false)
     .always_on_top(true)
     .resizable(true)
     .skip_taskbar(false)
-    .inner_size(1180.0, 760.0)
+    .inner_size(1080.0, 680.0)
     .min_inner_size(520.0, 360.0)
-    .background_color(tauri::window::Color(10, 14, 22, 255))
+    .background_color(tauri::window::Color(233, 238, 241, 255))
     .build()
     .map_err(|e| e.to_string())?;
-    platform::window::set_size(&window, tauri::Size::Logical(tauri::LogicalSize { width: 1180.0, height: 760.0 }));
+    platform::window::set_size(&window, tauri::Size::Logical(tauri::LogicalSize { width: 1080.0, height: 680.0 }));
 
     center_on_overlay_monitor(app, &window);
     if offset > 0.0 {
@@ -1602,18 +1602,18 @@ fn open_history_window_inner(app: &tauri::AppHandle) -> Result<(), String> {
         tauri::WebviewUrl::App("index.html".into()),
     )
     .initialization_script("window.__A2_VIEW__ = 'history';")
-    .title("A2Tools DPS Meter — Battle History")
+    .title("亚特雷亚助手 · 战斗历史")
     .decorations(false)
     .transparent(false)
     .always_on_top(true)
     .resizable(true)
     .skip_taskbar(false)
-    .inner_size(1100.0, 720.0)
+    .inner_size(900.0, 620.0)
     .min_inner_size(480.0, 360.0)
-    .background_color(tauri::window::Color(10, 14, 22, 255))
+    .background_color(tauri::window::Color(233, 238, 241, 255))
     .build()
     .map_err(|e| e.to_string())?;
-    platform::window::set_size(&window, tauri::Size::Logical(tauri::LogicalSize { width: 1100.0, height: 720.0 }));
+    platform::window::set_size(&window, tauri::Size::Logical(tauri::LogicalSize { width: 900.0, height: 620.0 }));
 
     if !restore_window_geometry(app, &window, "history") {
         center_on_overlay_monitor(app, &window);
@@ -1639,20 +1639,20 @@ fn open_details_windowed(app: &tauri::AppHandle) -> Result<(), String> {
         tauri::WebviewUrl::App("index.html".into()),
     )
     .initialization_script("window.__A2_VIEW__ = 'details';")
-    .title("A2Tools DPS Meter — Details")
+    .title("亚特雷亚助手 · 战斗明细")
     .decorations(false)
     .transparent(false)
     .always_on_top(true)
     .resizable(true)
     .skip_taskbar(false)
-    .inner_size(1180.0, 760.0)
+    .inner_size(1080.0, 680.0)
     .min_inner_size(520.0, 360.0)
     // Visible, with the app background painted behind the load — same reason as
     // the monitor-filling path: a hidden WebView2 window may never load at all.
-    .background_color(tauri::window::Color(10, 14, 22, 255))
+    .background_color(tauri::window::Color(233, 238, 241, 255))
     .build()
     .map_err(|e| e.to_string())?;
-    platform::window::set_size(&window, tauri::Size::Logical(tauri::LogicalSize { width: 1180.0, height: 760.0 }));
+    platform::window::set_size(&window, tauri::Size::Logical(tauri::LogicalSize { width: 1080.0, height: 680.0 }));
 
     // A remembered position still wins, but only one the user actually chose.
     if !details_geometry_is_user_placed(app)

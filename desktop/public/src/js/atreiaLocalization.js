@@ -4,7 +4,7 @@
     if (document.querySelector('.atreiaDialog')) return;
     const dialog = document.createElement('dialog');
     dialog.className = 'atreiaDialog';
-    Object.assign(dialog.style, {background:'#142230',color:'#eaf1f6',border:'1px solid #365163',borderRadius:'8px',width:'min(440px,90vw)',padding:'20px',fontFamily:'Microsoft YaHei UI, sans-serif'});
+    dialog.setAttribute('aria-label', '游戏汉化');
     const title = document.createElement('h3'); title.textContent = '游戏汉化';
     const client = document.createElement('select');
     client.setAttribute('aria-label', '游戏客户端');
@@ -18,11 +18,11 @@
     browse.setAttribute('aria-label', '选择游戏目录'); browse.title = '选择游戏目录';
     const folderIcon = document.createElement('i'); folderIcon.setAttribute('data-lucide', 'folder-open'); browse.append(folderIcon);
     pathRow.append(root, browse);
-    const status = document.createElement('p'); status.style.fontSize = '12px';
+    const status = document.createElement('p'); status.className = 'localization-status';
     status.setAttribute('role', 'status');
     const candidates = document.createElement('select'); candidates.hidden = true;
     candidates.setAttribute('aria-label', '检测到的游戏目录'); candidates.className = 'localization-candidates';
-    const actions = document.createElement('div'); actions.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+    const actions = document.createElement('div'); actions.className = 'localization-actions';
     let busy = false;
     const setBusy = value => {
       busy = value; client.disabled = value; root.disabled = value; browse.disabled = value;

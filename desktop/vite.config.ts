@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { copyFileSync, cpSync, mkdirSync } from "node:fs";
+import { copyFileSync, cpSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 // @ts-expect-error process is a nodejs global
@@ -10,6 +10,17 @@ export default defineConfig(async () => ({
 
   plugins: [{
     name: "ui-resources",
+    // Dev-only visual fixtures exercise real markup without native capture,
+    // game writes, downloads or installation. Never included in build inputs.
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const entry = req.url?.split("?")[0];
+        if (entry !== "/__visual/launcher.html" && entry !== "/__visual/index.html") return next();
+        const html = readFileSync(join(server.config.root, entry.endsWith("launcher.html") ? "launcher.html" : "index.html"), "utf8");
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        res.end(html.replace("<head>", '<head><script src="/visual-tests/native-fixture.js"></script>'));
+      });
+    },
     configResolved(config) {
       const dataDir = join(config.publicDir, "data");
       mkdirSync(dataDir, { recursive: true });

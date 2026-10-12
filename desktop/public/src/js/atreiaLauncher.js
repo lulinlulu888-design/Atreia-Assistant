@@ -2,14 +2,16 @@
 (() => {
   const combat = document.getElementById("combat");
   const status = document.getElementById("status");
+  const setStatus = message => { status.textContent = message; status.title = message; };
   combat.addEventListener("click", async () => {
     combat.disabled = true;
-    status.textContent = "正在准备战斗统计…";
+    setStatus("正在准备战斗统计…");
     try {
       await window.__TAURI__.core.invoke("open_combat");
-      status.textContent = "战斗统计已开启";
-    } catch (error) { status.textContent = String(error); }
+      setStatus("战斗统计已开启");
+    } catch (error) { setStatus(String(error)); }
     finally { combat.disabled = false; }
   });
   document.getElementById("localization").addEventListener("click", window.atreiaOpenLocalization);
+  window.lucide?.createIcons();
 })();
