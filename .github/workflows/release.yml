@@ -1,0 +1,76 @@
+name: Publish Atreia release
+on:
+  push:
+    tags: ['v2.*']
+permissions:
+  contents: write
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  windows-release:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - run: rustup default 1.93.0
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri
+      - name: Verify version and prepare audited components
+        run: |
+          $version = (Get-Content desktop/package.json | ConvertFrom-Json).version
+          if ($env:GITHUB_REF_NAME -ne "v$version") { throw 'Tag/version mismatch' }
+          New-Item -ItemType Directory -Force release-stage | Out-Null
+          Invoke-WebRequest 'https://github.com/lulinlulu888-design/Atreia-Assistant/releases/download/v2.0.51/Atreia-Assistant_2.0.51_build-materials.zip' -OutFile release-stage/base.zip
+          if ((Get-FileHash release-stage/base.zip).Hash -ne 'B7DAB6B9AC30C92A9BF17E3DD5B6117272E9147E8940C7763CEEE28937A4D219') { throw 'Component materials hash mismatch' }
+          Expand-Archive release-stage/base.zip release-stage/materials
+          Copy-Item release-stage/materials/component/* desktop/src-tauri/vendor/localization/ -Recurse -Force
+          Copy-Item release-stage/materials/notices/* desktop/src-tauri/vendor/notices/ -Recurse -Force
+          "RELEASE_VERSION=$version" >> $env:GITHUB_ENV
+      - name: Test and build installer
+        working-directory: desktop
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE) { throw 'npm ci failed' }
+          npm run build
+          if ($LASTEXITCODE) { throw 'Frontend build failed' }
+          node --test tests/*.test.cjs tests/*.test.mjs
+          if ($LASTEXITCODE) { throw 'Frontend tests failed' }
+          ../test-localization-safety.ps1
+          if ($LASTEXITCODE) { throw 'Localization safety failed' }
+          cargo test --locked --manifest-path src-tauri/Cargo.toml --lib
+          if ($LASTEXITCODE) { throw 'Rust tests failed' }
+          npm run tauri -- build --bundles msi --ci
+          if ($LASTEXITCODE) { throw 'Installer build failed' }
+      - name: Package reproducible materials
+        run: |
+          $version = $env:RELEASE_VERSION
+          New-Item -ItemType Directory -Force release-stage/publish | Out-Null
+          $installers = @(Get-ChildItem desktop/src-tauri/target/release/bundle/msi/*.msi)
+          if ($installers.Count -ne 1) { throw 'Expected one installer' }
+          Copy-Item $installers[0].FullName "release-stage/publish/Atreia-Assistant_${version}_x64.msi"
+          git archive --format=zip --output=release-stage/materials/application-source.zip HEAD
+          if ($LASTEXITCODE) { throw 'Source archive failed' }
+          Copy-Item "releases/BUILD-$version.md" release-stage/materials/BUILD.md
+          Compress-Archive -Path release-stage/materials/* -DestinationPath "release-stage/publish/Atreia-Assistant_${version}_build-materials.zip"
+          Get-ChildItem release-stage/publish | ForEach-Object { "$((Get-FileHash $_.FullName).Hash.ToLower())  $($_.Name)" } | Set-Content release-stage/publish/SHA256SUMS.txt -Encoding ascii
+      - uses: actions/upload-artifact@v4
+        with:
+          name: atreia-release-${{ env.RELEASE_VERSION }}
+          path: release-stage/publish/*
+      - name: Publish verified assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY 2>$null
+          if ($LASTEXITCODE -eq 0) { throw 'Release already exists; refusing to overwrite assets' }
+          gh release create $env:GITHUB_REF_NAME release-stage/publish/* --repo $env:GITHUB_REPOSITORY --verify-tag --title "亚特雷亚助手 $env:RELEASE_VERSION" --notes-file "releases/$env:RELEASE_VERSION.md" --latest
+          if ($LASTEXITCODE) { throw 'Release publication failed' }
