@@ -56,3 +56,24 @@ test('website keeps the published installer directly downloadable when the relea
     assert.match(elements['#release-status'].textContent, /28\.1 MB/);
   }
 });
+
+test('homepage and updater fallback describe the same published installer', () => {
+  const html = fs.readFileSync(path.join(__dirname, '../../docs/index.html'), 'utf8');
+  const release = JSON.parse(fs.readFileSync(path.join(__dirname, '../../docs/updates/latest.json'), 'utf8'));
+  assert.equal(release.draft, false);
+  assert.equal(release.prerelease, false);
+  assert.match(release.tag_name, /^v\d+\.\d+\.\d+$/);
+  const version = release.tag_name.slice(1);
+  const name = `Atreia-Assistant_${version}_x64.msi`;
+  const assets = release.assets.filter(asset => asset.name === name);
+  assert.equal(assets.length, 1);
+  const [asset] = assets;
+  const url = `https://github.com/lulinlulu888-design/Atreia-Assistant/releases/download/${release.tag_name}/${name}`;
+  assert.equal(asset.browser_download_url, url);
+  assert.equal(asset.state, 'uploaded');
+  assert.match(asset.digest, /^sha256:[a-f0-9]{64}$/);
+  assert.ok(Number.isSafeInteger(asset.size) && asset.size > 0);
+  assert.ok(html.includes(`data-version="${version}" data-size="${asset.size}" href="${url}"`));
+  assert.ok(html.includes(`href="${url}" id="footer-download"`));
+  assert.ok(html.includes(`<span class="release-number">${version}</span>`));
+});
