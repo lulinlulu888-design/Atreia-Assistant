@@ -19,3 +19,5 @@
 @media(max-width:480px){.hero{height:calc(100svh - 190px);min-height:490px;max-height:720px}.hero-inner{padding-top:30px}.hero-emblem{width:64px;height:64px;margin-bottom:12px}.hero .eyebrow{margin-bottom:10px}.hero h1{margin-bottom:12px}.hero-tagline{font-size:20px;margin-bottom:12px}.hero-description{line-height:1.8;margin-bottom:20px}.hero-copy{padding-bottom:0}.release-status{min-height:20px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}.button:hover{transform:none}}
 @media(max-width:350px){.hero-actions .button{font-size:11px;padding-inline:10px;gap:7px}.hero-actions{gap:7px}}
+.release-meta{display:flex;justify-content:center;align-items:baseline;flex-wrap:wrap;gap:4px 16px;margin-top:15px;font-size:12px;min-height:24px}.release-meta .release-status{margin-top:0;min-height:0}.download-count{color:#08716b;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+@media(max-width:480px){.release-meta{margin-top:12px;font-size:10px;gap:4px 12px;min-height:20px}}
