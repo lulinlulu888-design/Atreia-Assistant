@@ -39,6 +39,11 @@ pub async fn open_combat(app: tauri::AppHandle) -> Result<(), String> {
     }
     let _guard = StartGuard;
     if crate::atreia_update::is_busy() { return Err("请等待助手更新完成。".into()); }
+    // Recheck after claiming our flag: localization may have started between
+    // the initial check and swap. Both sides use SeqCst and recheck each other.
+    if LOCALIZATION_BUSY.load(Ordering::SeqCst) {
+        return Err("请等待汉化操作完成。".into());
+    }
     if let Some(window) = app.get_webview_window("main") {
         window.show().map_err(|e| e.to_string())?;
         return Ok(());
@@ -186,6 +191,12 @@ pub async fn localization_execute(
     }
     let guard = BusyGuard;
     if crate::atreia_update::is_busy() { return Err("请等待助手更新完成。".into()); }
+    if operation != "inspect"
+        && (CAPTURE_STARTING.load(Ordering::SeqCst)
+            || app.state::<CaptureControl>().0.lock().is_running())
+    {
+        return Err("请退出战斗统计并关闭游戏，再安装或还原汉化。".into());
+    }
     // Own the guard in the blocking worker: closing the UI never kills an
     // engine transaction or releases its lock before it has finished.
     tauri::async_runtime::spawn_blocking(move || {

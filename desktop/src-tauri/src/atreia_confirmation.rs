@@ -8,6 +8,12 @@ use tokio::sync::oneshot;
 
 const LABEL: &str = "atreia-confirmation";
 
+/// Busy operations must keep their owner alive, not prevent the user from
+/// cancelling the dedicated confirmation that those operations are awaiting.
+pub fn protect_close(label: &str, localizing: bool, updating: bool) -> bool {
+    label != LABEL && (localizing || updating)
+}
+
 #[derive(Clone, Serialize)]
 pub struct Prompt {
     pub title: String,
@@ -111,8 +117,9 @@ pub async fn ask(app: &tauri::AppHandle, prompt: Prompt) -> Result<bool, String>
     } else { let _ = window.center(); }
     let _ = window.set_focus();
     let accepted = receiver.await.unwrap_or(false);
-    // The operation guard stays held until the confirmation has closed.
-    let _ = window.close();
+    // The answer is already resolved. Destroy only our own prompt, without
+    // emitting a second CloseRequested while its operation guard is held.
+    let _ = window.destroy();
     let _ = owner.set_focus();
     Ok(accepted)
 }
@@ -121,6 +128,17 @@ pub async fn ask(app: &tauri::AppHandle, prompt: Prompt) -> Result<bool, String>
 mod tests {
     use super::*;
     fn prompt() -> Prompt { Prompt { title:"确认安装".into(),message:"风险说明".into(),confirm_label:"确认安装".into(),details:vec![("客户端".into(),"PURPLE".into())] } }
+    #[test]
+    fn busy_owner_is_protected_but_confirmation_can_always_close() {
+        for localizing in [false, true] {
+            for updating in [false, true] {
+                assert!(!protect_close(LABEL, localizing, updating));
+                for label in ["launcher", "main", "settings", "confirmation-pretender"] {
+                    assert_eq!(protect_close(label, localizing, updating), localizing || updating);
+                }
+            }
+        }
+    }
     #[tokio::test]
     async fn only_the_confirmation_window_can_approve_and_only_once() {
         let broker = Broker::default();

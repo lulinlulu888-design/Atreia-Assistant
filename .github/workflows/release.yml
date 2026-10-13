@@ -24,7 +24,12 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: desktop/src-tauri
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Verify version and prepare audited components
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           $version = (Get-Content desktop/package.json | ConvertFrom-Json).version
           if ($env:GITHUB_REF_NAME -ne "v$version") { throw 'Tag/version mismatch' }
@@ -32,7 +37,33 @@ jobs:
           Invoke-WebRequest 'https://github.com/lulinlulu888-design/Atreia-Assistant/releases/download/v2.0.51/Atreia-Assistant_2.0.51_build-materials.zip' -OutFile release-stage/base.zip
           if ((Get-FileHash release-stage/base.zip).Hash -ne 'B7DAB6B9AC30C92A9BF17E3DD5B6117272E9147E8940C7763CEEE28937A4D219') { throw 'Component materials hash mismatch' }
           Expand-Archive release-stage/base.zip release-stage/materials
-          Copy-Item release-stage/materials/component/* desktop/src-tauri/vendor/localization/ -Recurse -Force
+          $seed = "Atreia-Assistant_${version}_localization-sources.zip"
+          $releases = gh api "repos/$env:GITHUB_REPOSITORY/releases?per_page=100" | ConvertFrom-Json
+          if ($LASTEXITCODE) { throw 'Release listing failed' }
+          $drafts = @($releases | Where-Object { $_.draft -and $_.name -eq "亚特雷亚助手 $version · 双端汉化兼容更新" })
+          if ($drafts.Count -ne 1) { throw 'Expected exactly one named release draft' }
+          $draftRef = $drafts[0].tag_name
+          if ($draftRef -ne $env:GITHUB_REF_NAME -and $draftRef -notmatch '^untagged-[a-f0-9]+$') { throw 'Unexpected draft tag' }
+          "RELEASE_DRAFT_REF=$draftRef" >> $env:GITHUB_ENV
+          gh release view $draftRef --repo $env:GITHUB_REPOSITORY --json isDraft,assets > release-stage/draft.json
+          if ($LASTEXITCODE) { throw 'Expected a draft release with reviewed source materials' }
+          $draft = Get-Content release-stage/draft.json | ConvertFrom-Json
+          if (-not $draft.isDraft -or @($draft.assets).Count -ne 1 -or $draft.assets[0].name -ne $seed) { throw 'Expected an unpublished draft containing only the source archive' }
+          gh release download $draftRef --repo $env:GITHUB_REPOSITORY --pattern $seed --dir release-stage
+          if ($LASTEXITCODE) { throw 'Source download failed' }
+          if ((Get-FileHash "release-stage/$seed").Hash -ne '70CC147724B90FB3A5D31282B30B2DD4B18566CE9DAC593529C598389C8C6508') { throw 'Unreviewed client snapshots' }
+          Expand-Archive "release-stage/$seed" release-stage/materials/localization-inputs/dual-sources
+          python -m pip install opencc-python-reimplemented==0.1.7
+          if ($LASTEXITCODE) { throw 'Codec dependency installation failed' }
+          python -m unittest discover -s tests -q
+          if ($LASTEXITCODE) { throw 'Python tests failed' }
+          $inputs = 'release-stage/materials/localization-inputs'
+          python localization/build_dual_release.py "$inputs/corrections.json.gz" "$inputs/dual-sources/steam-en-US.json" "$inputs/dual-sources/purple-en-US.json" "$inputs/dual-sources/purple-zh-TW.json" "$inputs/dual"
+          if ($LASTEXITCODE) { throw 'Dual-client generation failed' }
+          ./prepare-localization.ps1 -Engine release-stage/materials/component/Aion2-Steam-CN-v2.4.0.exe -DecoderPath release-stage/materials/component/dependencies/oo2core_9_win64.dll -AdditionsPath "$inputs/dual/dual-corrections.json.gz" -Destination release-stage/component
+          if ($LASTEXITCODE) { throw 'Current-source bridge build failed' }
+          Copy-Item release-stage/component/* release-stage/materials/component/ -Recurse -Force
+          Copy-Item release-stage/component/* desktop/src-tauri/vendor/localization/ -Recurse -Force
           Copy-Item release-stage/materials/notices/* desktop/src-tauri/vendor/notices/ -Recurse -Force
           "RELEASE_VERSION=$version" >> $env:GITHUB_ENV
       - name: Test and build installer
@@ -56,6 +87,7 @@ jobs:
           New-Item -ItemType Directory -Force release-stage/publish | Out-Null
           $installers = @(Get-ChildItem desktop/src-tauri/target/release/bundle/msi/*.msi)
           if ($installers.Count -ne 1) { throw 'Expected one installer' }
+          ./test-installer-shortcut.ps1 -MsiPath $installers[0].FullName
           Copy-Item $installers[0].FullName "release-stage/publish/Atreia-Assistant_${version}_x64.msi"
           git archive --format=zip --output=release-stage/materials/application-source.zip HEAD
           if ($LASTEXITCODE) { throw 'Source archive failed' }
@@ -70,7 +102,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY 2>$null
-          if ($LASTEXITCODE -eq 0) { throw 'Release already exists; refusing to overwrite assets' }
-          gh release create $env:GITHUB_REF_NAME release-stage/publish/* --repo $env:GITHUB_REPOSITORY --verify-tag --title "亚特雷亚助手 $env:RELEASE_VERSION" --notes-file "releases/$env:RELEASE_VERSION.md" --latest
+          $draft = gh release view $env:RELEASE_DRAFT_REF --repo $env:GITHUB_REPOSITORY --json isDraft,assets | ConvertFrom-Json
+          if ($LASTEXITCODE -or -not $draft.isDraft -or @($draft.assets).Count -ne 1) { throw 'Release changed while building; refusing to publish or overwrite' }
+          gh release upload $env:RELEASE_DRAFT_REF release-stage/publish/* --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE) { throw 'Asset upload failed; draft remains unpublished' }
+          gh release edit $env:RELEASE_DRAFT_REF --tag $env:GITHUB_REF_NAME --verify-tag --repo $env:GITHUB_REPOSITORY --draft=false --title "亚特雷亚助手 $env:RELEASE_VERSION · 双端汉化兼容更新" --notes-file "releases/$env:RELEASE_VERSION.md" --latest
           if ($LASTEXITCODE) { throw 'Release publication failed' }

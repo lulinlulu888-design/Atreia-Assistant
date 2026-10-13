@@ -2089,10 +2089,12 @@ pub fn run() {
                 }
             }
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                if crate::atreia_update::is_busy() { api.prevent_close(); }
-                if crate::atreia_localization::is_busy() {
+                let localizing = crate::atreia_localization::is_busy();
+                if crate::atreia_confirmation::protect_close(window.label(), localizing, crate::atreia_update::is_busy()) {
                     api.prevent_close();
-                    platform::dialog::show_error("请等待完成", "汉化操作正在进行，请等待完成后关闭窗口。");
+                    if localizing {
+                        platform::dialog::show_error("请等待完成", "汉化操作正在进行，请等待完成后关闭窗口。");
+                    }
                 }
             }
         })
