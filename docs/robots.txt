@@ -1,3 +1,6 @@
+# GitHub project Pages serves this under /Atreia-Assistant/.
+# Crawlers only use /robots.txt at the host root; this copy is informational.
+# Submit the sitemap below through a verified Search Console URL-prefix property.
 User-agent: *
 Allow: /
 

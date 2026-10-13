@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - docs/**
+      - desktop/tests/website-seo.test.cjs
+      - desktop/tests/download-page.test.cjs
       - .github/workflows/pages.yml
   workflow_dispatch:
 
@@ -25,6 +27,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check SEO, crawlable links and download behavior
+        run: node --test desktop/tests/website-seo.test.cjs desktop/tests/download-page.test.cjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
