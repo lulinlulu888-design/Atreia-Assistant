@@ -28,7 +28,7 @@ New-Item -ItemType Directory -Path $taskDependencies | Out-Null
 Copy-Item -LiteralPath $taskDecoder -Destination (Join-Path $taskDependencies 'oo2core_9_win64.dll')
 $taskCompiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 $taskRunner = Join-Path $taskStage 'LocalizationRoundtrip.exe'
-$taskSources = @('tests/LocalizationRoundtrip.cs', 'localization/SupplementInstaller.cs', 'localization/EquivalentTranslations.cs', 'localization/OfficialTranslations.cs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
+$taskSources = @('tests/LocalizationRoundtrip.cs', 'localization/SupplementInstaller.cs', 'localization/EquivalentTranslations.cs', 'localization/OfficialTranslations.cs', 'localization/LanguagePakReader.cs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
 & $taskCompiler /nologo /target:exe /platform:x64 /reference:System.Windows.Forms.dll /reference:System.Web.Extensions.dll "/out:$taskRunner" "/resource:$taskAdditions,Atreia.Localization.OfficialAdditions.gz" @taskSources
 if ($LASTEXITCODE -ne 0) { throw 'Roundtrip test compilation failed.' }
 & $taskRunner $taskEngine $taskFixture

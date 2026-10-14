@@ -13,7 +13,7 @@ from build_official_additions import PARAMETERS
 from locale_codec import decode, read_manifest
 
 
-def audit(manifest, payload, source, client, baseline=None, corrections=None):
+def audit(manifest, payload, source, client, baseline=None, corrections=None, previous_source=None):
     original = json.loads(source.read_text(encoding="utf-8"))
     generated = decode(payload, read_manifest(manifest), "en-US")
     if list(original) != list(generated):
@@ -34,20 +34,34 @@ def audit(manifest, payload, source, client, baseline=None, corrections=None):
             raise ValueError("Current Steam wing flight power was not preserved")
     if (baseline is None) != (corrections is None):
         raise ValueError("Baseline and corrections must be provided together")
+    if previous_source is not None and baseline is None:
+        raise ValueError("Previous source requires a released baseline")
+    preserved = 0
     if baseline is not None:
         previous = json.loads(baseline.read_text(encoding="utf-8"))
+        previous_original = (json.loads(previous_source.read_text(encoding="utf-8"))
+                             if previous_source is not None else original)
+        if list(previous) != list(previous_original):
+            raise ValueError("Released baseline does not match its source key order")
         with gzip.open(corrections, "rt", encoding="utf-8") as stream:
             released = json.load(stream)
         for key, variants in released["corrections"].items():
             for variant in variants:
-                if (hashlib.sha256(original[key].encode()).hexdigest() == variant["source_sha256"]
+                if (hashlib.sha256(previous_original[key].encode()).hexdigest() == variant["source_sha256"]
                         and hashlib.sha256(previous[key].encode()).hexdigest() == variant["previous_translation_sha256"]):
                     previous[key] = variant["translation"]
                     break
-        if list(previous.items()) != list(generated.items()):
+        for key, old_source in previous_original.items():
+            if original.get(key) != old_source:
+                continue
+            preserved += 1
+            if generated[key] != previous[key]:
+                raise ValueError("Unchanged source lost its released translation: " + key)
+        if previous_source is None and list(previous.items()) != list(generated.items()):
             raise ValueError("Generated output differs from the released corrected table")
     return {"client": client, "keys": len(generated), "same_order": True,
-            "released_output_unchanged": baseline is not None,
+            "released_output_unchanged": baseline is not None and previous_source is None,
+            "preserved_released_keys": preserved,
             "parameter_mismatches": len(mismatches),
             "payload_sha256": hashlib.sha256(payload.read_bytes()).hexdigest()}
 
@@ -60,6 +74,7 @@ if __name__ == "__main__":
     parser.add_argument("client", choices=("steam", "purple"))
     parser.add_argument("--baseline", type=Path)
     parser.add_argument("--corrections", type=Path)
+    parser.add_argument("--previous-source", type=Path)
     args = parser.parse_args()
     print(json.dumps(audit(args.manifest, args.payload, args.source, args.client,
-                           args.baseline, args.corrections), ensure_ascii=True))
+                           args.baseline, args.corrections, args.previous_source), ensure_ascii=True))

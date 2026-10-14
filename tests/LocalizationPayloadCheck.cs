@@ -21,7 +21,7 @@ static class LocalizationPayloadCheck
             object codec = type.GetMethod("Load", Flags).Invoke(null, null);
             string root = Path.GetFullPath(args[1]);
             string pak = Path.Combine(root, @"Aion2\Content\Paks\L10N\Text\en-US\pakchunk502000-Windows_0_P.pak");
-            byte[] original = (byte[])type.GetMethod("ReadPak", Flags).Invoke(codec, new object[] { pak, root });
+            byte[] original = LanguagePakReader.Read(assembly, codec, pak);
             byte[] translated;
             using (Stream stream = assembly.GetManifestResourceStream("Aion2CNTool.Payload.L10NString.dat"))
             using (var buffer = new MemoryStream()) { stream.CopyTo(buffer); translated = buffer.ToArray(); }

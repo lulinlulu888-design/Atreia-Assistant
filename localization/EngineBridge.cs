@@ -18,7 +18,7 @@ static class EngineBridge
         if (source == null) throw new InvalidDataException("找不到当前版本的原始英文语言包。");
         Type type = assembly.GetType("Aion2CNTool.CompatibilityEngine", true);
         object codec = type.GetMethod("Load", CodecFlags).Invoke(null, null);
-        byte[] sourceBytes = (byte[])type.GetMethod("ReadPak", CodecFlags).Invoke(codec, new object[] {source, root});
+        byte[] sourceBytes = LanguagePakReader.Read(assembly, codec, source);
         byte[] translatedBytes;
         using (Stream stream = assembly.GetManifestResourceStream("Aion2CNTool.Payload.L10NString.dat"))
         using (var buffer = new MemoryStream()) { stream.CopyTo(buffer); translatedBytes = buffer.ToArray(); }

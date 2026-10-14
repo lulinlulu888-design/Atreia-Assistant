@@ -1,0 +1,12 @@
+{
+  "version": "2.0.55",
+  "verified_game_builds": {
+    "steam": "25926599",
+    "purple_tw": "123"
+  },
+  "source_key_counts": {
+    "steam": 153042,
+    "purple_tw": 157507
+  },
+  "reviewed_steam_rows": 98
+}

@@ -3,7 +3,6 @@
 using System;
 using System.IO;
 using System.Reflection;
-using System.Diagnostics;
 using System.Security.Cryptography;
 
 static class LocaleProbe
@@ -18,34 +17,16 @@ static class LocaleProbe
             if (Directory.Exists(destination)) throw new IOException("Output directory must be new.");
             if (args[2] != "zh-TW" && args[2] != "en-US" && args[2] != "ko-KR" && args[2] != "list" && args[2] != "manifest") throw new ArgumentException("Unknown locale");
             using (var hash = SHA256.Create())
-            using (var input = File.OpenRead(args[3]))
-                if (BitConverter.ToString(hash.ComputeHash(input)).Replace("-", "") != "6F5D41A7892EA6B2DB420F2458DAD2F84A63901C9A93CE9497337B16C195F457")
-                    throw new InvalidDataException("Decoder hash mismatch");
+            using (var input = File.OpenRead(args[0]))
+                if (BitConverter.ToString(hash.ComputeHash(input)).Replace("-", "") != "1D01A3AB4C9604296DA6B2265FD0A5A1247D628D31FD4AB02EB8BAC539340E58")
+                    throw new InvalidDataException("Unreviewed localization engine");
             Assembly assembly = Assembly.LoadFrom(Path.GetFullPath(args[0]));
             Type type = assembly.GetType("Aion2CNTool.CompatibilityEngine", true);
             object engine = type.GetMethod("Load", Flags).Invoke(null, null);
-            byte[] key = (byte[])type.GetField("pakKey", Flags).GetValue(engine);
+            byte[] data = LanguagePakReader.Read(assembly, engine, args[1], args[2], args[3]);
             Directory.CreateDirectory(destination);
-            string helper = Path.Combine(destination, "repak.exe");
-            using (Stream input = assembly.GetManifestResourceStream("Aion2CNTool.Compatibility.Repak.exe"))
-            using (Stream output = File.Create(helper)) input.CopyTo(output);
-            File.Copy(args[3], Path.Combine(destination, "oo2core_9_win64.dll"));
-            string member = args[2] == "manifest" ? "Aion2/Content/StartUpData/Table/key_manifest.dat" : "AION2/Content/L10N/Text/" + args[2] + "/L10NString.dat";
-            string operation = args[2] == "list" ? " list \"" + Path.GetFullPath(args[1]) + "\"" : " get \"" + Path.GetFullPath(args[1]) + "\" \"" + member + "\"";
-            var start = new ProcessStartInfo(helper, "--aes-key " + BitConverter.ToString(key).Replace("-", "") + operation);
-            start.WorkingDirectory = destination;
-            start.UseShellExecute = false;
-            start.CreateNoWindow = true;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError = true;
             string dat = Path.Combine(destination, "L10NString.dat");
-            using (var process = Process.Start(start))
-            {
-                var errors = process.StandardError.ReadToEndAsync();
-                using (var output = File.Create(dat)) process.StandardOutput.BaseStream.CopyTo(output);
-                process.WaitForExit();
-                if (process.ExitCode != 0) throw new InvalidDataException("PAK extraction failed");
-            }
+            using (var output = new FileStream(dat, FileMode.CreateNew)) output.Write(data, 0, data.Length);
             Console.WriteLine("Extracted " + new FileInfo(dat).Length + " bytes to " + dat);
             if (args[2] == "list" || args[2] == "manifest") return 0;
             try

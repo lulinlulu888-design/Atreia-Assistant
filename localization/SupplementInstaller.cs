@@ -15,7 +15,7 @@ static class SupplementInstaller
         string sourceHash = Digest(File.ReadAllBytes(source));
         Type codecType = assembly.GetType("Aion2CNTool.CompatibilityEngine", true);
         object codec = codecType.GetMethod("Load", Flags).Invoke(null, null);
-        byte[] sourceBytes = (byte[])codecType.GetMethod("ReadPak", Flags).Invoke(codec, new object[] {source, root});
+        byte[] sourceBytes = LanguagePakReader.Read(assembly, codec, source);
         byte[] translatedBytes;
         using (Stream stream = assembly.GetManifestResourceStream("Aion2CNTool.Payload.L10NString.dat"))
         using (var output = new MemoryStream()) { stream.CopyTo(output); translatedBytes = output.ToArray(); }

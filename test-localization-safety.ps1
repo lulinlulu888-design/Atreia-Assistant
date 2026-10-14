@@ -24,3 +24,9 @@ if ($LASTEXITCODE -ne 0) { throw 'Correction fixture generation failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Embedded correction test compilation failed.' }
 & $taskCorrectionRunner
 if ($LASTEXITCODE -ne 0) { throw 'Correction safety tests failed.' }
+$taskPakRunner = Join-Path $taskStage 'LanguagePakReaderSafety.exe'
+$taskPakSources = @('tests/LanguagePakReaderSafety.cs', 'localization/LanguagePakReader.cs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
+& $taskCompiler /nologo /target:exe /platform:x64 "/out:$taskPakRunner" @taskPakSources
+if ($LASTEXITCODE -ne 0) { throw 'Language PAK reader test compilation failed.' }
+& $taskPakRunner
+if ($LASTEXITCODE -ne 0) { throw 'Language PAK reader safety tests failed.' }

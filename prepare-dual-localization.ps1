@@ -18,7 +18,7 @@ $taskCompiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.
 New-Item -ItemType Directory -Path $Destination | Out-Null
 $taskStage = (Resolve-Path -LiteralPath $Destination).Path
 $taskLocaleProbe = Join-Path $taskStage 'LocaleProbe.exe'
-& $taskCompiler /nologo /target:exe /platform:x64 "/out:$taskLocaleProbe" (Join-Path $PSScriptRoot 'localization/LocaleProbe.cs')
+& $taskCompiler /nologo /target:exe /platform:x64 "/out:$taskLocaleProbe" (Join-Path $PSScriptRoot 'localization/LocaleProbe.cs') (Join-Path $PSScriptRoot 'localization/LanguagePakReader.cs')
 if ($LASTEXITCODE -ne 0) { throw 'Extractor compilation failed.' }
 $taskInputs = @(
     @{ Name='manifest'; Pak=(Join-Path $taskPurple 'Aion2/Content/Paks/pakchunk0-Windows.pak'); Locale='manifest' },
@@ -40,7 +40,7 @@ $taskOfficial = Join-Path $taskStage 'official.json.gz'
 if ($LASTEXITCODE -ne 0) { throw 'Official additions generation failed.' }
 if (@(Get-Content -Raw (Join-Path $taskStage 'token-review.json') | ConvertFrom-Json).Count -ne 0) { throw 'Unreviewed official runtime parameter differences.' }
 $taskProbe = Join-Path $taskStage 'CompatibilityProbe.exe'
-& $taskCompiler /nologo /target:exe /platform:x64 /reference:System.Web.Extensions.dll "/out:$taskProbe" "/resource:$taskOfficial,Atreia.Localization.OfficialAdditions.gz" (Join-Path $PSScriptRoot 'localization/CompatibilityProbe.cs') (Join-Path $PSScriptRoot 'localization/EquivalentTranslations.cs') (Join-Path $PSScriptRoot 'localization/OfficialTranslations.cs')
+& $taskCompiler /nologo /target:exe /platform:x64 /reference:System.Web.Extensions.dll "/out:$taskProbe" "/resource:$taskOfficial,Atreia.Localization.OfficialAdditions.gz" (Join-Path $PSScriptRoot 'localization/CompatibilityProbe.cs') (Join-Path $PSScriptRoot 'localization/EquivalentTranslations.cs') (Join-Path $PSScriptRoot 'localization/OfficialTranslations.cs') (Join-Path $PSScriptRoot 'localization/LanguagePakReader.cs')
 if ($LASTEXITCODE -ne 0) { throw 'Compatibility probe compilation failed.' }
 $taskDependencies = Join-Path $taskStage 'dependencies'
 New-Item -ItemType Directory -Path $taskDependencies | Out-Null

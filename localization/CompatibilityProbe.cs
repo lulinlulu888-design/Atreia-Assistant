@@ -21,7 +21,7 @@ static class CompatibilityProbe
             Type type = assembly.GetType("Aion2CNTool.CompatibilityEngine", true);
             object engine = type.GetMethod("Load", Methods).Invoke(null, null);
             string pak = Path.Combine(args[1], @"Aion2\Content\Paks\L10N\Text\en-US\pakchunk502000-Windows_0_P.pak");
-            byte[] current = (byte[])type.GetMethod("ReadPak", Methods).Invoke(engine, new object[] {pak, args[1]});
+            byte[] current = LanguagePakReader.Read(assembly, engine, pak);
             byte[] payload;
             using (Stream input = assembly.GetManifestResourceStream("Aion2CNTool.Payload.L10NString.dat"))
             using (var output = new MemoryStream()) { input.CopyTo(output); payload = output.ToArray(); }

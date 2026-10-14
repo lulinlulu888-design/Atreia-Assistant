@@ -19,7 +19,7 @@ if ($AdditionsPath) {
     $taskAdditions = (Resolve-Path -LiteralPath $AdditionsPath).Path
     $taskResources += "/resource:$taskAdditions,Atreia.Localization.OfficialAdditions.gz"
 }
-& $taskCompiler /nologo /target:exe /platform:x64 /optimize+ /reference:System.Windows.Forms.dll /reference:System.Web.Extensions.dll "/out:$taskHelper" @taskResources (Join-Path $PSScriptRoot 'localization/EngineBridge.cs') (Join-Path $PSScriptRoot 'localization/EquivalentTranslations.cs') (Join-Path $PSScriptRoot 'localization/OfficialTranslations.cs') (Join-Path $PSScriptRoot 'localization/SupplementInstaller.cs')
+& $taskCompiler /nologo /target:exe /platform:x64 /optimize+ /reference:System.Windows.Forms.dll /reference:System.Web.Extensions.dll "/out:$taskHelper" @taskResources (Join-Path $PSScriptRoot 'localization/EngineBridge.cs') (Join-Path $PSScriptRoot 'localization/EquivalentTranslations.cs') (Join-Path $PSScriptRoot 'localization/OfficialTranslations.cs') (Join-Path $PSScriptRoot 'localization/SupplementInstaller.cs') (Join-Path $PSScriptRoot 'localization/LanguagePakReader.cs')
 if ($LASTEXITCODE -ne 0) { throw 'Localization bridge compilation failed.' }
 Copy-Item -LiteralPath $taskEngine -Destination (Join-Path $Destination 'Aion2-Steam-CN-v2.4.0.exe')
 if ($DecoderPath) {

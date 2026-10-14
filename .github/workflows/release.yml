@@ -51,14 +51,14 @@ jobs:
           if (-not $draft.isDraft -or @($draft.assets).Count -ne 1 -or $draft.assets[0].name -ne $seed) { throw 'Expected an unpublished draft containing only the source archive' }
           gh release download $draftRef --repo $env:GITHUB_REPOSITORY --pattern $seed --dir release-stage
           if ($LASTEXITCODE) { throw 'Source download failed' }
-          if ((Get-FileHash "release-stage/$seed").Hash -ne '70CC147724B90FB3A5D31282B30B2DD4B18566CE9DAC593529C598389C8C6508') { throw 'Unreviewed client snapshots' }
+          if ((Get-FileHash "release-stage/$seed").Hash -ne '410896F5201B4D7E8A69BCD29D8FF96C056A2B912525B206FAFF2502E0537E1B') { throw 'Unreviewed client snapshots' }
           Expand-Archive "release-stage/$seed" release-stage/materials/localization-inputs/dual-sources
           python -m pip install opencc-python-reimplemented==0.1.7
           if ($LASTEXITCODE) { throw 'Codec dependency installation failed' }
           python -m unittest discover -s tests -q
           if ($LASTEXITCODE) { throw 'Python tests failed' }
           $inputs = 'release-stage/materials/localization-inputs'
-          python localization/build_dual_release.py "$inputs/corrections.json.gz" "$inputs/dual-sources/steam-en-US.json" "$inputs/dual-sources/purple-en-US.json" "$inputs/dual-sources/purple-zh-TW.json" "$inputs/dual"
+          python localization/build_dual_release.py "$inputs/corrections.json.gz" "$inputs/dual-sources/steam-en-US.json" "$inputs/dual-sources/purple-en-US.json" "$inputs/dual-sources/purple-zh-TW.json" "$inputs/dual" --steam-baseline "$inputs/current-steam.json" --reviewed-steam "$inputs/dual-sources/steam-reviewed.json"
           if ($LASTEXITCODE) { throw 'Dual-client generation failed' }
           ./prepare-localization.ps1 -Engine release-stage/materials/component/Aion2-Steam-CN-v2.4.0.exe -DecoderPath release-stage/materials/component/dependencies/oo2core_9_win64.dll -AdditionsPath "$inputs/dual/dual-corrections.json.gz" -Destination release-stage/component
           if ($LASTEXITCODE) { throw 'Current-source bridge build failed' }
@@ -92,6 +92,25 @@ jobs:
           git archive --format=zip --output=release-stage/materials/application-source.zip HEAD
           if ($LASTEXITCODE) { throw 'Source archive failed' }
           Copy-Item "releases/BUILD-$version.md" release-stage/materials/BUILD.md
+          $inputs = 'release-stage/materials/localization-inputs'
+          $baseBuild = Get-Content release-stage/materials/build.json -Raw | ConvertFrom-Json
+          if ($baseBuild.version -ne '2.0.51' -or $baseBuild.cargo_source_packages -le 0) { throw 'Unexpected base build metadata' }
+          $compatibility = Get-Content "releases/compatibility-$version.json" -Raw | ConvertFrom-Json
+          if ($null -eq $compatibility.verified_game_builds) { throw 'Missing verified client builds' }
+          $review = Get-Content "$inputs/dual/review.json" -Raw | ConvertFrom-Json
+          if ($null -eq $review.inputs) { throw 'Missing localization snapshot provenance' }
+          [ordered]@{
+            version = $version
+            commit = $env:GITHUB_SHA
+            base_materials = [ordered]@{
+              version = '2.0.51'
+              url = 'https://github.com/lulinlulu888-design/Atreia-Assistant/releases/download/v2.0.51/Atreia-Assistant_2.0.51_build-materials.zip'
+              sha256 = 'b7dab6b9ac30c92a9bf17e3dd5b6117272e9147e8940c7763ceee28937a4d219'
+            }
+            cargo_source_packages = $baseBuild.cargo_source_packages
+            verified_game_builds = $compatibility.verified_game_builds
+            localization_snapshot_sha256 = $review.inputs
+          } | ConvertTo-Json -Depth 10 | Set-Content release-stage/materials/build.json -Encoding utf8
           Compress-Archive -Path release-stage/materials/* -DestinationPath "release-stage/publish/Atreia-Assistant_${version}_build-materials.zip"
           Get-ChildItem release-stage/publish | ForEach-Object { "$((Get-FileHash $_.FullName).Hash.ToLower())  $($_.Name)" } | Set-Content release-stage/publish/SHA256SUMS.txt -Encoding ascii
       - uses: actions/upload-artifact@v4
