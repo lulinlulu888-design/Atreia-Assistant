@@ -24,7 +24,9 @@ h1 { margin: 4px 0; font-size: 25px; font-weight: 700; letter-spacing: .5px; lin
 .card-caption svg { width: 14px; height: 14px; }
 .launcher-status { display: flex; align-items: center; gap: 9px; padding: 0 3px; min-width: 0; }
 .status-dot { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: var(--neo-accent); box-shadow: 0 0 0 4px #16766f10; }
-#status { margin: 0; min-width: 0; font-size: 11px; line-height: 17px; color: var(--neo-muted); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+#status { margin: 0; min-width: 0; flex: 1; font-size: 11px; line-height: 17px; color: var(--neo-muted); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.npcap-link { flex-shrink: 0; height: 28px; padding: 4px 8px; font: 600 10px/1.3 var(--neo-font); white-space: nowrap; border: 1px solid #ffffff65; border-radius: 9px; background: var(--neo-surface); color: var(--neo-accent); box-shadow: var(--neo-small); cursor: pointer; }
+.npcap-link:active:not(:disabled) { box-shadow: var(--neo-inset); }
 .local-badge { margin-left: auto; flex-shrink: 0; font-size: 9px; color: var(--neo-muted); }
 .update-strip { display: flex; align-items: center; gap: 14px; padding: 13px 17px; border-radius: 16px; box-shadow: var(--neo-inset); min-width: 0; }
 .update-icon { display: grid; place-items: center; flex-shrink: 0; width: 28px; height: 28px; color: var(--neo-accent); }
@@ -53,6 +55,7 @@ footer { display: flex; justify-content: space-between; gap: 12px; font-size: 9p
   footer { font-size: 8px; }
 }
 @media (max-height: 380px) {
+  .npcap-link { height: 22px; }
   .launcher-shell { padding: 14px 20px 12px; grid-template-rows: 52px minmax(98px, 1fr) 24px 66px 12px; gap: 10px; }
   .brand-emblem { width: 48px; height: 48px; border-radius: 15px; }
   .brand-emblem img { width: 36px; height: 36px; }

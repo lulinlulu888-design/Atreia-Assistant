@@ -1,6 +1,6 @@
-/* Unified material for the meter and its separate Settings/History/Details windows.
-   Keep geometry, resizing, opacity and user-selected combat bar colours intact. */
-:root:root {
+/* Light material is limited to tool panels. The combat overlay deliberately
+   inherits its original dark palette, text outlines and opacity from styles.css. */
+:is(.settingsPanel, .historyPanel, .detailsPanel, .updateModalCard, .skillTooltip, .detailsTooltip, .historyContextMenu) {
   --text-color: var(--neo-text);
   --title: var(--neo-text);
   --panel-bg: var(--neo-surface);
@@ -21,21 +21,6 @@
   --rounded-lg: 18px;
   --rounded: 14px;
 }
-.meter { border-color: #ffffff80; box-shadow: 4px 4px 12px #778b9b40, -3px -3px 9px #ffffff70; }
-.header .bossNames .bossName { text-shadow: none; }
-.header .bossIcon, .header .headerBtns, .header .headerBtns .suspendBtn { color: var(--neo-muted); }
-.header .headerBtns .headerBtn:hover, .header .bossIcon:hover { color: var(--neo-accent); }
-.header .headerBtns .suspendBtn.isSuspended { color: #ac3535; }
-.meterFooter { background: #526a7710; border-color: var(--hud-hairline); }
-.meterTotalBar .meterTotalDps, .meterTotalBar .meterTotalDmg, .meterTotalBar .meterTotalSep { color: var(--neo-muted); }
-.list .item { box-shadow: inset 1px 1px 3px #b6c4cc60, inset -1px -1px 3px #ffffff60; }
-.list .item:hover { background: #ffffff40; }
-.list .item .dps { background: linear-gradient(90deg, transparent, #e9eef1cc 42%, #e9eef1ee); }
-.meter .list .item :is(.rank, .dpsContribution) { color: var(--neo-muted); text-shadow: none; }
-.meter .list .item :is(.name, .dps > p) { color: var(--neo-text); text-shadow: none; }
-.meter .bossHpText { color: #173e36; text-shadow: none; }
-.meter .battleTime :is(.tick, .analysisStatus) { color: var(--neo-muted); text-shadow: none; }
-.footerBtns .footerBtn { color: var(--neo-text); background: var(--neo-surface); border-color: #ffffff70; box-shadow: var(--neo-small); }
 .settingsPanel, .historyPanel, .detailsPanel, .updateModalCard { color: var(--neo-text); background: var(--neo-surface); border-color: #ffffffa0; box-shadow: var(--neo-raised); }
 .detailsPanel { background: rgba(var(--hud-bg), var(--details-bg-opacity, .9)); font-weight: 500; }
 .settingsPanel { --set-label: var(--neo-text); --set-field-bg: var(--neo-surface); --set-field-bg-hover: #e2e9ed; --set-field-border: transparent; --set-field-border-hover: #16766f60; --set-field-h: 30px; }
@@ -80,6 +65,5 @@ html.settingsWindow .settingsFooter { flex-shrink: 0; background: var(--neo-surf
 .settingsPanel .keybindBtn { background: var(--neo-surface); box-shadow: var(--neo-inset); border-color: transparent; border-radius: 9px; }
 .historyPanel :is(.historyFilterSelect, .historyClassOption, .historyFilterSelect option) { color: var(--neo-text); background-color: var(--neo-surface); }
 .historyPanel .historyFilterSelect { border-radius: 10px; box-shadow: var(--neo-inset); border-color: transparent; }
-body.legacyUi .meter { background: rgba(var(--hud-bg), var(--window-opacity)); border-color: #ffffff80; box-shadow: 4px 4px 12px #778b9b40, -3px -3px 9px #ffffff70; }
-body.legacyUi .headerBtns { color: var(--neo-muted); }
 :is(.settingsPanel, .historyPanel, .detailsPanel) :is(button, input, select):focus-visible { outline: 2px solid var(--neo-accent); outline-offset: 2px; }
+

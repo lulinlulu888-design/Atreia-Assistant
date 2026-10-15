@@ -28,7 +28,7 @@ test('launcher, localization and all combat tool windows share the same material
   assert.match(read('src/neumorphic.css'), /prefers-reduced-motion/);
   assert.ok(!read('public/src/js/atreiaLocalization.js').includes("background:'#142230'"));
   const meter = read('src/neumorphic-meter.css');
-  for (const name of ['settingsPanel','historyPanel','detailsPanel','legacyUi']) assert.ok(meter.includes(name));
+  for (const name of ['settingsPanel','historyPanel','detailsPanel']) assert.ok(meter.includes(name));
   assert.match(meter, /\.settingsFooter[^}]*flex-shrink: 0/);
   assert.match(meter, /\.settingsBody[^}]*overflow-y: auto/);
 });
@@ -48,4 +48,16 @@ test('native simulation fixtures cannot be shipped as desktop resources', () => 
   assert.ok(!read('dist/index.html').includes('native-fixture'));
   assert.match(read('vite.config.ts'), /configureServer\(server\)/);
   assert.ok(!read('launcher.html').includes('__visual'));
+});
+
+test('overlay retains original dark palette without pale chips or opacity overrides', () => {
+  const css = read('src/neumorphic-meter.css');
+  assert.ok(!css.includes(':root'));
+  assert.ok(!css.includes('--window-opacity:'));
+  assert.ok(!css.includes('.meter '));
+  assert.ok(css.includes(':is(.settingsPanel, .historyPanel, .detailsPanel'));
+  const original = read('src/styles.css');
+  assert.match(original, /--hud-bg: 9, ?13, ?24/);
+  assert.match(original, /--text-color: #ffffff/);
+  assert.ok(original.includes('var(--window-opacity)'));
 });

@@ -40,7 +40,7 @@ jobs:
           $seed = "Atreia-Assistant_${version}_localization-sources.zip"
           $releases = gh api "repos/$env:GITHUB_REPOSITORY/releases?per_page=100" | ConvertFrom-Json
           if ($LASTEXITCODE) { throw 'Release listing failed' }
-          $drafts = @($releases | Where-Object { $_.draft -and $_.name -eq "亚特雷亚助手 $version · 双端汉化兼容更新" })
+          $drafts = @($releases | Where-Object { $_.draft -and $_.name -eq "亚特雷亚助手 $version · 悬浮窗配色与安装引导" })
           if ($drafts.Count -ne 1) { throw 'Expected exactly one named release draft' }
           $draftRef = $drafts[0].tag_name
           if ($draftRef -ne $env:GITHUB_REF_NAME -and $draftRef -notmatch '^untagged-[a-f0-9]+$') { throw 'Unexpected draft tag' }
@@ -125,5 +125,5 @@ jobs:
           if ($LASTEXITCODE -or -not $draft.isDraft -or @($draft.assets).Count -ne 1) { throw 'Release changed while building; refusing to publish or overwrite' }
           gh release upload $env:RELEASE_DRAFT_REF release-stage/publish/* --repo $env:GITHUB_REPOSITORY
           if ($LASTEXITCODE) { throw 'Asset upload failed; draft remains unpublished' }
-          gh release edit $env:RELEASE_DRAFT_REF --tag $env:GITHUB_REF_NAME --verify-tag --repo $env:GITHUB_REPOSITORY --draft=false --title "亚特雷亚助手 $env:RELEASE_VERSION · 双端汉化兼容更新" --notes-file "releases/$env:RELEASE_VERSION.md" --latest
+          gh release edit $env:RELEASE_DRAFT_REF --tag $env:GITHUB_REF_NAME --verify-tag --repo $env:GITHUB_REPOSITORY --draft=false --title "亚特雷亚助手 $env:RELEASE_VERSION · 悬浮窗配色与安装引导" --notes-file "releases/$env:RELEASE_VERSION.md" --latest
           if ($LASTEXITCODE) { throw 'Release publication failed' }
