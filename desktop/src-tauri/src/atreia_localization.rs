@@ -54,7 +54,7 @@ pub async fn start_radar_capture(app: tauri::AppHandle) -> Result<(), String> {
     let _guard=Guard;
     if crate::atreia_update::is_busy() || is_busy() { return Err("请等待当前更新或汉化操作完成。".into()); }
     if !crate::platform::pcap::library_available() { return Err("未能加载 Npcap。请从 Npcap 官网安装驱动，安装完成后重试。".into()); }
-    let accepted=crate::atreia_confirmation::ask(&app,crate::atreia_confirmation::Prompt {
+    let accepted=crate::atreia_confirmation::ask_for_window(&app,"radar",crate::atreia_confirmation::Prompt {
         title:"开启隐藏宝箱雷达".into(),confirm_label:"确认开启".into(),details:vec![],
         message:"使用 Npcap 只读检测本机网卡 TCP 流量，在本机识别游戏连接与隐藏宝箱。\n初始采集可能看到其他程序的流量，不上传、不发送封包、不读取游戏内存。\n第三方工具有游戏规则风险。取消不会开启雷达。".into(),
     }).await?;

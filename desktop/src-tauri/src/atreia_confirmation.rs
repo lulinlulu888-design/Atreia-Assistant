@@ -14,6 +14,13 @@ pub fn protect_close(label: &str, localizing: bool, updating: bool) -> bool {
     label != LABEL && (localizing || updating)
 }
 
+fn prompt_axis(owner_start: i32, owner_extent: u32, prompt_extent: u32, work_start: i32, work_extent: u32) -> i32 {
+    let desired = i64::from(owner_start) + (i64::from(owner_extent) - i64::from(prompt_extent)) / 2;
+    let minimum = i64::from(work_start);
+    let maximum = minimum + (i64::from(work_extent) - i64::from(prompt_extent)).max(0);
+    desired.clamp(minimum, maximum).clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32
+}
+
 #[derive(Clone, Serialize)]
 pub struct Prompt {
     pub title: String,
@@ -89,7 +96,11 @@ pub fn confirmation_cancel(window: tauri::WebviewWindow) -> Result<(), String> {
 }
 
 pub async fn ask(app: &tauri::AppHandle, prompt: Prompt) -> Result<bool, String> {
-    let owner = app.get_webview_window("launcher").ok_or("主页已关闭，未执行操作。")?;
+    ask_for_window(app, "launcher", prompt).await
+}
+
+pub async fn ask_for_window(app: &tauri::AppHandle, owner_label: &str, prompt: Prompt) -> Result<bool, String> {
+    let owner = app.get_webview_window(owner_label).ok_or("操作窗口已关闭，未执行操作。")?;
     let (id, receiver) = broker().begin(prompt)?;
     let built = tauri::WebviewWindowBuilder::new(app, LABEL, tauri::WebviewUrl::App("confirmation.html".into()))
         .title("亚特雷亚助手 · 确认操作")
@@ -110,10 +121,12 @@ pub async fn ask(app: &tauri::AppHandle, prompt: Prompt) -> Result<bool, String>
             let _ = broker().answer(LABEL, id, false);
         }
     });
-    if let (Ok(position), Ok(owner_size), Ok(size)) = (owner.outer_position(), owner.outer_size(), window.outer_size()) {
+    if let (Ok(position), Ok(owner_size), Ok(size), Ok(Some(monitor))) =
+        (owner.outer_position(), owner.outer_size(), window.outer_size(), owner.current_monitor()) {
+        let work = monitor.work_area();
         let _ = window.set_position(tauri::PhysicalPosition {
-            x: position.x + (owner_size.width as i32 - size.width as i32) / 2,
-            y: position.y + (owner_size.height as i32 - size.height as i32) / 2,
+            x: prompt_axis(position.x, owner_size.width, size.width, work.position.x, work.size.width),
+            y: prompt_axis(position.y, owner_size.height, size.height, work.position.y, work.size.height),
         });
     } else { let _ = window.center(); }
     let _ = window.set_focus();
@@ -128,6 +141,15 @@ pub async fn ask(app: &tauri::AppHandle, prompt: Prompt) -> Result<bool, String>
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn prompts_stay_in_the_owner_monitor_work_area() {
+        assert_eq!(prompt_axis(12, 210, 560, 0, 1920), 0);
+        assert_eq!(prompt_axis(1850, 210, 560, 0, 1920), 1360);
+        assert_eq!(prompt_axis(-1910, 210, 560, -1920, 1920), -1920);
+        assert_eq!(prompt_axis(-100, 210, 560, -1920, 1920), -560);
+        assert_eq!(prompt_axis(500, 800, 560, 0, 1920), 620);
+        assert_eq!(prompt_axis(500, 210, 560, 0, 400), 0);
+    }
     fn prompt() -> Prompt { Prompt { title:"确认安装".into(),message:"风险说明".into(),confirm_label:"确认安装".into(),details:vec![("客户端".into(),"PURPLE".into())] } }
     #[test]
     fn busy_owner_is_protected_but_confirmation_can_always_close() {
