@@ -1,0 +1,6 @@
+{
+  "version": "2.0.62",
+  "verified_game_builds": {"steam": "26077854", "purple_tw": "local-resources-2026-10-22"},
+  "source_key_counts": {"steam": 153185, "purple_tw": 157521},
+  "note": "Source snapshots unchanged; Hidden Cube source-bound terminology overlay added. No live game localization writes in this release test. Radar protocol and self positioning observed locally; visible chest marker/distance acceptance remains incomplete. Previous generated DAT hashes do not describe this new translation overlay."
+}
