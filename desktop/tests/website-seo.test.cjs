@@ -167,11 +167,15 @@ test('homepage targets relevant searches without claiming unreleased downloads',
   const html=read('index.html');
   const app=schema(html)['@graph'].find(item=>item['@type']==='SoftwareApplication');
   assert.deepEqual(app.keywords,['AION2 汉化','永恒之塔2 汉化','AION2 DPS 统计','Steam 汉化','PURPLE 汉化','亚特雷亚助手']);
-  assert.match(html,/开发构建真实截图/);assert.match(html,/尚未完成真实游戏定位验收/);
+  assert.match(html,/实际运行截图/);assert.match(html,/尚未完成真实游戏定位验收/);
   assert.match(html,/下载 Windows 2\.0\.58/);
   assert.equal(app.softwareVersion,'2.0.58');
   assert.match(html,/assets\/home.css/);assert.doesNotMatch(html,/12,871|159\.6|演示数据/);
-  assert.match(html,/assets\/screenshots\/launcher-dev.jpg/);
-  assert.match(html,/assets\/screenshots\/localization-dev.jpg/);
+  assert.match(html,/assets\/screenshots\/launcher-2\.0\.59.jpg/);
+  assert.match(html,/assets\/screenshots\/localization-2\.0\.59.jpg/);
+  assert.match(html,/assets\/screenshots\/radar-2\.0\.59.jpg/);
+  assert.match(html,/<section class="radar-band" id="radar"/);
+  assert.match(read('assets/home.css'),/\.software-shot>img\{[^}]*height:auto;aspect-ratio:auto/);
+  assert.doesNotMatch(html, /class="localization-preview combat-shot"/);
   assert.equal(meta(html,'keywords').length,0);
 });

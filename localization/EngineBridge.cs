@@ -71,12 +71,16 @@ static class EngineBridge
             using (var form = (Form)Activator.CreateInstance(type, true))
             {
                 // Do not show the legacy main window or trigger its Shown
-                // updater. Its own compatibility/completion prompts remain
-                // human-controlled, and its transaction checks stay intact.
+                // updater. Compatibility prompts remain human-controlled;
+                // only the exact verified success notification is acknowledged.
                 ((TextBox)type.GetField("steam", PrivateInstance).GetValue(form)).Text = root;
                 int supplemented = 0;
                 string inspection = null;
-                if (operation == "install") supplemented = SupplementInstaller.Install(form, assembly, root);
+                if (operation == "install")
+                {
+                    using (var completion = new LegacyCompletionDialog(form, root))
+                        supplemented = SupplementInstaller.Install(form, assembly, root);
+                }
                 else if (operation == "inspect") inspection = Inspect(form, assembly, root, args[3], out supplemented);
                 else type.GetMethod("Restore", PrivateInstance).Invoke(form, null);
                 string state = State(root);

@@ -30,3 +30,8 @@ $taskPakSources = @('tests/LanguagePakReaderSafety.cs', 'localization/LanguagePa
 if ($LASTEXITCODE -ne 0) { throw 'Language PAK reader test compilation failed.' }
 & $taskPakRunner
 if ($LASTEXITCODE -ne 0) { throw 'Language PAK reader safety tests failed.' }
+$taskCompletionRunner = Join-Path $taskStage 'LegacyCompletionSafety.exe'
+& $taskCompiler /nologo /target:exe /platform:x64 "/out:$taskCompletionRunner" (Join-Path $PSScriptRoot 'tests/LegacyCompletionSafety.cs') (Join-Path $PSScriptRoot 'localization/LegacyCompletionDialog.cs')
+if ($LASTEXITCODE -ne 0) { throw 'Completion notification safety compilation failed.' }
+& $taskCompletionRunner
+if ($LASTEXITCODE -ne 0) { throw 'Completion notification safety tests failed.' }

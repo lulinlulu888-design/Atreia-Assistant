@@ -1,0 +1,9 @@
+{
+  "version": "2.0.59",
+  "verified_game_builds": {"steam": "26077854", "purple_tw": "local-resources-2026-10-22"},
+  "source_key_counts": {"steam": 153185, "purple_tw": 157521},
+  "supplemented_counts": {"steam": 3811, "purple_tw": 21816},
+  "production_bridge_transactions": ["install", "reinstall", "restore"],
+  "generated_dat_sha256": {"steam": "6a7a8cd4a68a3ef83a6451c8963a07bbedb11b31dcae38bc13b3746e7dc1f0a7", "purple_tw": "b04eaacd02c6e0cd0160722840f4d034f71b9f15caeafc0e79f14b42f46ec5c2"},
+  "note": "Current source inspection, independent DAT decoding and isolated production native transactions verified for both clients. Actual game directories were not written by these tests. Live-game display, radar positioning and MSI upgrade experience are not verified."
+}
