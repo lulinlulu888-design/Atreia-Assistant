@@ -168,8 +168,9 @@ test('homepage targets relevant searches without claiming unreleased downloads',
   const app=schema(html)['@graph'].find(item=>item['@type']==='SoftwareApplication');
   assert.deepEqual(app.keywords,['AION2 汉化','永恒之塔2 汉化','AION2 DPS 统计','Steam 汉化','PURPLE 汉化','亚特雷亚助手']);
   assert.match(html,/实际运行截图/);assert.match(html,/尚未完成真实游戏定位验收/);
-  assert.match(html,/下载 Windows 2\.0\.59/);
-  assert.equal(app.softwareVersion,'2.0.59');
+  const published=JSON.parse(read('updates/latest.json')).tag_name.replace(/^v/,'');
+  assert.ok(html.includes(`下载 Windows ${published}`));
+  assert.equal(app.softwareVersion,published);
   assert.match(html,/assets\/home.css/);assert.doesNotMatch(html,/12,871|159\.6|演示数据/);
   assert.match(html,/assets\/screenshots\/launcher-2\.0\.59.jpg/);
   assert.match(html,/assets\/screenshots\/localization-2\.0\.59.jpg/);
