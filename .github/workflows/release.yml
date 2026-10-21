@@ -40,7 +40,7 @@ jobs:
           $seed = "Atreia-Assistant_${version}_localization-sources.zip"
           $releases = gh api "repos/$env:GITHUB_REPOSITORY/releases?per_page=100" | ConvertFrom-Json
           if ($LASTEXITCODE) { throw 'Release listing failed' }
-          $drafts = @($releases | Where-Object { $_.draft -and $_.name -eq "亚特雷亚助手 $version · 悬浮窗配色与安装引导" })
+          $drafts = @($releases | Where-Object { $_.draft -and $_.name -eq "亚特雷亚助手 $version · Steam 更新与剧情补译" })
           if ($drafts.Count -ne 1) { throw 'Expected exactly one named release draft' }
           $draftRef = $drafts[0].tag_name
           if ($draftRef -ne $env:GITHUB_REF_NAME -and $draftRef -notmatch '^untagged-[a-f0-9]+$') { throw 'Unexpected draft tag' }
@@ -51,7 +51,7 @@ jobs:
           if (-not $draft.isDraft -or @($draft.assets).Count -ne 1 -or $draft.assets[0].name -ne $seed) { throw 'Expected an unpublished draft containing only the source archive' }
           gh release download $draftRef --repo $env:GITHUB_REPOSITORY --pattern $seed --dir release-stage
           if ($LASTEXITCODE) { throw 'Source download failed' }
-          if ((Get-FileHash "release-stage/$seed").Hash -ne '410896F5201B4D7E8A69BCD29D8FF96C056A2B912525B206FAFF2502E0537E1B') { throw 'Unreviewed client snapshots' }
+          if ((Get-FileHash "release-stage/$seed").Hash -ne '9B3D5CA48E69FA674E756E8BC82CC3720C79669A9090EF8B2E63C50904246F99') { throw 'Unreviewed client snapshots' }
           Expand-Archive "release-stage/$seed" release-stage/materials/localization-inputs/dual-sources
           python -m pip install opencc-python-reimplemented==0.1.7
           if ($LASTEXITCODE) { throw 'Codec dependency installation failed' }
@@ -60,7 +60,9 @@ jobs:
           $inputs = 'release-stage/materials/localization-inputs'
           python localization/build_dual_release.py "$inputs/corrections.json.gz" "$inputs/dual-sources/steam-en-US.json" "$inputs/dual-sources/purple-en-US.json" "$inputs/dual-sources/purple-zh-TW.json" "$inputs/dual" --steam-baseline "$inputs/current-steam.json" --reviewed-steam "$inputs/dual-sources/steam-reviewed.json"
           if ($LASTEXITCODE) { throw 'Dual-client generation failed' }
-          ./prepare-localization.ps1 -Engine release-stage/materials/component/Aion2-Steam-CN-v2.4.0.exe -DecoderPath release-stage/materials/component/dependencies/oo2core_9_win64.dll -AdditionsPath "$inputs/dual/dual-corrections.json.gz" -Destination release-stage/component
+          python localization/build_steam_26077854.py "$inputs/dual-sources/steam-26077854.json" "$inputs/dual/dual-corrections.json.gz" "$inputs/dual-sources/steam-26077854-report.json" "$inputs/steam-26077854.json.gz"
+          if ($LASTEXITCODE) { throw 'Steam source-bound update generation failed' }
+          ./prepare-localization.ps1 -Engine release-stage/materials/component/Aion2-Steam-CN-v2.4.0.exe -DecoderPath release-stage/materials/component/dependencies/oo2core_9_win64.dll -AdditionsPath "$inputs/steam-26077854.json.gz" -Destination release-stage/component
           if ($LASTEXITCODE) { throw 'Current-source bridge build failed' }
           Copy-Item release-stage/component/* release-stage/materials/component/ -Recurse -Force
           Copy-Item release-stage/component/* desktop/src-tauri/vendor/localization/ -Recurse -Force
@@ -99,6 +101,8 @@ jobs:
           if ($null -eq $compatibility.verified_game_builds) { throw 'Missing verified client builds' }
           $review = Get-Content "$inputs/dual/review.json" -Raw | ConvertFrom-Json
           if ($null -eq $review.inputs) { throw 'Missing localization snapshot provenance' }
+          $review.inputs | Add-Member -NotePropertyName current_steam -NotePropertyValue '6cff77bce26125541e7bc7999b8e4a43e859db2d8d3b09bed8eeffa0d648638d'
+          $review.inputs | Add-Member -NotePropertyName current_steam_report -NotePropertyValue 'bf856c067b9eb6b6594d32f3903a6b07fcff6959bb64d607c27ce0699576c469'
           [ordered]@{
             version = $version
             commit = $env:GITHUB_SHA
@@ -125,5 +129,5 @@ jobs:
           if ($LASTEXITCODE -or -not $draft.isDraft -or @($draft.assets).Count -ne 1) { throw 'Release changed while building; refusing to publish or overwrite' }
           gh release upload $env:RELEASE_DRAFT_REF release-stage/publish/* --repo $env:GITHUB_REPOSITORY
           if ($LASTEXITCODE) { throw 'Asset upload failed; draft remains unpublished' }
-          gh release edit $env:RELEASE_DRAFT_REF --tag $env:GITHUB_REF_NAME --verify-tag --repo $env:GITHUB_REPOSITORY --draft=false --title "亚特雷亚助手 $env:RELEASE_VERSION · 悬浮窗配色与安装引导" --notes-file "releases/$env:RELEASE_VERSION.md" --latest
+          gh release edit $env:RELEASE_DRAFT_REF --tag $env:GITHUB_REF_NAME --verify-tag --repo $env:GITHUB_REPOSITORY --draft=false --title "亚特雷亚助手 $env:RELEASE_VERSION · Steam 更新与剧情补译" --notes-file "releases/$env:RELEASE_VERSION.md" --latest
           if ($LASTEXITCODE) { throw 'Release publication failed' }

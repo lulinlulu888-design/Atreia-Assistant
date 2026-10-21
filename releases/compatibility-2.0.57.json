@@ -1,0 +1,8 @@
+{
+  "version": "2.0.57",
+  "verified_game_builds": {"steam": "26077854", "purple_tw": "123"},
+  "source_key_counts": {"steam": 153185, "purple_tw": 157507},
+  "reviewed_steam_rows": 244,
+  "global_review_rows": 361,
+  "note": "Steam source and isolated transactions verified; PURPLE source variants retained from 2.0.56, without a new live-client compatibility claim."
+}
