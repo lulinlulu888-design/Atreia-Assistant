@@ -1,6 +1,7 @@
 """Synthetic client-variant safety checks; no game data required."""
 from copy import deepcopy
 import hashlib
+import importlib.util
 import gzip
 import json
 from pathlib import Path
@@ -13,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "localization"))
 from build_purple_20261022 import build
 
 
+@unittest.skipUnless(importlib.util.find_spec("opencc"), "Optional maintainer OpenCC dependency unavailable")
 class PurpleUpdateTests(unittest.TestCase):
     def test_audit_ignores_corrections_for_other_client_keys(self):
         try:
