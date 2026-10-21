@@ -1,7 +1,9 @@
 /* Homepage art direction; player guides retain their own reading layout. */
-.home-page .software-shot{display:flex;flex-direction:column;align-items:center;min-width:0;background:none;padding:0;border:0;box-shadow:none}
-.home-page .software-shot>img{display:block;width:auto;max-width:100%;height:auto;aspect-ratio:auto;object-fit:contain;border-radius:6px;border:1px solid #bccbc5;box-shadow:0 18px 45px #213b2920}
-.home-page .radar-shot>img{width:210px;max-height:none}
+.home-page .software-shot{--shot-width:683px;--shot-ratio:683/531;display:flex;flex-direction:column;align-items:center;min-width:0;background:none;padding:0;border:0;box-shadow:none}
+.home-page .localization-preview.software-shot{--shot-width:603px;--shot-ratio:603/501}
+.home-page .software-shot.radar-shot{--shot-width:210px;--shot-ratio:210/240}
+.home-page .software-shot>img{display:block;width:100%;max-width:min(100%,var(--shot-width));height:auto;aspect-ratio:auto var(--shot-ratio);object-fit:contain;border-radius:6px;border:1px solid #bccbc5;box-shadow:0 18px 45px #213b2920}
+.home-page .software-shot.radar-shot>img{width:210px;max-height:none}
 .home-page .combat-details{padding:32px 0;border-block:1px solid #dce5e1}
 .home-page .combat-details>svg{width:30px;height:30px;color:#ac7b37;margin-bottom:20px}
 .home-page .combat-details h4{font-size:23px;margin:0 0 24px}

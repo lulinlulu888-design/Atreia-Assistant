@@ -176,7 +176,9 @@ test('homepage targets relevant searches without claiming unreleased downloads',
   assert.match(html,/assets\/screenshots\/localization-2\.0\.59.jpg/);
   assert.match(html,/assets\/screenshots\/radar-2\.0\.59.jpg/);
   assert.match(html,/<section class="radar-band" id="radar"/);
-  assert.match(read('assets/home.css'),/\.software-shot>img\{[^}]*height:auto;aspect-ratio:auto/);
+  const css=read('assets/home.css');
+  assert.match(css,/\.software-shot>img\{[^}]*height:auto;aspect-ratio:auto var\(--shot-ratio\)/);
+  for(const ratio of ['603/501','683/531','210/240']) assert.ok(css.includes(`--shot-ratio:${ratio}`));
   assert.doesNotMatch(html, /class="localization-preview combat-shot"/);
   assert.equal(meta(html,'keywords').length,0);
 });
