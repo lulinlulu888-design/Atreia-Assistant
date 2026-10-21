@@ -69,14 +69,15 @@
     if(busy)return;busy=true;lastError='';$('power').disabled=true;
     try {
       if(state?.active) await invoke('stop_radar');
-      else { $('status').textContent='等待开启确认…';await invoke('start_radar'); }
+      else { $('status').textContent='正在开启雷达…';await invoke('start_radar'); }
       await refresh();
     } catch(error) { lastError=String(error);$('status').textContent=lastError; }
     finally {busy=false;$('power').disabled=false;}
   };
   function render() {
-    const data=state?.data,range=Number($('range').value),fresh=data?.player&&Number.isFinite(data.position_age_ms)&&data.position_age_ms>=0&&data.position_age_ms<5000;
-    const cubes=(fresh?data.cubes:[]).map(c=>{
+    const data=state?.data,range=Number($('range').value),located=data?.player&&Number.isFinite(data.position_age_ms)&&data.position_age_ms>=0;
+    const fresh=located&&data.position_age_ms<5000;
+    const cubes=(located?data.cubes:[]).map(c=>{
       const dx=(c.position.x-data.player.x)/100,dy=(c.position.y-data.player.y)/100,dz=(c.position.z-data.player.z)/100;
       return {...c,dx,dy,dz,distance:Math.hypot(dx,dy,dz)};
     }).sort((a,b)=>a.distance-b.distance);
@@ -87,16 +88,17 @@
     if(visible[0]) {const c=visible[0];ctx.strokeStyle=$('cube-color').value+'66';ctx.beginPath();ctx.moveTo(center,center);ctx.lineTo(center+c.dx/range*radius,center-c.dy/range*radius);ctx.stroke();}
     for(const c of visible){const x=center+c.dx/range*radius,y=center-c.dy/range*radius;ctx.fillStyle=$('cube-color').value;ctx.beginPath();ctx.moveTo(x,y-8);ctx.lineTo(x+8,y);ctx.lineTo(x,y+8);ctx.lineTo(x-8,y);ctx.closePath();ctx.fill();}
     ctx.fillStyle=fresh?$('player-color').value:'#6f8590';ctx.beginPath();ctx.arc(center,center,6,0,Math.PI*2);ctx.fill();
-    $('nearest').replaceChildren(document.createTextNode(visible[0]?visible[0].distance.toFixed(1):'—'));const unit=document.createElement('small');unit.textContent=' m';$('nearest').append(unit);
-    $('elevation').replaceChildren(document.createTextNode(visible[0]?`${visible[0].dz>=0?'+':''}${visible[0].dz.toFixed(1)}`:'—'));$('elevation').append(unit.cloneNode(true));
+    const reference=fresh?'':'约 ';
+    $('nearest').replaceChildren(document.createTextNode(visible[0]?reference+visible[0].distance.toFixed(1):'—'));const unit=document.createElement('small');unit.textContent=' m';$('nearest').append(unit);
+    $('elevation').replaceChildren(document.createTextNode(visible[0]?`${reference}${visible[0].dz>=0?'+':''}${visible[0].dz.toFixed(1)}`:'—'));$('elevation').append(unit.cloneNode(true));
     $('visible').firstChild.textContent=String(visible.length);$('count').textContent=String(data?.cubes.length||0);
-    $('cubes').replaceChildren(...visible.slice(0,20).map((c,i)=>{const li=document.createElement('li');li.textContent=`隐藏宝箱 ${i+1}`;const detail=document.createElement('span');detail.textContent=`${c.distance.toFixed(1)} m · ${c.dz>=0?'↑':'↓'} ${Math.abs(c.dz).toFixed(1)} m`;li.append(detail);return li;}));
+    $('cubes').replaceChildren(...visible.slice(0,20).map((c,i)=>{const li=document.createElement('li');li.textContent=`隐藏宝箱 ${i+1}`;const detail=document.createElement('span');detail.textContent=`${reference}${c.distance.toFixed(1)} m · ${c.dz>=0?'↑':'↓'} ${Math.abs(c.dz).toFixed(1)} m`;li.append(detail);return li;}));
   }
   async function refresh() {
     state=await invoke('radar_snapshot');const data=state.data;
     $('power').setAttribute('aria-pressed',String(state.active));const action=state.active?'暂停雷达':'开启雷达';$('power').title=action;$('power').setAttribute('aria-label',action);
     if(discoveries!==null && data.discoveries>discoveries && $('sound').checked)ping();discoveries=data.discoveries;
-    if(!busy)$('status').textContent=lastError||(!state.active?'未开启':!data.frames?'等待游戏连接 · 当前识别端口 13320 / 13328':!data.player?'等待角色定位 · 请切换地图后跳跃或滑翔':data.position_age_ms>=5000?'坐标已过期 · 请跳跃或滑翔刷新定位':data.cubes.length?'已定位 · 正北朝上':'已定位 · 暂未发现隐藏宝箱');
+    if(!busy)$('status').textContent=lastError||(!state.active?'未开启':!data.frames?'等待游戏协议识别 · 自动适配连接端口':!data.player?(data.self_identified?'已识别角色 · 等待坐标同步':'已连接 · 等待角色身份同步'):data.position_age_ms>=5000?`参考上次定位 · ${Math.floor(data.position_age_ms/1000)} 秒前`:data.cubes.length?'已定位 · 正北朝上':'已定位 · 暂未发现隐藏宝箱');
     $('status').title=$('status').textContent;
     render();
   }

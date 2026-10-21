@@ -33,17 +33,29 @@ test('radar opens stopped and never starts capture or audio on its own',async()=
   const ui=fixture(()=>snapshot());await tick();assert.deepEqual(ui.calls,['get_settings','fit_radar_window','radar_snapshot']);
   assert.equal(ui.el.status.textContent,'未开启');assert.equal(ui.el.power.attributes['aria-pressed'],'false');
 });
+test('radar starts directly from its explicit power button without a modal',async()=>{
+  let active=false;
+  const ui=fixture(command=>{if(command==='start_radar')active=true;return {...snapshot(),active};});
+  await tick();await ui.el.power.onclick();await ui.timers.shift()();
+  assert.equal(ui.calls.filter(c=>c==='start_radar').length,1);
+  assert.equal(ui.el.power.attributes['aria-pressed'],'true');
+  assert.doesNotMatch(ui.el.status.textContent,/确认/);
+  const native=fs.readFileSync(path.join(__dirname,'../src-tauri/src/atreia_radar.rs'),'utf8');
+  assert.match(native,/window.label\(\)!="radar"/);
+});
 test('start is explicit, duplicates are blocked, and cancellation remains visible',async()=>{
   let reject;const ui=fixture(cmd=>cmd==='start_radar'?new Promise((_,r)=>reject=r):snapshot());await tick();
   const pending=ui.el.power.onclick();await ui.el.power.onclick();await tick();
   assert.equal(ui.el.power.disabled,true);assert.equal(ui.calls.filter(c=>c==='start_radar').length,1);
   reject('已取消');await pending;await ui.timers.shift()();assert.equal(ui.el.power.disabled,false);assert.equal(ui.el.status.textContent,'已取消');
 });
-test('radar shows 3D distance and elevation only with fresh self coordinates',async()=>{
+test('radar distinguishes live coordinates from retained reference positions',async()=>{
   const data=snapshot({player:{x:0,y:0,z:0},position_age_ms:0,frames:1,cubes:[{position:{x:300,y:0,z:400}}]});data.active=true;
   const ui=fixture(()=>data);await tick();assert.equal(ui.el.nearest.firstChild.textContent,'5.0');assert.equal(ui.el.elevation.firstChild.textContent,'+4.0');
-  data.data.position_age_ms=5000;await ui.timers.shift()();assert.equal(ui.el.nearest.firstChild.textContent,'—');assert.equal(ui.el.cubes.children.length,0);
+  data.data.position_age_ms=5000;await ui.timers.shift()();assert.equal(ui.el.nearest.firstChild.textContent,'约 5.0');assert.equal(ui.el.cubes.children.length,1);
+  assert.equal(ui.el.status.textContent,'参考上次定位 · 5 秒前');
   data.data.position_age_ms=null;await ui.timers.shift()();assert.equal(ui.el.nearest.firstChild.textContent,'—');
+  data.data.player=null;await ui.timers.shift()();assert.equal(ui.el.cubes.children.length,0);
 });
 test('appearance settings are bounded and closing never closes the launcher',async()=>{
   const ui=fixture(()=>snapshot(),{range:'evil',opacity:999,volume:-4,'cube-color':'javascript:bad'});await tick();
@@ -78,4 +90,10 @@ test('compact overlay uses a fixed small client area and a separate settings rou
   assert.match(native,/pub fn fit_radar_window/);assert.match(native,/set_min_size\(Option::<tauri::Size>::None\)/);
   assert.match(source,/invoke\('fit_radar_window',\{scale:window.devicePixelRatio\|\|1\}\)/);
   assert.match(css,/#cubes\{display:none\}/);
+});
+test('location status stays centered in a reserved footer row',()=>{
+  const css=fs.readFileSync(path.join(__dirname,'../src/radar-compact.css'),'utf8');
+  assert.match(css,/#status\s*\{[^}]*display:\s*flex;[^}]*align-items:\s*center;[^}]*justify-content:\s*center;[^}]*flex:\s*1 0 20px;[^}]*text-align:\s*center;/);
+  assert.match(css,/grid-template-rows:\s*29px minmax\(0, 1fr\) 33px 24px/);
+  assert.match(css,/body:not\(\.settings-window\) #status\s*\{[^}]*min-height:\s*24px;[^}]*padding:\s*0 6px;/);
 });

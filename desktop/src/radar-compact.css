@@ -1,2 +1,24 @@
 /* 210 x 240 logical pixels: gameplay stays visible around the overlay. */
+#status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 0 20px;
+  text-align: center;
+}
+body:not(.settings-window) .radar-shell {
+  display: grid;
+  grid-template-rows: 29px minmax(0, 1fr) 33px 24px;
+}
+body:not(.settings-window) .radar-view {
+  width: 150px;
+  height: 150px;
+  justify-self: center;
+  align-self: center;
+}
+body:not(.settings-window) #status {
+  min-height: 24px;
+  padding: 0 6px;
+  margin: 0;
+}
 .radar-shell{border-radius:6px}header{height:29px;gap:5px;padding:0 7px}header>img{width:20px;height:20px}h1{font-size:10px}#count{font-size:9px}.tools{gap:0}.tools button{width:21px;height:23px}.tools button svg{width:12px;height:12px}.radar-view{width:160px;height:160px;aspect-ratio:1}.north{top:4px;font-size:7px}.range-label{bottom:5px;right:3px;font-size:7px}.readout{padding:0 8px 4px;gap:5px}.readout span{font-size:7px;margin-bottom:2px}.readout strong{font-size:14px;line-height:1}.readout small{font-size:8px}#status{min-height:0;padding:3px 8px;font-size:8px;line-height:1.35;overflow-wrap:anywhere;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}#cubes{display:none}.settings-window{padding:0;background:var(--neo-surface)}.settings-window .radar-shell{background:var(--neo-surface);border:0;border-radius:0}.settings-window :is(header,.radar-view,.readout,#status,#cubes){display:none}.settings-window #settings{position:static;height:100%;padding:18px 20px;flex:1}.settings-window #settings label{margin-bottom:17px}.settings-window #settings .settings-heading{margin-bottom:17px}

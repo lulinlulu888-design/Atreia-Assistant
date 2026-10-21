@@ -78,7 +78,8 @@ pub fn stop_radar(app:tauri::AppHandle) {
 }
 
 #[tauri::command]
-pub async fn start_radar(app:tauri::AppHandle)->Result<(),String> {
+pub async fn start_radar(app:tauri::AppHandle, window:tauri::WebviewWindow)->Result<(),String> {
+    if window.label()!="radar" { return Err("请通过雷达浮窗开启。".into()); }
     crate::atreia_localization::start_radar_capture(app).await
 }
 

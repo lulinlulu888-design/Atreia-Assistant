@@ -54,13 +54,9 @@ pub async fn start_radar_capture(app: tauri::AppHandle) -> Result<(), String> {
     let _guard=Guard;
     if crate::atreia_update::is_busy() || is_busy() { return Err("请等待当前更新或汉化操作完成。".into()); }
     if !crate::platform::pcap::library_available() { return Err("未能加载 Npcap。请从 Npcap 官网安装驱动，安装完成后重试。".into()); }
-    let accepted=crate::atreia_confirmation::ask_for_window(&app,"radar",crate::atreia_confirmation::Prompt {
-        title:"开启隐藏宝箱雷达".into(),confirm_label:"确认开启".into(),details:vec![],
-        message:"使用 Npcap 只读检测本机网卡 TCP 流量，在本机识别游戏连接与隐藏宝箱。\n初始采集可能看到其他程序的流量，不上传、不发送封包、不读取游戏内存。\n第三方工具有游戏规则风险。取消不会开启雷达。".into(),
-    }).await?;
-    if !accepted { return Err("已取消，未开启雷达。".into()); }
     if app.get_webview_window("radar").is_none() { return Err("雷达窗口已关闭。".into()); }
     let radar=app.state::<std::sync::Arc<crate::atreia_radar::RadarControl>>();
+    if radar.active.load(Ordering::SeqCst) { return Ok(()); }
     radar.stop();
     radar.active.store(true,Ordering::SeqCst);
     let task_app=app.clone();
@@ -69,7 +65,7 @@ pub async fn start_radar_capture(app: tauri::AppHandle) -> Result<(), String> {
         if !capturer.is_running() { capturer.start(); }
         capturer.is_running()
     }).await.map_err(|e|e.to_string())?;
-    if !started || app.get_webview_window("radar").is_none() {
+    if !started || !radar.active.load(Ordering::SeqCst) || app.get_webview_window("radar").is_none() {
         crate::atreia_radar::stop_radar(app.clone());
         return Err("雷达未能启动，请检查 Npcap、网卡权限或重新打开窗口。".into());
     }

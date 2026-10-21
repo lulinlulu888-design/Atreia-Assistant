@@ -28,6 +28,7 @@ impl Position {
 pub struct Cube { pub entity: i32, pub model: u32, pub position: Position }
 #[derive(Clone, Serialize)]
 pub struct Snapshot {
+    pub self_identified: bool,
     pub player: Option<Position>, pub cubes: Vec<Cube>, pub frames: u64,
     pub position_age_ms: Option<i64>, pub discoveries: u64,
 }
@@ -40,7 +41,7 @@ impl Radar {
     pub fn snapshot(&self, now: i64) -> Snapshot {
         let mut cubes: Vec<_> = self.cubes.values().cloned().collect();
         cubes.sort_by_key(|c| c.entity);
-        Snapshot { player: self.player, cubes, frames: self.frames, discoveries: self.discoveries,
+        Snapshot { self_identified:self.player_id.is_some(), player: self.player, cubes, frames: self.frames, discoveries: self.discoveries,
             position_age_ms: self.position_at.map(|at| now.saturating_sub(at).max(0)) }
     }
     pub fn reset(&mut self) { *self = Self::default(); }
@@ -61,6 +62,10 @@ impl Radar {
         }
     }
     fn packet(&mut self, body: &[u8], now: i64) {
+        if let Some(id) = crate::capture::stream_processor::embedded_self_identity(body) {
+            if self.player_id != Some(id) { self.player=None; self.position_at=None; }
+            self.player_id=Some(id);
+        }
         let Some(op) = body.get(..2).map(|b| u16::from_le_bytes([b[0],b[1]])) else { return; };
         let p = &body[2..];
         let id = read_varint(p,0);
@@ -82,11 +87,15 @@ impl Radar {
             0x3635 | 0x363a | 0x3642 if valid_id => { self.cubes.remove(&id.value); }
             // Only the self-spawn record identifies the player. Never guess
             // from another entity's first movement or a generic sync record.
-            0x3633 if valid_id => {
+            0x3633 | 0x8d00 if valid_id => {
                 if self.player_id != Some(id.value) { self.player = None; self.position_at = None; }
                 self.player_id = Some(id.value);
             }
-            0x3623 => { self.player = None; self.player_id = None; self.cubes.clear(); self.position_at=None; }
+            // As in the DPS parser, entity zero is the local world transition.
+            // Other entities' position records must not erase our identity.
+            0x3623 if id.length > 0 && id.value == 0 => {
+                self.player = None; self.player_id = None; self.cubes.clear(); self.position_at=None;
+            }
             0x561e => { self.player = None; self.cubes.clear(); self.position_at=None; }
             0x3710..=0x3750 | 0x382a | 0x382b | 0x382c | 0x3804 if valid_id && self.player_id == Some(id.value) => {
                 if p.len() < n+12 { return; }
@@ -157,7 +166,33 @@ mod tests {
     }
     #[test] fn zone_change_clears_positions_and_objects() {
         let mut r=Radar::default(); r.consume(&spawn(1,1000295),0);
-        r.consume(&frame(0x3623,&[]),1); assert!(r.cubes.is_empty()); assert!(r.player.is_none());
+        r.consume(&frame(0x3623,&[0]),1); assert!(r.cubes.is_empty()); assert!(r.player.is_none());
+    }
+    #[test] fn server_sync_identifies_self_without_choosing_first_moving_player() {
+        let mut r=Radar::default();
+        let mut position=vec![7];for v in [100f32,200.,300.] {position.extend(v.to_le_bytes());}
+        r.consume(&frame(0x382a,&position),0);assert!(r.player.is_none());
+        r.consume(&frame(0x8d00,&[7]),1);
+        r.consume(&frame(0x382a,&position),2);
+        assert_eq!(r.player.unwrap().x,100.);
+        r.consume(&spawn(9,1000295),3);
+        r.consume(&frame(0x3623,&[8]),4);
+        r.consume(&frame(0x3623,&[]),5);
+        assert_eq!(r.player_id,Some(7));assert!(r.player.is_some());assert_eq!(r.cubes.len(),1);
+        r.consume(&frame(0x3623,&[0]),6);
+        assert!(r.player_id.is_none());assert!(r.cubes.is_empty());
+    }
+    #[test] fn embedded_self_identity_reuses_dps_mask_validation() {
+        let mut r=Radar::default();
+        let identity=[0x33,0x36,7,0,0,0,0,1,3,b'A',b'b',b'c'];
+        let mut container=vec![0xaa,0xbb];container.extend(identity);
+        r.packet(&container,0);assert_eq!(r.player_id,Some(7));
+        let mut bad=identity;bad[7]=0;
+        assert!(crate::capture::stream_processor::embedded_self_identity(&bad).is_none());
+        assert!(crate::capture::stream_processor::embedded_self_identity(&identity[..10]).is_none());
+        let mut ambiguous=identity.to_vec();let mut second=identity;second[2]=8;
+        ambiguous.extend(second);
+        assert!(crate::capture::stream_processor::embedded_self_identity(&ambiguous).is_none());
     }
     #[test] fn malformed_input_is_bounded_and_safe() {
         let mut r=Radar::default(); for n in 0..100 { r.consume(&vec![255;n],0); }

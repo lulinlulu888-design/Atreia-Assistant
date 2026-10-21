@@ -64,7 +64,9 @@ jobs:
           if ($LASTEXITCODE) { throw 'Steam source-bound update generation failed' }
           python localization/build_purple_20261022.py "$inputs/dual-sources/purple-20261022-en-US.json" "$inputs/dual-sources/purple-20261022-zh-TW.json" "$inputs/dual-sources/purple-en-US.json" "$inputs/steam-26077854.json.gz" "$inputs/purple-20261022"
           if ($LASTEXITCODE) { throw 'PURPLE source-bound update generation failed' }
-          ./prepare-localization.ps1 -Engine release-stage/materials/component/Aion2-Steam-CN-v2.4.0.exe -DecoderPath release-stage/materials/component/dependencies/oo2core_9_win64.dll -AdditionsPath "$inputs/purple-20261022/additions.json.gz" -Destination release-stage/component
+          python localization/unify_hidden_cube.py "$inputs/purple-20261022/additions.json.gz" "$inputs/hidden-cube-additions.json.gz" "$inputs/dual-sources/steam-26077854.json" "$inputs/dual-sources/purple-20261022-en-US.json"
+          if ($LASTEXITCODE) { throw 'Hidden Cube terminology normalization failed' }
+          ./prepare-localization.ps1 -Engine release-stage/materials/component/Aion2-Steam-CN-v2.4.0.exe -DecoderPath release-stage/materials/component/dependencies/oo2core_9_win64.dll -AdditionsPath "$inputs/hidden-cube-additions.json.gz" -Destination release-stage/component
           if ($LASTEXITCODE) { throw 'Current-source bridge build failed' }
           Copy-Item release-stage/component/* release-stage/materials/component/ -Recurse -Force
           Copy-Item release-stage/component/* desktop/src-tauri/vendor/localization/ -Recurse -Force

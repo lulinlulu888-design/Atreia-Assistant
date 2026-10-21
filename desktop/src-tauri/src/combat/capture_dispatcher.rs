@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -107,6 +107,38 @@ fn now_ms() -> i64 {
         .as_millis() as i64
 }
 
+// Radar has its own detector so opening it never enables combat collection.
+// Direction, endpoints and adapter are part of the identity, not just a port.
+#[derive(Default)]
+struct RadarProbe {
+    hits: VecDeque<(i64, u32)>,
+    packets: Vec<CapturedPayload>,
+    bytes: usize,
+}
+impl RadarProbe {
+    fn push(&mut self, cap: &CapturedPayload, now: i64) -> bool {
+        while self.hits.front().is_some_and(|(at, _)| now - at > SIGNATURE_WINDOW_MS) {
+            self.hits.pop_front();
+        }
+        if self.bytes + cap.data.len() > 256 * 1024 || self.packets.len() >= 256 {
+            *self = Self::default();
+        }
+        if contains_any(&cap.data, &COMBAT_SIGNATURES)
+            && !self.hits.iter().any(|(_, seq)| *seq == cap.tcp_seq)
+        {
+            self.hits.push_back((now, cap.tcp_seq));
+        }
+        self.bytes += cap.data.len();
+        self.packets.push(cap.clone());
+        self.hits.len() >= SIGNATURE_LOCK_THRESHOLD as usize
+    }
+}
+
+fn radar_flow_key(cap: &CapturedPayload) -> String {
+    format!("{:?}|{:?}:{}>{:?}:{}", cap.device_name, cap.src_ip,
+        cap.src_port, cap.dst_ip, cap.dst_port)
+}
+
 /// Routes captured packets through port detection, filtering, and the parsing pipeline.
 pub struct CaptureDispatcher {
     data_storage: Arc<DataStorage>,
@@ -156,7 +188,8 @@ impl CaptureDispatcher {
         let mut assemblers: HashMap<(u16, u16), (StreamAssembler, StreamProcessor)> = HashMap::new();
         let mut radar_flows=HashMap::<String,crate::radar::Flow>::new();
         let mut radar_generation=0;
-        let mut radar_device: Option<String>=None;
+        let mut radar_locked: Option<(String, i64)>=None;
+        let mut radar_probes=HashMap::<String,RadarProbe>::new();
         let mut combat_was_active=false;
         // Per-flow count of signature-bearing packets seen while still unlocked, used
         // for the no-combat-needed signature lock (see SIGNATURE_LOCK_THRESHOLD).
@@ -212,26 +245,46 @@ impl CaptureDispatcher {
 
             if !is_aion_running {
                 if let Some(radar)=&self.radar { radar.data.lock().reset(); }
-                radar_flows.clear(); radar_device=None;
+                radar_flows.clear(); radar_locked=None; radar_probes.clear();
                 continue;
             }
 
             if let Some(radar)=&self.radar {
                 let generation=radar.generation.load(Ordering::SeqCst);
                 if generation!=radar_generation || !radar.active.load(Ordering::SeqCst) {
-                    radar_flows.clear(); radar_device=None; radar_generation=generation;
+                    radar_flows.clear(); radar_locked=None; radar_probes.clear(); radar_generation=generation;
                 }
-                if radar.active.load(Ordering::SeqCst) && [13328,13320].contains(&cap.src_port) {
-                    let device=cap.device_name.clone().unwrap_or_default();
-                    if radar_device.as_ref().is_none_or(|d| d==&device) {
-                        radar_device=Some(device);
-                        let key=format!("{:?}:{}>{:?}:{}",cap.src_ip,cap.src_port,cap.dst_ip,cap.dst_port);
-                        if !radar_flows.contains_key(&key) && radar_flows.len()>=8 { radar_flows.clear(); }
+                if radar.active.load(Ordering::SeqCst) && !looks_like_tls(&cap.data) {
+                    if radar_locked.as_ref().is_some_and(|(_, at)| now-*at > STALE_CONNECTION_MS) {
+                        radar_locked=None; radar_flows.clear(); radar_probes.clear();
+                        radar.data.lock().reset();
+                    }
+                    let key=radar_flow_key(&cap);
+                    let mut replay=Vec::new();
+                    if radar_locked.is_none() {
+                        if !radar_probes.contains_key(&key) && contains_any(&cap.data,&COMBAT_SIGNATURES) {
+                            if radar_probes.len()>=16 { radar_probes.clear(); }
+                            radar_probes.insert(key.clone(),RadarProbe::default());
+                        }
+                        if radar_probes.get_mut(&key).is_some_and(|probe| probe.push(&cap,now)) {
+                            replay=radar_probes.remove(&key).unwrap().packets;
+                            radar_probes.clear();
+                            radar_locked=Some((key.clone(),now));
+                            info!("Radar game protocol identified on source port {}",cap.src_port);
+                        }
+                    } else if radar_locked.as_ref().is_some_and(|(locked,_)| locked==&key) {
+                        replay.push(cap.clone());
+                    }
+                    if !replay.is_empty() {
+                        radar_locked=Some((key.clone(),now));
                         let mut data=radar.data.lock();
                         // Stop/reset and capture share this lock; a late packet
                         // cannot revive stale markers after a user stops.
                         if radar.active.load(Ordering::SeqCst) && generation==radar.generation.load(Ordering::SeqCst) {
-                            radar_flows.entry(key).or_default().push(cap.tcp_seq,&cap.data,&mut data,now);
+                            let flow=radar_flows.entry(key).or_default();
+                            for packet in replay {
+                                flow.push(packet.tcp_seq,&packet.data,&mut data,now);
+                            }
                         }
                     }
                 }
@@ -420,6 +473,46 @@ mod tests {
             tcp_seq: 0,
             tcp_ack: 0,
         }
+    }
+
+    #[test]
+    fn radar_detects_remapped_port_without_combat_or_retransmit_votes() {
+        let mut probe=RadarProbe::default();
+        let mut packet=cap("loopback",COMBAT_SIGNATURES[0]);
+        packet.src_port=1111;
+        for _ in 0..20 { assert!(!probe.push(&packet,0)); }
+        for seq in 1..11 {
+            packet.tcp_seq=seq;
+            assert!(!probe.push(&packet,seq as i64*100));
+        }
+        packet.tcp_seq=11;
+        assert!(probe.push(&packet,1100));
+    }
+
+    #[test]
+    fn radar_requires_real_time_window_and_isolates_direction_and_device() {
+        let mut probe=RadarProbe::default();
+        let mut packet=cap("loopback",COMBAT_SIGNATURES[1]);
+        for seq in 0..30 {
+            packet.tcp_seq=seq;
+            assert!(!probe.push(&packet,seq as i64*1000));
+        }
+        let key=radar_flow_key(&packet);
+        packet.device_name=Some("ethernet".into());
+        assert_ne!(key,radar_flow_key(&packet));
+        packet.device_name=Some("loopback".into());
+        std::mem::swap(&mut packet.src_port,&mut packet.dst_port);
+        assert_ne!(key,radar_flow_key(&packet));
+        assert!(looks_like_tls(&[0x17,0x03,0x03,0x0e,0,0x36]));
+    }
+
+    #[test]
+    fn radar_candidate_memory_is_bounded() {
+        let mut probe=RadarProbe::default();
+        let packet=cap("loopback",&vec![1;65535]);
+        for _ in 0..100 { assert!(!probe.push(&packet,0)); }
+        assert!(probe.bytes<=256*1024);
+        assert!(probe.packets.len()<=256);
     }
 
     #[test]

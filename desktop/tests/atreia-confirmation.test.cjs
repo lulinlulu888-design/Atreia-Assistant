@@ -16,7 +16,8 @@ test('native confirmation is above overlays and discoverable in the taskbar',()=
   assert.doesNotMatch(native,/\.skip_taskbar\(true\)/);
   assert.match(native,/receiver\.await\.unwrap_or\(false\)/);
   const capture=fs.readFileSync(require('node:path').join(__dirname,'../src-tauri/src/atreia_localization.rs'),'utf8');
-  assert.match(capture,/ask_for_window\(&app,"radar",/);
+  const radarStart=capture.slice(capture.indexOf('pub async fn start_radar_capture'),capture.indexOf('pub async fn open_combat'));
+  assert.doesNotMatch(radarStart,/atreia_confirmation|ask_for_window|Prompt/);
   assert.match(native,/ask_for_window\(app, "launcher", prompt\)\.await/);
 });
 test('confirmation renders literal text and defaults focus to cancellation',async()=>{

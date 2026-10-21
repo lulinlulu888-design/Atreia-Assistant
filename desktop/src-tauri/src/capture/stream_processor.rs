@@ -2669,6 +2669,28 @@ fn exact_name(field: &[u8]) -> Option<String> {
     valid.then(|| name.to_string())
 }
 
+/// Same mask/name validation used by DPS, without creating combat records.
+/// Self records can be embedded inside another server record after a late start.
+pub(crate) fn embedded_self_identity(data: &[u8]) -> Option<i32> {
+    let mut selected = None;
+    for at in 0..data.len().saturating_sub(8) {
+        if data.get(at..at+2) != Some(&[0x33, 0x36]) { continue; }
+        let id = read_varint(data, at+2);
+        if id.length <= 0 || !(1..=9_999_999).contains(&id.value) { continue; }
+        let mask = at+2+id.length as usize+4;
+        let Some(&bits) = data.get(mask) else { continue; };
+        if bits & 1 == 0 { continue; }
+        let Some(&len) = data.get(mask+1) else { continue; };
+        if !NAME_FIELD_BYTES.contains(&(len as usize)) { continue; }
+        let Some(field) = data.get(mask+2..mask+2+len as usize) else { continue; };
+        let placeholder = std::str::from_utf8(field).ok().is_some_and(is_placeholder_name);
+        if exact_name(field).is_none() && !placeholder { continue; }
+        if selected.is_some_and(|previous| previous != id.value) { return None; }
+        selected = Some(id.value);
+    }
+    selected
+}
+
 fn sanitize_nickname(nickname: &str) -> Option<String> {
     let trimmed = nickname.split('\0').next().unwrap_or("").trim();
     if trimmed.is_empty() {

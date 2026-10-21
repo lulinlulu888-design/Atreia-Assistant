@@ -2079,6 +2079,49 @@ fn decode_replay_hex(hex: &str) -> Option<Vec<u8>> {
 
 // ===== APP SETUP =====
 
+fn show_launcher_from_tray(app: &tauri::AppHandle) {
+    if let Some(window) = app.get_webview_window("launcher") {
+        let _ = window.unminimize();
+        let _ = window.show();
+        let _ = window.set_focus();
+    }
+}
+
+fn setup_launcher_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
+    use tauri::menu::{Menu, MenuItem};
+    use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
+    let show = MenuItem::with_id(app, "atreia-show", "显示主界面", true, None::<&str>)?;
+    let exit = MenuItem::with_id(app, "atreia-exit", "退出亚特雷亚助手", true, None::<&str>)?;
+    let menu = Menu::with_items(app, &[&show, &exit])?;
+    let icon = app.default_window_icon().cloned()
+        .ok_or_else(|| tauri::Error::AssetNotFound("application tray icon".into()))?;
+    TrayIconBuilder::with_id("atreia-launcher")
+        .icon(icon).tooltip("亚特雷亚助手")
+        .menu(&menu).show_menu_on_left_click(false)
+        .on_menu_event(|app, event| match event.id.as_ref() {
+            "atreia-show" => show_launcher_from_tray(app),
+            "atreia-exit" => {
+                if crate::atreia_localization::is_busy() || crate::atreia_update::is_busy() {
+                    show_launcher_from_tray(app);
+                    platform::dialog::show_error("请等待完成", "更新或汉化操作正在进行，请完成后再退出助手。");
+                    return;
+                }
+                app.state::<Arc<crate::atreia_radar::RadarControl>>().stop();
+                app.state::<crate::atreia_localization::CaptureControl>().0.lock().stop();
+                app.exit(0);
+            }
+            _ => {}
+        })
+        .on_tray_icon_event(|tray, event| {
+            if matches!(event, TrayIconEvent::Click {
+                button: MouseButton::Left, button_state: MouseButtonState::Up, ..
+            }) {
+                show_launcher_from_tray(tray.app_handle());
+            }
+        }).build(app)?;
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Before anything starts a thread: it may set environment variables.
@@ -2114,6 +2157,13 @@ pub fn run() {
                 if let Some(settings)=window.app_handle().get_webview_window("radar-settings") { let _ = settings.destroy(); }
             }
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                if window.label() == "launcher" {
+                    api.prevent_close();
+                    if let Err(error) = window.hide() {
+                        tracing::warn!("Could not hide launcher: {error}");
+                    }
+                    return;
+                }
                 let localizing = crate::atreia_localization::is_busy();
                 if window.label() == "localization" && !localizing && !crate::atreia_update::is_busy() {
                     api.prevent_close();
@@ -2130,6 +2180,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_process::init())
         .setup(|app| {
+            setup_launcher_tray(app.handle())?;
             // Resolve data directory
             let app_data_dir = app.path().app_data_dir()
                 .unwrap_or_else(|_| std::path::PathBuf::from("."));
