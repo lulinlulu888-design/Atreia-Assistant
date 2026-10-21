@@ -167,7 +167,10 @@ test('homepage targets relevant searches without claiming unreleased downloads',
   const html=read('index.html');
   const app=schema(html)['@graph'].find(item=>item['@type']==='SoftwareApplication');
   assert.deepEqual(app.keywords,['AION2 汉化','永恒之塔2 汉化','AION2 DPS 统计','Steam 汉化','PURPLE 汉化','亚特雷亚助手']);
-  assert.match(html,/实际运行截图/);assert.match(html,/尚未完成真实游戏定位验收/);
+  assert.match(html,/实际运行截图/);
+  assert.match(html,/角色定位已在本地实机观察成功/);
+  assert.match(html,/可见宝箱标记与距离尚未完成现场验收/);
+  assert.match(html,/旧定位标注为参考位置/);
   const published=JSON.parse(read('updates/latest.json')).tag_name.replace(/^v/,'');
   assert.ok(html.includes(`下载 Windows ${published}`));
   assert.equal(app.softwareVersion,published);
