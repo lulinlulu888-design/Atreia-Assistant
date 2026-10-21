@@ -1,0 +1,15 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": {"Federated": "arn:aws:iam::487694861369:oidc-provider/token.actions.githubusercontent.com"},
+    "Action": "sts:AssumeRoleWithWebIdentity",
+    "Condition": {
+      "StringEquals": {"token.actions.githubusercontent.com:aud": "sts.amazonaws.com"},
+      "StringLike": {"token.actions.githubusercontent.com:sub": [
+        "repo:lulinlulu888-design/Atreia-Assistant:ref:refs/tags/v2.*",
+        "repo:lulinlulu888-design@336265304/Atreia-Assistant@1404887480:ref:refs/tags/v2.*"
+      ]}
+    }
+  }]
+}

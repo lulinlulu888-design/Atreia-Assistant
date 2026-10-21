@@ -1,0 +1,12 @@
+@media (min-width: 601px) {
+  .hero { height: clamp(560px, calc(100svh - 144px), 850px); }
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #ffffff26;
+  pointer-events: none;
+}
+.hero-copy, .next { z-index: 2; }

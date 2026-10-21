@@ -1,0 +1,8 @@
+{
+  "version": "2.0.62",
+  "size": 31392364,
+  "sha256": "52c1f52da455e8936706ae1be4d5bbfd2673a18e279dbccaf7ed6e8bd850585e",
+  "url": "https://atreia-downloads-487694861369.s3.ap-southeast-1.amazonaws.com/releases/v2.0.62/Atreia-Assistant_2.0.62_x64.msi",
+  "title": "雷达定位改进与隐藏宝箱术语统一",
+  "summary": "改进游戏连接识别与角色定位，雷达支持一键开启，主窗口关闭后保留托盘。支持 Steam / Global 与 PURPLE 汉化；宝箱雷达仍为实验功能。"
+}

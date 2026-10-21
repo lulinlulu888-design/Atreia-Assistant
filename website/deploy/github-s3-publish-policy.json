@@ -1,0 +1,13 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "OfficialReleaseObjectsOnly",
+    "Effect": "Allow",
+    "Action": ["s3:GetObject", "s3:PutObject"],
+    "Resource": [
+      "arn:aws:s3:::atreia-downloads-487694861369/releases/v2.*/Atreia-Assistant_*_x64.msi",
+      "arn:aws:s3:::atreia-downloads-487694861369/releases/v2.*/SHA256SUMS.txt"
+    ],
+    "Condition": {"Bool": {"aws:SecureTransport": "true"}}
+  }]
+}

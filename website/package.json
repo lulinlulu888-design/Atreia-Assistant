@@ -1,0 +1,8 @@
+{
+  "name": "atreia-official-website",
+  "private": true,
+  "type": "module",
+  "scripts": {"dev": "nuxt dev --host 127.0.0.1 --port 3100", "generate": "nuxt generate", "postinstall": "nuxt prepare"},
+  "engines": {"node": ">=24.15.0"},
+  "dependencies": {"nuxt": "4.6.2", "lucide-vue-next": "^0.468.0"}
+}

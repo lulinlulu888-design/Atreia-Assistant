@@ -137,3 +137,47 @@ jobs:
           if ($LASTEXITCODE) { throw 'Asset upload failed; draft remains unpublished' }
           gh release edit $env:RELEASE_DRAFT_REF --tag $env:GITHUB_REF_NAME --verify-tag --repo $env:GITHUB_REPOSITORY --draft=false --title "亚特雷亚助手 $env:RELEASE_VERSION · 双端汉化与独立工具窗口" --notes-file "releases/$env:RELEASE_VERSION.md" --latest
           if ($LASTEXITCODE) { throw 'Release publication failed' }
+  s3-downloads:
+    needs: windows-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: atreia-release-*
+          merge-multiple: true
+          path: release-downloads
+      - name: Verify formal release and installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF_NAME" =~ ^v2\.[0-9]+\.[0-9]+$ ]]
+          version="${GITHUB_REF_NAME#v}"
+          gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease --jq 'if .isDraft or .isPrerelease then error("Not a formal release") else "Formal release verified" end'
+          cd release-downloads
+          installer="Atreia-Assistant_${version}_x64.msi"
+          test -s "$installer"
+          test "$(grep -Ec "^[a-f0-9]{64}  ${installer//./\\.}$" SHA256SUMS.txt)" = 1
+          grep -E "^[a-f0-9]{64}  ${installer//./\\.}$" SHA256SUMS.txt | sha256sum --check --strict -
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::487694861369:role/AtreiaGitHubReleasePublisher
+          aws-region: ap-southeast-1
+          role-session-name: atreia-release-${{ github.run_id }}
+          role-duration-seconds: 900
+      - name: Upload official downloads and verify round trip
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          installer="Atreia-Assistant_${version}_x64.msi"
+          destination="s3://atreia-downloads-487694861369/releases/$GITHUB_REF_NAME"
+          aws s3 cp "release-downloads/$installer" "$destination/$installer" --content-type application/octet-stream --no-progress
+          aws s3 cp release-downloads/SHA256SUMS.txt "$destination/SHA256SUMS.txt" --content-type text/plain --no-progress
+          mkdir round-trip
+          aws s3 cp "$destination/$installer" "round-trip/$installer" --no-progress
+          aws s3 cp "$destination/SHA256SUMS.txt" round-trip/SHA256SUMS.txt --no-progress
+          cmp release-downloads/SHA256SUMS.txt round-trip/SHA256SUMS.txt
+          cmp "release-downloads/$installer" "round-trip/$installer"

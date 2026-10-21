@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AION2 DPS 战斗统计与 Npcap 使用教程｜亚特雷亚助手</title>
+  <meta name="description" content="了解亚特雷亚助手的 AION2（永恒之塔2）DPS 战斗统计：安装 Npcap、确认开启本地采集、查看伤害治疗与技能明细，以及无数据时的排查和停止统计方法。">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#f6f8f7">
+  <link rel="canonical" href="https://a2go.cc/guides/combat.html">
+  <link rel="sitemap" type="application/xml" href="../sitemap.xml">
+  <link rel="icon" type="image/png" href="../assets/brand/atreia-icon.png">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/guide.css">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="亚特雷亚助手">
+  <meta property="og:title" content="AION2 DPS 战斗统计与 Npcap 使用教程｜亚特雷亚助手">
+  <meta property="og:description" content="从安装 Npcap 到开启和停止统计，了解本地 DPS、伤害治疗与技能明细的使用方法。">
+  <meta property="og:url" content="https://a2go.cc/guides/combat.html">
+  <meta property="og:image" content="https://a2go.cc/assets/hero-atreia.jpg">
+  <meta property="og:image:width" content="1536">
+  <meta property="og:image:height" content="1024">
+  <meta property="og:image:alt" content="亚特雷亚助手的云海浮岛与城堡主题画面">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AION2 DPS 战斗统计与 Npcap 使用教程｜亚特雷亚助手">
+  <meta name="twitter:description" content="Npcap 安装、开启本地战斗统计、查看技能明细与停止采集的使用指南。">
+  <meta name="twitter:image" content="https://a2go.cc/assets/hero-atreia.jpg">
+  <meta name="twitter:image:alt" content="亚特雷亚助手的云海浮岛与城堡主题画面">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://a2go.cc/guides/combat.html#webpage",
+        "url": "https://a2go.cc/guides/combat.html",
+        "name": "AION2 DPS 战斗统计与 Npcap 使用教程｜亚特雷亚助手",
+        "description": "AION2 DPS 战斗统计的 Npcap 安装、开启采集、查看数据及问题排查指南。",
+        "inLanguage": "zh-CN",
+        "dateModified": "2026-10-14",
+        "isPartOf": { "@id": "https://a2go.cc/#website" },
+        "about": { "@id": "https://a2go.cc/#software" },
+        "breadcrumb": { "@id": "https://a2go.cc/guides/combat.html#breadcrumb" }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://a2go.cc/guides/combat.html#breadcrumb",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://a2go.cc/" },
+          { "@type": "ListItem", "position": 2, "name": "DPS 战斗统计", "item": "https://a2go.cc/guides/combat.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body class="guide-page">
+  <a class="skip-link" href="#main">跳转到正文</a>
+  <header class="site-header"><div class="header-inner">
+    <a class="brand" href="../" aria-label="亚特雷亚助手官网首页"><img src="../assets/brand/atreia-icon.png" width="42" height="42" alt=""><span><strong>亚特雷亚助手</strong><small>ATREIA ASSISTANT</small></span></a>
+    <nav aria-label="主导航"><a href="../#features">功能</a><a href="../#download">下载</a><a href="localization.html">汉化安装指南</a></nav>
+  </div></header>
+  <main class="guide-main" id="main">
+    <nav class="breadcrumbs" aria-label="面包屑"><a href="../">首页</a><span aria-hidden="true">/</span><span aria-current="page">DPS 战斗统计</span></nav>
+    <article>
+      <header class="guide-header"><p class="eyebrow">COMBAT GUIDE</p><h1>AION2 DPS 战斗统计使用指南</h1><p class="guide-lead">查看永恒之塔2（AION2）战斗中的 DPS、总伤害、治疗和技能明细。统计由你主动开启，在本机处理，不自动上传战斗数据。</p><p class="guide-updated">更新于 <time datetime="2026-10-14">2026 年 10 月 14 日</time></p></header>
+      <nav class="guide-toc" aria-label="本页目录"><h2>本页内容</h2><ul><li><a href="#prepare">安装 Npcap</a></li><li><a href="#start">开启统计</a></li><li><a href="#read">查看数据</a></li><li><a href="#troubleshoot">无数据排查</a></li><li><a href="#stop">停止统计</a></li></ul></nav>
+      <div class="guide-content">
+        <section id="prepare"><h2>首次使用：安装助手与 Npcap</h2><p>从<a href="../#download">官网下载安装亚特雷亚助手</a>，再从 <a href="https://npcap.com/#download">Npcap 官网</a> 安装驱动。已安装 Npcap 的电脑无需重复安装，也无需下载开发用 SDK。</p><p>本助手不要求勾选 WinPcap 兼容模式。若驱动安装时限制了可使用它的账户，请按照驱动权限设置运行助手；不要为了排查而关闭系统安全保护。</p><p>建议将游戏设为窗口或无边框窗口模式，方便查看置顶统计浮窗。仅使用<a href="localization.html">游戏汉化</a>不需要安装 Npcap。</p></section>
+        <section id="start"><h2>如何开启 AION2 战斗统计？</h2><ol><li>进入游戏，从助手首页选择“战斗统计”。</li><li>阅读本地网络采集提示，确认后才会开始采集；取消不会启动统计。</li><li>正常进行游戏战斗，等待助手识别游戏战斗连接。无需手动填写 IP、端口或选择加速器品牌。</li><li>通过置顶浮窗查看当前战斗数据，需要时打开统计明细。</li></ol><p class="guide-note">初始连接检测可能看到本机其他程序的流量，仅在本机处理，不上传、不发送封包。工具不会注入游戏或修改游戏内存，但第三方工具仍有游戏规则风险，不能视为官方许可或安全保证。</p></section>
+        <section id="read"><h2>DPS、总伤害与技能明细怎么看？</h2><ul><li><strong>DPS：</strong>用于观察战斗中的每秒伤害表现，结合战斗时间与目标一起看。</li><li><strong>总伤害与玩家贡献：</strong>用于比较同一场战斗的输出构成，而不是只看某一瞬间的数字。</li><li><strong>伤害、治疗和技能明细：</strong>进一步了解数据来源与技能占比。</li><li><strong>本地战斗历史：</strong>在战斗结束后查看保留的记录，进行复盘。</li></ul><p>切换目标、不同战斗时段或客户端更新都可能影响观察结果。官网统计面板中的数字是演示数据，不代表你的实战成绩或准确率承诺。</p></section>
+        <section id="troubleshoot"><h2>浮窗没有数据时，先检查什么？</h2><ol><li>确认已经选择“战斗统计”并接受采集提示。仅停留在助手首页或汉化页面不会启动统计。</li><li>检查是否提示 Npcap 未安装、未能加载或权限不足，按提示处理驱动和运行权限后重试。</li><li>确认已进入实际战斗；游戏登录界面、角色选择界面和没有战斗活动时，不一定有可统计的数据。</li><li>游戏更新后，先检查助手是否有新版。若仍无数据，记录客户端、助手版本与具体提示进行反馈。</li></ol><p>请通过 <a href="https://github.com/lulinlulu888-design/Atreia-Assistant/issues">GitHub Issues 反馈统计问题</a>。不要公开上传包含账号、聊天内容或其他个人信息的完整网络流量文件。</p></section>
+        <section id="stop"><h2>停止统计，返回首页或切换汉化</h2><p>在统计设置中选择“停止统计并返回首页”，停止采集后再打开“游戏汉化”。汉化和统计互斥；汉化前还需要完全退出游戏。</p><p>软件更新也应在统计停止、汉化操作结束后进行。首页可检查助手更新，由你确认后下载安装。</p></section>
+        <section class="guide-related"><h2>继续了解助手</h2><p>需要简体中文界面时，请阅读<a href="localization.html">Steam / PURPLE 汉化安装与备份还原指南</a>。两项功能独立使用，不需要为汉化开启统计。</p><div class="guide-cta"><a class="button button-primary" href="../#download">下载亚特雷亚助手</a><a href="../">返回官网首页</a></div></section>
+      </div>
+    </article>
+  </main>
+  <footer class="guide-footer"><p>Atreia Assistant · 免费开源社区工具 · GPL-3.0</p><p>本项目与 NCSOFT、Steam 无隶属或背书关系。使用第三方工具请遵守游戏规则。</p></footer>
+</body>
+</html>
