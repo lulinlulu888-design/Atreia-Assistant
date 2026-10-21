@@ -28,7 +28,7 @@ export default defineConfig(async () => ({
       cpSync(join(config.root, "src/data/i18n"), join(config.publicDir, "i18n"), { recursive: true });
     },
   }],
-  build: { rollupOptions: { input: { meter: "index.html", launcher: "launcher.html", confirmation: "confirmation.html" } } },
+  build: { rollupOptions: { input: { meter: "index.html", launcher: "launcher.html", confirmation: "confirmation.html", radar: "radar.html", localization: "localization.html" } } },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //

@@ -20,6 +20,7 @@
 
 - 上游：https://github.com/taengu/A2Tools-DPS-Meter
 - 固定源码提交：`70aade3fef1ef8b15fe5ce3d27cfdbfc5f854b98`
+- 2026-10-22 定向移植上游 v2.0.74 相关修复：`722dd6b8`、`8f2d81a3`、`7a0ad04c`、`6f806dc6 / 3631610`，涵盖附加伤害、暴击、护盾与悬停提示；原作者 Seralth、taengu、Nullceptions 的 GPL-3.0 代码按原许可保留。详见 `desktop/ATREIA-FORK.md`，不代表完整合并上游全部功能。
 - 上游许可：GNU GPL v3，保留上游版权与署名；解析器源码注释记载由 Kotlin StreamProcessor 移植。
 - 用途：Rust 后端依赖其协议拆帧、压缩包解析、伤害/治疗解析与身份映射。没有把上游完整软件换名当作原创。
 - `backend/resources/dot_skill_ids.json` 来自上述固定提交的 `src/data/dot_skill_ids.json`，未修改，遵循相同许可。它是上游筛选的持续伤害技能列表，不代表当前 Steam/PURPLE 技能数据已全部验证。

@@ -10,11 +10,11 @@ function fixture(invoke) {
   vm.runInNewContext(source, {document:{getElementById:key=>controls[key]},window:{__TAURI__:{core:{invoke}},atreiaOpenLocalization:()=>localized++}});
   return {controls,localized:()=>localized};
 }
-test('startup and localization action never start capture', () => {
+test('startup and localization action never start capture', async () => {
   const calls=[]; const page=fixture(command=>calls.push(command));
   assert.deepEqual(calls, []);
-  page.controls.localization.listeners.click();
-  assert.equal(page.localized(), 1); assert.deepEqual(calls, []);
+  await page.controls.localization.listeners.click({currentTarget:page.controls.localization});
+  assert.equal(page.localized(), 0); assert.deepEqual(calls, ['open_localization']);
 });
 test('combat is explicit, disables while pending and recovers on cancellation', async () => {
   const calls=[]; const page=fixture(async command=>{calls.push(command);throw new Error('cancelled');});
@@ -104,15 +104,30 @@ test('native setup prepares but does not start Npcap capture', () => {
   assert.ok(setup.includes('CaptureControl(Mutex::new(capturer))'));
   assert.ok(!setup.includes('capturer.start()'));
 });
-test('localization belongs to launcher, never to the combat overlay', () => {
+test('localization has a dedicated page opened from the launcher, never the combat overlay', () => {
   const source=fs.readFileSync(path.join(__dirname,'../public/src/js/atreiaLocalization.js'),'utf8');
   assert.ok(source.includes('localization_execute'));
   assert.ok(!source.includes('open_combat'));
   const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
   assert.ok(!html.includes('atreiaLocalization'));
   const launcher=fs.readFileSync(path.join(__dirname,'../launcher.html'),'utf8');
-  assert.ok(launcher.includes('atreiaLocalization.js'));
+  assert.ok(!launcher.includes('atreiaLocalization.js'));
+  const standalone=fs.readFileSync(path.join(__dirname,'../localization.html'),'utf8');
+  assert.ok(standalone.includes('atreiaLocalization.js'));
+  assert.ok(standalone.includes('atreiaLocalizationWindow.js'));
   assert.ok(!html.includes('<script src="/src/js/checkRelease.js'));
+});
+
+test('localization window opening blocks duplicate clicks and recovers on error', async () => {
+  let rejectOpen; const calls=[];
+  const page=fixture(command=>{calls.push(command);return new Promise((_,reject)=>{rejectOpen=reject;});});
+  const event={currentTarget:page.controls.localization};
+  const pending=page.controls.localization.listeners.click(event);
+  await page.controls.localization.listeners.click(event);
+  assert.deepEqual(calls,['open_localization']);
+  rejectOpen('窗口打开失败'); await pending;
+  assert.equal(page.controls.localization.disabled,false);
+  assert.equal(page.controls.status.textContent,'窗口打开失败');
 });
 test('PURPLE is routed to the selected client and has installation actions', () => {
   const source=fs.readFileSync(path.join(__dirname,'../public/src/js/atreiaLocalization.js'),'utf8');

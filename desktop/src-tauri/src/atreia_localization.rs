@@ -23,6 +23,60 @@ pub fn is_capture_starting() -> bool {
 }
 
 #[tauri::command]
+pub async fn open_localization(app: tauri::AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("localization") {
+        window.emit("atreia-localization-opened", ()).map_err(|e| e.to_string())?;
+        window.show().map_err(|e| e.to_string())?;
+        return window.set_focus().map_err(|e| e.to_string());
+    }
+    tauri::WebviewWindowBuilder::new(&app, "localization", tauri::WebviewUrl::App("localization.html".into()))
+        .title("亚特雷亚助手 · 游戏汉化")
+        .inner_size(600.0, 470.0).min_inner_size(460.0, 380.0)
+        .background_color(tauri::window::Color(233, 238, 241, 255))
+        .build().map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn hide_localization(window: tauri::WebviewWindow, app: tauri::AppHandle) -> Result<(), String> {
+    if window.label() != "localization" { return Err("此窗口无权关闭汉化界面。".into()); }
+    if is_busy() || crate::atreia_update::is_busy() { return Err("请等待当前操作完成。".into()); }
+    window.hide().map_err(|e| e.to_string())?;
+    if let Some(launcher) = app.get_webview_window("launcher") { let _ = launcher.set_focus(); }
+    Ok(())
+}
+
+pub async fn start_radar_capture(app: tauri::AppHandle) -> Result<(), String> {
+    if crate::atreia_update::is_busy() || is_busy() { return Err("请等待当前更新或汉化操作完成。".into()); }
+    if CAPTURE_STARTING.swap(true, Ordering::SeqCst) { return Err("采集正在启动，请稍候。".into()); }
+    struct Guard;
+    impl Drop for Guard { fn drop(&mut self) { CAPTURE_STARTING.store(false,Ordering::SeqCst); } }
+    let _guard=Guard;
+    if crate::atreia_update::is_busy() || is_busy() { return Err("请等待当前更新或汉化操作完成。".into()); }
+    if !crate::platform::pcap::library_available() { return Err("未能加载 Npcap。请从 Npcap 官网安装驱动，安装完成后重试。".into()); }
+    let accepted=crate::atreia_confirmation::ask(&app,crate::atreia_confirmation::Prompt {
+        title:"开启隐藏宝箱雷达".into(),confirm_label:"确认开启".into(),details:vec![],
+        message:"使用 Npcap 只读检测本机网卡 TCP 流量，在本机识别游戏连接与隐藏宝箱。\n初始采集可能看到其他程序的流量，不上传、不发送封包、不读取游戏内存。\n第三方工具有游戏规则风险。取消不会开启雷达。".into(),
+    }).await?;
+    if !accepted { return Err("已取消，未开启雷达。".into()); }
+    if app.get_webview_window("radar").is_none() { return Err("雷达窗口已关闭。".into()); }
+    let radar=app.state::<std::sync::Arc<crate::atreia_radar::RadarControl>>();
+    radar.stop();
+    radar.active.store(true,Ordering::SeqCst);
+    let task_app=app.clone();
+    let started=tauri::async_runtime::spawn_blocking(move || {
+        let control=task_app.state::<CaptureControl>(); let mut capturer=control.0.lock();
+        if !capturer.is_running() { capturer.start(); }
+        capturer.is_running()
+    }).await.map_err(|e|e.to_string())?;
+    if !started || app.get_webview_window("radar").is_none() {
+        crate::atreia_radar::stop_radar(app.clone());
+        return Err("雷达未能启动，请检查 Npcap、网卡权限或重新打开窗口。".into());
+    }
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn open_combat(app: tauri::AppHandle) -> Result<(), String> {
     if crate::atreia_update::is_busy() { return Err("请等待助手更新完成。".into()); }
     if LOCALIZATION_BUSY.load(Ordering::SeqCst) {
@@ -71,6 +125,7 @@ pub async fn open_combat(app: tauri::AppHandle) -> Result<(), String> {
         .shadow(false)
         .build()
         .map_err(|e| e.to_string())?;
+    app.state::<std::sync::Arc<crate::atreia_radar::RadarControl>>().combat_active.store(true,Ordering::SeqCst);
     let task_app = app.clone();
     let started = tauri::async_runtime::spawn_blocking(move || {
         let control = task_app.state::<CaptureControl>();
@@ -87,11 +142,10 @@ pub async fn open_combat(app: tauri::AppHandle) -> Result<(), String> {
         return Err("Npcap 未能启动，请检查驱动、网卡及安装时设置的权限。".into());
     }
     if app.get_webview_window("main").is_none() {
-        app.state::<CaptureControl>().0.lock().stop();
+        if !app.state::<std::sync::Arc<crate::atreia_radar::RadarControl>>().active.load(Ordering::SeqCst) {
+            app.state::<CaptureControl>().0.lock().stop();
+        }
         return Err("统计窗口已关闭，采集已停止。".into());
-    }
-    if let Some(window) = app.get_webview_window("launcher") {
-        let _ = window.hide();
     }
     Ok(())
 }
@@ -226,6 +280,7 @@ pub async fn localization_execute(
                 return Ok(serde_json::json!({"ok":false,"cancelled":true,"operation":operation,"message":"已取消，未修改游戏。"}));
             }
             let _ = app.emit_to("launcher", "atreia-localization-stage", serde_json::json!({"operation":operation,"client":client,"stage":"running"}));
+            let _ = app.emit_to("localization", "atreia-localization-stage", serde_json::json!({"operation":operation,"client":client,"stage":"running"}));
         }
         let mut command = Command::new(helper);
         command.current_dir(dunce::simplified(&directory)).arg(dunce::simplified(&engine)).arg(&operation).arg(dunce::simplified(&root)).arg(&client);

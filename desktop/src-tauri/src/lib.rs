@@ -20,6 +20,7 @@ pub mod entity;
 pub mod i18n;
 pub mod rederive;
 pub mod supporters;
+pub mod radar;
 
 // ── desktop only ───────────────────────────────────────────────────────────
 #[cfg(feature = "desktop")]
@@ -48,6 +49,8 @@ mod atreia_game_paths;
 mod atreia_update;
 #[cfg(feature = "desktop")]
 mod atreia_confirmation;
+#[cfg(feature = "desktop")]
+mod atreia_radar;
 
 #[cfg(feature = "desktop")]
 pub use app::run;

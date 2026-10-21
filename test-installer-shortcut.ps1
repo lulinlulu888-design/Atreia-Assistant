@@ -24,6 +24,14 @@ function Read-MsiRows([string]$Query, [int]$Columns) {
 }
 try {
     $database = $installer.OpenDatabase((Resolve-Path -LiteralPath $MsiPath).Path, 0)
+    $product = @(Read-MsiRows 'SELECT `Value` FROM `Property` WHERE `Property` = ''ProductName''' 1)
+    if ($product.Count -ne 1 -or $product[0][0] -ne '亚特雷亚助手') { throw 'Expected the Chinese product display name.' }
+    $upgrade = @(Read-MsiRows 'SELECT `Value` FROM `Property` WHERE `Property` = ''UpgradeCode''' 1)
+    if ($upgrade.Count -ne 1 -or $upgrade[0][0].Trim('{}') -ine 'c743efbd-a4df-5791-be41-a1d39ebe3c98') { throw 'Existing MSI upgrade identity changed.' }
+    $names = @(Read-MsiRows 'SELECT `Name` FROM `Shortcut` WHERE `Shortcut` = ''ApplicationDesktopShortcut''' 1)
+    if ($names.Count -ne 1 -or $names[0][0].Split('|')[-1] -ne '亚特雷亚助手') { throw 'Desktop shortcut must use the Chinese software name.' }
+    $menu = @(Read-MsiRows 'SELECT `Name` FROM `Shortcut` WHERE `Shortcut` = ''ApplicationStartMenuShortcut''' 1)
+    if ($menu.Count -ne 1 -or $menu[0][0].Split('|')[-1] -ne '亚特雷亚助手') { throw 'Start menu shortcut must use the Chinese software name.' }
     $shortcuts = @(Read-MsiRows 'SELECT `Directory_`, `Component_`, `Target`, `WkDir` FROM `Shortcut` WHERE `Shortcut` = ''ApplicationDesktopShortcut''' 4)
     if ($shortcuts.Count -ne 1) { throw 'Expected exactly one built-in desktop shortcut.' }
     $shortcut = $shortcuts[0]

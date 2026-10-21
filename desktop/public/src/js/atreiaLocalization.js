@@ -1,5 +1,6 @@
 // Discovery and folder selection are read-only; installation stays explicit.
 (() => {
+  const standalone = Boolean(document.body.classList?.contains('localization-window'));
   let draft = {client:'steam',root:''};
   window.atreiaOpenLocalization = event => {
     if (document.querySelector('.atreiaDialog')) return;
@@ -33,7 +34,7 @@
       busy = value; client.disabled = value; root.disabled = value; browse.disabled = value;
       candidates.disabled = value; close.disabled = value;
       dialog.setAttribute('aria-busy', String(value));
-      close.title = value ? '请等待操作完成；确认窗口可选择取消。' : '返回主页，保留客户端和目录';
+      close.title = value ? '请等待操作完成；确认窗口可选择取消。' : standalone ? '关闭汉化窗口，保留客户端和目录' : '返回主页，保留客户端和目录';
       actions.querySelectorAll('button').forEach(button => { button.disabled = value || (button === installButton && verifiedKey !== selectionKey()); });
     };
     let installButton;
@@ -100,8 +101,13 @@
       } catch (error) { status.textContent = String(error); }
       finally { setBusy(false); }
     });
-    const close = document.createElement('button'); close.textContent = '返回主页'; close.className = 'ghost';
-    close.addEventListener('click', () => { if (!busy) dialog.close(); }); actions.append(close);
+    const close = document.createElement('button'); close.textContent = standalone ? '关闭窗口' : '返回主页'; close.className = 'ghost';
+    close.addEventListener('click', async () => {
+      if (busy) return;
+      if (!standalone) { dialog.close(); return; }
+      try { await window.__TAURI__.core.invoke('hide_localization'); }
+      catch (error) { status.textContent = String(error); }
+    }); actions.append(close);
     refreshClient(); if (root.value) status.textContent = '已保留上次选择的目录，请重新检测当前游戏资源。';
     dialog.append(title,client,pathRow,status,candidates,actions); setBusy(false);
     dialog.addEventListener('cancel', event => { if (busy) { event.preventDefault(); status.textContent = '操作尚未完成，请等待；确认窗口可选择取消。'; } });
@@ -110,6 +116,16 @@
       stageListener?.then(unlisten=>unlisten?.());
       dialog.remove(); opener?.focus?.();
     });
-    document.body.append(dialog); dialog.showModal(); window.lucide?.createIcons();
+    if (standalone) {
+      window.__TAURI__.event?.listen('atreia-localization-opened', () => {
+        if (busy) return;
+        verifiedKey = null;
+        status.textContent = root.value ? '已保留上次选择的目录，请重新检测当前游戏资源。' : '请检测或选择当前游戏目录。';
+        setBusy(false);
+      }).catch(() => null);
+    }
+    document.body.append(dialog);
+    if (standalone) dialog.show(); else dialog.showModal();
+    window.lucide?.createIcons();
   };
 })();

@@ -5,6 +5,21 @@
 上游：https://github.com/taengu/A2Tools-DPS-Meter
 完整上游 LICENSE、源码署名和 README 保留，修改版继续使用 GPL-3.0。
 
+## 2026-10-22 Selected Backports
+
+Checked upstream v2.0.74 (899375ba); this fork is not a wholesale v2.0.74 merge.
+The following GPL-3.0 changes are adapted into the 2.0.58 development build:
+
+- 722dd6b8 (Seralth): additional-hit record tail parsing.
+- 8f2d81a3 (taengu): small critical hits use damage, not the attacker's power scalar.
+- 7a0ad04c (taengu): shield absorption IDs are not extra damage; shielded DoT ticks count.
+- 6f806dc6 / 3631610 (Nullceptions): dismiss stale hover tooltips using the native pointer.
+
+Regression tests replay the upstream shield and additional-hit records. Native pointer
+polling only runs while a tooltip is shown and does not transmit pointer data.
+Accounts, automatic uploads, Discord activity and online plugin downloads remain disabled.
+Live-game validation and formal release are separate from these automated checks.
+
 启动先显示约 480×350 的功能选择页，“战斗统计”与“游戏汉化”互相独立。
 只有明确开启战斗统计才建立约 320×180 的透明置顶悬浮窗并开始采集。
 汉化功能在选择页内打开，不打开统计浮窗。设置/详情也是按需打开，

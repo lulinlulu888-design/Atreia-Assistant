@@ -1,5 +1,7 @@
 .atreiaDialog { box-sizing: border-box; width: min(560px, calc(100vw - 48px)); max-height: calc(100dvh - 40px); overflow-y: auto; padding: 26px; border: 1px solid #ffffffb0; border-radius: 24px; font: 13px/1.6 var(--neo-font); color: var(--neo-text); background: var(--neo-surface); box-shadow: 12px 12px 30px #aebbc380, -8px -8px 24px #ffffff80; }
 .atreiaDialog::backdrop { background: #65778350; backdrop-filter: blur(5px); }
+.localization-window { margin: 0; min-height: 100dvh; background: var(--neo-surface); }
+.localization-window .atreiaDialog { position: static; margin: 0; width: 100%; max-height: none; min-height: 100dvh; border: 0; border-radius: 0; box-shadow: none; padding: 28px; }
 .atreiaDialog h3 { margin: 0 0 17px; font-size: 22px; font-weight: 700; }
 .atreiaDialog h3::before { content: "LOCALIZATION"; display: block; font: 600 9px/1.5 "Segoe UI", sans-serif; letter-spacing: 2px; margin-bottom: 5px; color: var(--neo-accent); }
 .atreiaDialog input, .atreiaDialog select { box-sizing: border-box; font: inherit; color: var(--neo-text); background: var(--neo-surface); border: 1px solid transparent; border-radius: 12px; padding: 11px 13px; outline: none; box-shadow: var(--neo-inset); }

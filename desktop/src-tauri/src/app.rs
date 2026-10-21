@@ -643,11 +643,15 @@ fn return_to_launcher(app: tauri::AppHandle) -> Result<(), String> {
         return Err("请等待汉化操作完成。".into());
     }
     let launcher = app.get_webview_window("launcher").ok_or("首页未就绪")?;
-    app.state::<crate::atreia_localization::CaptureControl>().0.lock().stop();
+    let radar=app.state::<Arc<crate::atreia_radar::RadarControl>>();
+    radar.combat_active.store(false,std::sync::atomic::Ordering::SeqCst);
+    if !radar.active.load(std::sync::atomic::Ordering::SeqCst) {
+        app.state::<crate::atreia_localization::CaptureControl>().0.lock().stop();
+    }
     save_fights_before_reset(&app);
     launcher.show().map_err(|e| e.to_string())?;
     for (label, window) in app.webview_windows() {
-        if label != "launcher" { window.close().map_err(|e| e.to_string())?; }
+        if label != "launcher" && label != "radar" { window.close().map_err(|e| e.to_string())?; }
     }
     launcher.set_focus().map_err(|e| e.to_string())
 }
@@ -686,6 +690,13 @@ fn suspend_capture(state: tauri::State<'_, AppState>, suspended: bool) {
 #[tauri::command]
 fn overlay_lock_supported() -> bool {
     platform::window::cursor_position().is_some()
+}
+
+#[tauri::command]
+fn pointer_in_window(window: tauri::WebviewWindow) -> Option<(i32, i32)> {
+    let (px, py) = platform::window::cursor_position()?;
+    let origin = window.inner_position().ok()?;
+    Some((px - origin.x, py - origin.y))
 }
 
 #[tauri::command]
@@ -2079,17 +2090,35 @@ pub fn run() {
 
     tauri::Builder::default()
         .on_window_event(|window, event| {
+            if matches!(event, tauri::WindowEvent::Destroyed) && window.label() == "launcher" {
+                if let Some(localization) = window.app_handle().get_webview_window("localization") {
+                    if localization.is_visible().ok() == Some(false) { let _ = localization.destroy(); }
+                }
+            }
             if matches!(event, tauri::WindowEvent::Destroyed) && window.label() == "main" {
                 let app = window.app_handle();
-                if let Some(control) = app.try_state::<crate::atreia_localization::CaptureControl>() {
-                    control.0.lock().stop();
+                if let Some(radar)=app.try_state::<Arc<crate::atreia_radar::RadarControl>>() {
+                    radar.combat_active.store(false,std::sync::atomic::Ordering::SeqCst);
                 }
+                let radar_active=app.try_state::<Arc<crate::atreia_radar::RadarControl>>()
+                    .is_some_and(|r|r.active.load(std::sync::atomic::Ordering::SeqCst));
+                if !radar_active { if let Some(control) = app.try_state::<crate::atreia_localization::CaptureControl>() {
+                    control.0.lock().stop();
+                } }
                 if let Some(launcher) = app.get_webview_window("launcher") {
                     let _ = launcher.show();
                 }
             }
+            if matches!(event, tauri::WindowEvent::Destroyed) && window.label()=="radar" {
+                crate::atreia_radar::stop_radar(window.app_handle().clone());
+                if let Some(settings)=window.app_handle().get_webview_window("radar-settings") { let _ = settings.destroy(); }
+            }
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 let localizing = crate::atreia_localization::is_busy();
+                if window.label() == "localization" && !localizing && !crate::atreia_update::is_busy() {
+                    api.prevent_close();
+                    let _ = window.hide();
+                }
                 if crate::atreia_confirmation::protect_close(window.label(), localizing, crate::atreia_update::is_busy()) {
                     api.prevent_close();
                     if localizing {
@@ -2248,6 +2277,8 @@ pub fn run() {
 
             let capturer = PcapCapturer::new(tx);
             app.manage(crate::atreia_localization::CaptureControl(Mutex::new(capturer)));
+            let radar=Arc::new(crate::atreia_radar::RadarControl::default());
+            app.manage(radar.clone());
 
             let mut dispatcher = CaptureDispatcher::new(
                 data_storage.clone(),
@@ -2258,6 +2289,7 @@ pub fn run() {
             );
             dispatcher.set_dot_skill_ids(dot_ids);
             dispatcher.use_suspend_flag(capture_suspended);
+            dispatcher.use_radar(radar);
 
             // Run dispatcher in background
             tauri::async_runtime::spawn(async move {
@@ -2593,6 +2625,7 @@ pub fn run() {
             log_from_ui,
             suspend_capture,
             overlay_lock_supported,
+            pointer_in_window,
             set_overlay_locked,
             is_overlay_locked,
             set_lock_button_rect,
@@ -2630,6 +2663,14 @@ pub fn run() {
             crate::atreia_update::atreia_check_update,
             crate::atreia_update::atreia_install_update,
             crate::atreia_localization::open_combat,
+            crate::atreia_localization::open_localization,
+            crate::atreia_localization::hide_localization,
+            crate::atreia_radar::open_radar,
+            crate::atreia_radar::fit_radar_window,
+            crate::atreia_radar::open_radar_settings,
+            crate::atreia_radar::start_radar,
+            crate::atreia_radar::stop_radar,
+            crate::atreia_radar::radar_snapshot,
             crate::atreia_confirmation::confirmation_request,
             crate::atreia_confirmation::confirmation_respond,
             crate::atreia_confirmation::confirmation_cancel,

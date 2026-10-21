@@ -1,0 +1,7 @@
+/* Shared DPS/radar chrome. Settings panels keep their light material. */
+:root{--overlay-bg:9,13,24;--overlay-bg-legacy:12,22,40;--overlay-text:#ffffff;--overlay-muted:rgba(255,255,255,.55);--overlay-text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.meter,body:not(.settings-window) .radar-shell{background:rgba(var(--overlay-bg),var(--window-opacity,.4));border:1px solid rgba(255,255,255,min(.14,calc(var(--window-opacity,.4)*.2)));box-shadow:none}
+body.legacyUi .meter,body.legacyUi:not(.settings-window) .radar-shell{background:rgba(var(--overlay-bg-legacy),var(--window-opacity,.4));box-shadow:none}
+body:not(.settings-window) .radar-shell{color:var(--overlay-text)}
+.radar-shell :is(h1,#nearest,#elevation,#visible){color:var(--overlay-text);text-shadow:var(--overlay-text-shadow)}
+.radar-shell :is(.north,.range-label,.readout span,.readout small,#count,#status,.tools button){color:var(--overlay-muted)}

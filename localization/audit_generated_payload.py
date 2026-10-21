@@ -46,6 +46,9 @@ def audit(manifest, payload, source, client, baseline=None, corrections=None, pr
         with gzip.open(corrections, "rt", encoding="utf-8") as stream:
             released = json.load(stream)
         for key, variants in released["corrections"].items():
+            # Other-client and newly added keys need not exist in this baseline.
+            if key not in previous_original:
+                continue
             for variant in variants:
                 if (hashlib.sha256(previous_original[key].encode()).hexdigest() == variant["source_sha256"]
                         and hashlib.sha256(previous[key].encode()).hexdigest() == variant["previous_translation_sha256"]):

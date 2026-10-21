@@ -116,6 +116,7 @@ pub struct CaptureDispatcher {
     ping_tracker: Arc<PingTracker>,
     dot_skill_ids: std::collections::HashSet<i32>,
     suspended: Arc<AtomicBool>,
+    radar: Option<Arc<crate::atreia_radar::RadarControl>>,
 }
 
 impl CaptureDispatcher {
@@ -134,6 +135,7 @@ impl CaptureDispatcher {
             ping_tracker,
             dot_skill_ids: std::collections::HashSet::new(),
             suspended: Arc::new(AtomicBool::new(false)),
+            radar: None,
         }
     }
 
@@ -147,10 +149,15 @@ impl CaptureDispatcher {
     pub fn use_suspend_flag(&mut self, flag: Arc<AtomicBool>) {
         self.suspended = flag;
     }
+    pub fn use_radar(&mut self, radar: Arc<crate::atreia_radar::RadarControl>) { self.radar=Some(radar); }
 
     /// Run the dispatch loop, consuming packets from the channel.
     pub async fn run(&self, mut receiver: mpsc::Receiver<CapturedPayload>) {
         let mut assemblers: HashMap<(u16, u16), (StreamAssembler, StreamProcessor)> = HashMap::new();
+        let mut radar_flows=HashMap::<String,crate::radar::Flow>::new();
+        let mut radar_generation=0;
+        let mut radar_device: Option<String>=None;
+        let mut combat_was_active=false;
         // Per-flow count of signature-bearing packets seen while still unlocked, used
         // for the no-combat-needed signature lock (see SIGNATURE_LOCK_THRESHOLD).
         // Per-flow signature-rate tracker: (count_in_window, last_hit_ms).
@@ -162,10 +169,6 @@ impl CaptureDispatcher {
         let mut last_unlocked_report_ms = now_ms();
 
         while let Some(cap) = receiver.recv().await {
-            if self.suspended.load(Ordering::SeqCst) {
-                continue;
-            }
-
             // Check AION window
             let now = now_ms();
             let interval = if is_aion_running { WINDOW_CHECK_RUNNING_MS } else { WINDOW_CHECK_STOPPED_MS };
@@ -208,8 +211,41 @@ impl CaptureDispatcher {
             }
 
             if !is_aion_running {
+                if let Some(radar)=&self.radar { radar.data.lock().reset(); }
+                radar_flows.clear(); radar_device=None;
                 continue;
             }
+
+            if let Some(radar)=&self.radar {
+                let generation=radar.generation.load(Ordering::SeqCst);
+                if generation!=radar_generation || !radar.active.load(Ordering::SeqCst) {
+                    radar_flows.clear(); radar_device=None; radar_generation=generation;
+                }
+                if radar.active.load(Ordering::SeqCst) && [13328,13320].contains(&cap.src_port) {
+                    let device=cap.device_name.clone().unwrap_or_default();
+                    if radar_device.as_ref().is_none_or(|d| d==&device) {
+                        radar_device=Some(device);
+                        let key=format!("{:?}:{}>{:?}:{}",cap.src_ip,cap.src_port,cap.dst_ip,cap.dst_port);
+                        if !radar_flows.contains_key(&key) && radar_flows.len()>=8 { radar_flows.clear(); }
+                        let mut data=radar.data.lock();
+                        // Stop/reset and capture share this lock; a late packet
+                        // cannot revive stale markers after a user stops.
+                        if radar.active.load(Ordering::SeqCst) && generation==radar.generation.load(Ordering::SeqCst) {
+                            radar_flows.entry(key).or_default().push(cap.tcp_seq,&cap.data,&mut data,now);
+                        }
+                    }
+                }
+            }
+            let combat_active=self.radar.as_ref().is_none_or(|r|r.combat_active.load(Ordering::SeqCst));
+            if !combat_active {
+                if combat_was_active {
+                    assemblers.clear(); sig_hits.clear(); self.port_detector.reset(); self.ping_tracker.reset();
+                }
+                combat_was_active=false;
+                continue;
+            }
+            combat_was_active=true;
+            if self.suspended.load(Ordering::SeqCst) { continue; }
 
             // Stale connection check
             if is_aion_running && self.port_detector.current_port().is_some() {

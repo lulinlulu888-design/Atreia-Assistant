@@ -13,9 +13,14 @@
   <header class="launcher-brand">
     <div class="brand-emblem"><img src="/assets/atreia-mark.png" alt="" width="48" height="48"></div>
     <div class="brand-copy"><span class="eyebrow">ATREIA ASSISTANT</span><h1>亚特雷亚助手</h1><p>你的亚特雷亚，清晰一点。</p></div>
-    <span class="version-badge">v2.0.57</span>
+    <span class="version-badge">v2.0.58</span>
   </header>
   <section class="choices" aria-label="选择功能">
+    <button id="radar-open" class="feature-card" type="button">
+      <span class="card-top"><span class="feature-icon"><i data-lucide="radar" aria-hidden="true"></i></span><i class="card-arrow" data-lucide="arrow-up-right" aria-hidden="true"></i></span>
+      <span class="card-copy"><strong>宝箱雷达</strong><small>隐藏宝箱 · 距离与高度差</small></span>
+      <span class="card-caption">探索附近宝箱 <i data-lucide="chevron-right" aria-hidden="true"></i></span>
+    </button>
     <button id="combat" class="feature-card" type="button">
       <span class="card-top"><span class="feature-icon"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i></span><i class="card-arrow" data-lucide="arrow-up-right" aria-hidden="true"></i></span>
       <span class="card-copy"><strong>战斗统计</strong><small>伤害、治疗与技能明细</small></span>
@@ -36,7 +41,6 @@
   <footer><span>战斗统计基于 A2Tools · 开源社区版</span><span>为每一次冒险</span></footer>
 </main>
 <script src="/vendor/lucide.min.js"></script>
-<script src="/src/js/atreiaLocalization.js"></script>
 <script src="/src/js/atreiaLauncher.js"></script>
 <script src="/src/js/atreiaUpdate.js"></script>
 </body>

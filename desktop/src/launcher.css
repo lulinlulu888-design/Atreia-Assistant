@@ -10,7 +10,7 @@ html, .launcher-body { margin: 0; height: 100%; overflow: hidden; }
 h1 { margin: 4px 0; font-size: 25px; font-weight: 700; letter-spacing: .5px; line-height: 1.35; }
 .brand-copy p { margin: 0; font-size: 12px; color: var(--neo-muted); }
 .version-badge { margin-left: auto; align-self: flex-start; margin-top: 8px; padding: 6px 10px; border-radius: 20px; font: 600 10px/1.3 "Segoe UI", sans-serif; color: var(--neo-muted); box-shadow: var(--neo-inset); }
-.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; min-height: 0; padding: 3px; }
+.choices { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; min-height: 0; padding: 3px; }
 .feature-card { min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; padding: 20px 22px; background: var(--neo-surface); border: 1px solid #ffffff6b; border-radius: 22px; color: var(--neo-text); box-shadow: var(--neo-raised); text-align: left; font-family: inherit; cursor: pointer; transition: box-shadow .18s, transform .18s; }
 .feature-card:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 10px 10px 22px #c6d0d7, -9px -9px 20px #fff; }
 .feature-card:active:not(:disabled) { transform: none; box-shadow: var(--neo-inset); }
@@ -18,7 +18,7 @@ h1 { margin: 4px 0; font-size: 25px; font-weight: 700; letter-spacing: .5px; lin
 .feature-icon { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; color: var(--neo-accent); box-shadow: var(--neo-inset); }
 .feature-icon svg { width: 23px; height: 23px; stroke-width: 1.7; }
 .card-arrow { width: 17px; height: 17px; color: #718893; }
-.card-copy strong { display: block; font-size: 20px; font-weight: 700; line-height: 1.4; }
+.card-copy strong { display: block; font-size: 18px; font-weight: 700; line-height: 1.4; }
 .card-copy small { display: block; margin-top: 6px; font-size: 11px; color: var(--neo-muted); line-height: 1.5; }
 .card-caption { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--neo-accent); }
 .card-caption svg { width: 14px; height: 14px; }

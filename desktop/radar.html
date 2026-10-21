@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>隐藏宝箱雷达</title><link rel="stylesheet" href="/src/neumorphic.css"><link rel="stylesheet" href="/src/radar.css"><link rel="stylesheet" href="/src/radar-compact.css"><link rel="stylesheet" href="/src/overlay-material.css"></head>
+<body><main class="radar-shell">
+  <header id="drag"><img src="/assets/atreia-mark.png" alt="" width="28" height="28"><h1>隐藏宝箱</h1><span id="count">0</span><div class="tools"><button id="power" title="开启雷达" aria-label="开启雷达"><i data-lucide="power"></i></button><button id="settings-toggle" title="雷达设置" aria-label="雷达设置" aria-expanded="false"><i data-lucide="settings"></i></button><button id="close" title="关闭雷达" aria-label="关闭雷达"><i data-lucide="x"></i></button></div></header>
+  <section class="radar-view" aria-label="宝箱方位"><canvas id="radar" width="660" height="660" aria-label="隐藏宝箱雷达图"></canvas><span class="north">N</span><div class="range-label" id="range-label">150 m</div></section>
+  <div class="readout"><div><span>最近宝箱</span><strong id="nearest">—<small> m</small></strong></div><div><span>高度差</span><strong id="elevation">—<small> m</small></strong></div><div><span>范围内</span><strong id="visible">0<small> 个</small></strong></div></div>
+  <p id="status" role="status">未开启</p>
+  <ol id="cubes" aria-label="附近宝箱"></ol>
+  <section id="settings" hidden aria-label="雷达设置"><div class="settings-heading"><h2>雷达设置</h2><button id="settings-close" aria-label="关闭设置" title="关闭设置"><i data-lucide="x"></i></button></div>
+    <label>显示范围<select id="range"><option value="50">50 m</option><option value="150" selected>150 m</option><option value="300">300 m</option></select></label>
+    <label>背景透明度（与 DPS 同步）<output id="opacity-value">40%</output><input id="opacity" type="range" min="0" max="100" value="40"></label>
+    <label>角色颜色<input id="player-color" type="color" value="#7bdac6"></label><label>宝箱颜色<input id="cube-color" type="color" value="#e8bd75"></label>
+    <label class="check">发现宝箱提示音<input id="sound" type="checkbox"></label>
+    <label>音量<output id="volume-value">40%</output><input id="volume" type="range" min="0" max="100" value="40"></label>
+    <button id="sound-preview" class="preview">试听提示音</button>
+  </section>
+</main><script src="/vendor/lucide.min.js"></script><script src="/src/js/atreiaRadar.js"></script></body></html>

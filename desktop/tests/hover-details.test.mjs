@@ -6,6 +6,46 @@ import vm from "node:vm";
 const source = readFileSync(new URL("../public/src/js/core.js", import.meta.url), "utf8");
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 
+test("native pointer watchdog dismisses a tooltip after a missed mouseleave", async () => {
+  let callback;
+  const cleared = [];
+  const window = { addEventListener() {}, javaBridge: { pointerInWindow: async () => ({ x: 20, y: 30 }) } };
+  const document = { readyState: "loading", addEventListener() {}, elementFromPoint: () => null };
+  const context = vm.createContext({
+    window, document, console,
+    setInterval: (fn) => { callback = fn; return 7; },
+    clearInterval: (id) => cleared.push(id),
+  });
+  vm.runInContext(source, context);
+  const app = vm.runInContext("Object.create(DpsApp.prototype)", context);
+  app.hoveredDetailsRowId = 1;
+  app.watchHoverPointer();
+  await callback();
+  assert.equal(app.hoveredDetailsRowId, null);
+  assert.equal(app.hoverPointerWatch, 0);
+  assert.deepEqual(cleared, [7]);
+});
+
+test("native pointer watchdog retains the hovered row and stops when unavailable", async () => {
+  let callback;
+  let at = { x: 20, y: 30 };
+  const window = { addEventListener() {}, javaBridge: { pointerInWindow: async () => at } };
+  const document = { readyState: "loading", addEventListener() {},
+    elementFromPoint: () => ({ closest: () => ({ dataset: { rowId: "1" } }) }) };
+  const context = vm.createContext({ window, document, console,
+    setInterval: (fn) => { callback = fn; return 8; }, clearInterval() {} });
+  vm.runInContext(source, context);
+  const app = vm.runInContext("Object.create(DpsApp.prototype)", context);
+  app.hoveredDetailsRowId = 1;
+  app.watchHoverPointer();
+  await callback();
+  assert.equal(app.hoveredDetailsRowId, 1);
+  assert.equal(app.hoverPointerWatch, 8);
+  at = null;
+  await callback();
+  assert.equal(app.hoverPointerWatch, 0);
+});
+
 function setup(getBattleDetail) {
   const logs = [];
   const window = { addEventListener() {}, dpsData: { getBattleDetail }, javaBridge: { logToDebug: (s) => logs.push(s) } };

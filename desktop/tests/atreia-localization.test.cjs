@@ -5,7 +5,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 const source = fs.readFileSync(path.join(__dirname, '../public/src/js/atreiaLocalization.js'), 'utf8');
 
-function setup(invoke) {
+function setup(invoke, standalone = false) {
+  const listeners = {};
   class Element {
     constructor(tag) { this.tag = tag; this.children = []; this.style = {}; this.events = {}; this.value = ''; this.disabled = false; }
     append(...items) { this.children.push(...items); if (items.length && this.tag === 'select' && !this.value) this.value = items[0].value; }
@@ -14,19 +15,50 @@ function setup(invoke) {
     addEventListener(name, fn) { this.events[name] = fn; }
     querySelectorAll(tag) { return this.children.filter(child => child.tag === tag); }
     showModal() {}
+    show() { this.nonmodal = true; }
     close() { this.events.close?.(); }
     remove() { body.children = body.children.filter(child => child !== this); }
     focus() {}
   }
   const body = new Element('body');
-  const window = { __TAURI__: { core: { invoke } } };
+  body.classList = {contains: name => standalone && name === 'localization-window'};
+  const window = { __TAURI__: { core: { invoke }, event: {listen: (name, fn) => {listeners[name]=fn;return Promise.resolve(()=>{});}} } };
   vm.runInNewContext(source, { window, document: { body, createElement: tag => new Element(tag), querySelector: () => null } });
   window.atreiaOpenLocalization();
   const dialog = body.children[0];
   const [, client, pathRow, status, candidates, actions] = dialog.children;
   const [root, browse] = pathRow.children;
-  return { dialog, client, root, browse, candidates, status, buttons: actions.children, window, body };
+  return { dialog, client, root, browse, candidates, status, buttons: actions.children, window, body, listeners };
 }
+
+test('standalone startup renders without capture, detection or installation', () => {
+  const calls=[]; const ui=setup(command=>calls.push(command),true);
+  assert.deepEqual(calls,[]); assert.equal(ui.dialog.nonmodal,true);
+  assert.equal(ui.buttons[3].textContent,'关闭窗口');
+});
+
+test('standalone close preserves controls and reopening invalidates compatibility approval', async () => {
+  const calls=[];const ui=setup(async command=>{calls.push(command);return {ok:true,message:'passed'};},true);
+  ui.client.value='purple';ui.root.value='D:/AION2';await ui.buttons[0].events.click();
+  assert.equal(ui.buttons[1].disabled,false);
+  await ui.buttons[3].events.click();
+  assert.equal(calls.at(-1),'hide_localization'); assert.equal(ui.body.children.length,1);
+  ui.listeners['atreia-localization-opened']();
+  assert.equal(ui.client.value,'purple');assert.equal(ui.root.value,'D:/AION2');
+  assert.equal(ui.buttons[1].disabled,true);
+  await ui.buttons[1].events.click();
+  assert.equal(calls.length,2);
+});
+
+test('standalone cannot hide or reset an active operation', async () => {
+  let finish;const calls=[];
+  const ui=setup(command=>{calls.push(command);return new Promise(resolve=>finish=resolve);},true);
+  ui.root.value='D:/AION2';const pending=ui.buttons[0].events.click();
+  await Promise.resolve();await ui.buttons[3].events.click();ui.listeners['atreia-localization-opened']();
+  assert.equal(ui.buttons[3].disabled,true);assert.deepEqual(calls,['localization_execute']);
+  finish({ok:true,message:'passed'});await pending;
+  assert.equal(ui.buttons[3].disabled,false);
+});
 
 for (const clientName of ['steam', 'purple']) {
   test(`${clientName}: all three operations use the native selected-client component`, async () => {
@@ -57,7 +89,7 @@ test('pending operation locks the selected client, root, actions and closing', a
   let prevented = false;
   ui.dialog.events.cancel({ preventDefault() { prevented = true; } });
   assert.equal(prevented, true);
-  await Promise.resolve();
+  await new Promise(setImmediate);
   finish({ ok: true, message: 'completed' }); await pending;
   assert.equal(ui.client.disabled, false);
   assert.equal(ui.root.disabled, false);

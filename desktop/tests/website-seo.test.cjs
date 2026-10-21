@@ -162,3 +162,14 @@ test('project robots file does not claim to replace host-root rules', () => {
   assert.doesNotMatch(robots, /^Disallow:\s*\//m);
   assert.ok(robots.includes(`Sitemap: ${base}sitemap.xml`));
 });
+
+test('homepage targets relevant searches without claiming unreleased downloads', () => {
+  const html=read('index.html');
+  const app=schema(html)['@graph'].find(item=>item['@type']==='SoftwareApplication');
+  assert.deepEqual(app.keywords,['AION2 汉化','永恒之塔2 汉化','AION2 DPS 统计','Steam 汉化','PURPLE 汉化','亚特雷亚助手']);
+  assert.match(html,/开发版真实截图/);assert.match(html,/尚未包含在当前正式安装包中/);
+  assert.match(html,/assets\/home.css/);assert.doesNotMatch(html,/12,871|159\.6|演示数据/);
+  assert.match(html,/assets\/screenshots\/launcher-dev.jpg/);
+  assert.match(html,/assets\/screenshots\/localization-dev.jpg/);
+  assert.equal(meta(html,'keywords').length,0);
+});

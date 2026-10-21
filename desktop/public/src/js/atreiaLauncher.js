@@ -30,6 +30,21 @@
     }
     finally { combat.disabled = false; }
   });
-  document.getElementById("localization").addEventListener("click", window.atreiaOpenLocalization);
+  document.getElementById("localization").addEventListener("click", async (event) => {
+    const button = event.currentTarget;
+    if (button.disabled) return;
+    button.disabled = true;
+    try { await window.__TAURI__.core.invoke("open_localization"); setStatus("游戏汉化窗口已打开。"); }
+    catch (error) { setStatus(String(error)); }
+    finally { button.disabled = false; }
+  });
+  document.getElementById("radar-open")?.addEventListener("click", async (event) => {
+    const button=event.currentTarget;
+    if(button.disabled)return;
+    button.disabled=true;
+    try { await window.__TAURI__.core.invoke("open_radar");setStatus("宝箱雷达已打开，尚未开启采集。"); }
+    catch(error) { setStatus(String(error)); }
+    finally { button.disabled=false; }
+  });
   window.lucide?.createIcons();
 })();

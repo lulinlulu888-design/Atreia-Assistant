@@ -739,6 +739,10 @@ class DpsApp {
   }
 
   hideHoverTooltip() {
+    if (this.hoverPointerWatch) {
+      clearInterval(this.hoverPointerWatch);
+      this.hoverPointerWatch = 0;
+    }
     if (!this.hoverTooltipEl) return;
     this.hoverTooltipEl.classList.remove("isVisible");
     this.hoverTooltipEl.innerHTML = "";
@@ -819,6 +823,36 @@ class DpsApp {
     }
     this.hoverTooltipEl.classList.add("isVisible");
     this.positionHoverTooltip(rowEl);
+    this.watchHoverPointer();
+  }
+
+  watchHoverPointer() {
+    if (this.hoverPointerWatch || !window.javaBridge?.pointerInWindow) return;
+    let pending = false;
+    const watch = setInterval(async () => {
+      if (pending) return;
+      pending = true;
+      const rowId = this.hoveredDetailsRowId;
+      try {
+        const at = await window.javaBridge.pointerInWindow();
+        if (this.hoverPointerWatch !== watch) return;
+        if (!at) {
+          clearInterval(watch);
+          this.hoverPointerWatch = 0;
+          return;
+        }
+        if (rowId !== this.hoveredDetailsRowId) return;
+        const over = document.elementFromPoint(at.x, at.y)?.closest?.(".item");
+        if (rowId && Number(over?.dataset?.rowId) === rowId) return;
+        this.hoveredDetailsRowId = null;
+        this.hideHoverTooltip();
+      } catch {
+        if (this.hoverPointerWatch === watch) this.hideHoverTooltip();
+      } finally {
+        pending = false;
+      }
+    }, 300);
+    this.hoverPointerWatch = watch;
   }
 
   positionHoverTooltip(rowEl = null) {

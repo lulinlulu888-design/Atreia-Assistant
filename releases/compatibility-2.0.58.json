@@ -1,0 +1,7 @@
+{
+  "version": "2.0.58",
+  "verified_game_builds": {"steam": "26077854", "purple_tw": "local-resources-2026-10-22"},
+  "source_key_counts": {"steam": 153185, "purple_tw": 157521},
+  "supplemented_counts": {"steam": 3811, "purple_tw": 21816},
+  "note": "Read-only source inspection and isolated native transactions verified for both clients. Radar is experimental; live-game localization display and radar positioning are not verified."
+}
