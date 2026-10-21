@@ -20,10 +20,9 @@ polling only runs while a tooltip is shown and does not transmit pointer data.
 Accounts, automatic uploads, Discord activity and online plugin downloads remain disabled.
 Live-game validation and formal release are separate from these automated checks.
 
-启动先显示约 480×350 的功能选择页，“战斗统计”与“游戏汉化”互相独立。
-只有明确开启战斗统计才建立约 320×180 的透明置顶悬浮窗并开始采集。
-汉化功能在选择页内打开，不打开统计浮窗。设置/详情也是按需打开，
-不恢复上次留下的详情窗口到启动页上。
+启动先显示 680×500 逻辑像素的主界面。战斗统计、游戏汉化和实验性宝箱雷达分别打开独立窗口，也可同时运行，主界面保留。
+采集仅在用户明确确认后开启；仅使用汉化不启用抓包。DPS 与雷达共用采集管线，分别关闭不会中止另一个仍运行的功能。
+设置/详情按需打开，不恢复上次留下的详情窗口到启动页上。雷达默认 210×240 逻辑像素，设置使用单独窗口。
 
 新增游戏汉化入口，调用本项目的版本固定汉化桥接组件。该组件可选，
 不包含在源码中，也不自动下载。两端共用经过版本和摘要核验的语言表编解码器，

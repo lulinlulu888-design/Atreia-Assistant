@@ -32,6 +32,15 @@ test('download page does not confuse API rate limiting with an unpublished relea
   assert.match(elements['#download-button'].href, /Atreia-Assistant\/releases$/);
 });
 
+test('a stale release API response cannot downgrade the published website installer', async () => {
+  const elements = await load({ ok: true, json: async () => ({
+    tag_name: 'v2.0.57', assets: [{ name: 'Atreia-Assistant_2.0.57_x64.msi',
+      size: 100, browser_download_url: 'https://github.com/lulinlulu888-design/Atreia-Assistant/releases/download/v2.0.57/Atreia-Assistant_2.0.57_x64.msi' }],
+  }) }, { version: '2.0.58', size: '200' });
+  assert.equal(elements['#download-label'].textContent, '下载 Windows 2.0.58');
+  assert.match(elements['#download-button'].href, /v2\.0\.58/);
+});
+
 test('download page preserves the unpublished state for a missing latest release', async () => {
   const elements = await load({ ok: false, status: 404 });
   assert.equal(elements['#download-label'].textContent, '正式版尚未发布');

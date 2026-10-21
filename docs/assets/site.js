@@ -32,6 +32,16 @@ function unavailable(message) {
   button.href = `https://github.com/${repo}/releases`;
 }
 
+function isOlderVersion(version, baseline) {
+  if (!/^\d+\.\d+\.\d+$/.test(version)) return false;
+  const actual = version.split('.').map(Number);
+  const published = baseline.split('.').map(Number);
+  for (let index = 0; index < 3; index += 1) {
+    if (actual[index] !== published[index]) return actual[index] < published[index];
+  }
+  return false;
+}
+
 fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
   headers: { Accept: "application/vnd.github+json" }
 })
@@ -48,6 +58,11 @@ fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
       return;
     }
     const version = String(release.tag_name || "").replace(/^v/i, "");
+    // A cached API response must not downgrade the website's published link.
+    if (cachedInstaller && isOlderVersion(version, cachedInstaller.version)) {
+      showInstaller(cachedInstaller);
+      return;
+    }
     showInstaller({version, size: installer.size, url: installer.browser_download_url});
   })
   .catch((error) => {
