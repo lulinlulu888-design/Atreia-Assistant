@@ -8,6 +8,14 @@ function setup(invoke){
   return {elements,events};
 }
 const flush=()=>new Promise(r=>setImmediate(r));
+
+test('native confirmation is above overlays and discoverable in the taskbar',()=>{
+  const native=fs.readFileSync(require('node:path').join(__dirname,'../src-tauri/src/atreia_confirmation.rs'),'utf8');
+  assert.match(native,/\.always_on_top\(true\)/);
+  assert.match(native,/\.skip_taskbar\(false\)/);
+  assert.doesNotMatch(native,/\.skip_taskbar\(true\)/);
+  assert.match(native,/receiver\.await\.unwrap_or\(false\)/);
+});
 test('confirmation renders literal text and defaults focus to cancellation',async()=>{
   const ui=setup(async()=>prompt);await flush();
   assert.equal(ui.elements['confirmation-message'].textContent,'<风险说明>');

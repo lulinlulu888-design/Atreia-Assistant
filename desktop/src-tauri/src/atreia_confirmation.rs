@@ -96,7 +96,8 @@ pub async fn ask(app: &tauri::AppHandle, prompt: Prompt) -> Result<bool, String>
         .inner_size(560.0, 420.0)
         .decorations(false)
         .resizable(false)
-        .skip_taskbar(true)
+        .always_on_top(true)
+        .skip_taskbar(false)
         .background_color(tauri::window::Color(233, 238, 241, 255))
         .parent(&owner)
         .and_then(|builder| builder.build());
