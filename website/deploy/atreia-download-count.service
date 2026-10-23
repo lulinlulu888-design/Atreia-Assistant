@@ -1,0 +1,16 @@
+[Unit]
+Description=Refresh public Atreia GitHub installer download count
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ec2-user
+ExecStart=/usr/bin/python3 /srv/atreia/bin/update_download_count.py /srv/atreia/data/downloads.json
+TimeoutStartSec=120
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/srv/atreia/data
+UMask=0022
