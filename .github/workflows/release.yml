@@ -51,7 +51,7 @@ jobs:
           if (-not $draft.isDraft -or @($draft.assets).Count -ne 1 -or $draft.assets[0].name -ne $seed) { throw 'Expected an unpublished draft containing only the source archive' }
           gh release download $draftRef --repo $env:GITHUB_REPOSITORY --pattern $seed --dir release-stage
           if ($LASTEXITCODE) { throw 'Source download failed' }
-          if ((Get-FileHash "release-stage/$seed").Hash -ne 'D8C81E9C408BCB9725B2BC5C731CF753AFEF25677A93143EC275BDFC9A6883E6') { throw 'Unreviewed client snapshots' }
+          if ((Get-FileHash "release-stage/$seed").Hash -ne '6956C0F51C7DA1657352ADF091C1C96D1B8EB91BFF6FAAF4C616B87C6C395A10') { throw 'Unreviewed client snapshots' }
           Expand-Archive "release-stage/$seed" release-stage/materials/localization-inputs/dual-sources
           python -m pip install opencc-python-reimplemented==0.1.7
           if ($LASTEXITCODE) { throw 'Codec dependency installation failed' }
@@ -66,7 +66,11 @@ jobs:
           if ($LASTEXITCODE) { throw 'PURPLE source-bound update generation failed' }
           python localization/unify_hidden_cube.py "$inputs/purple-20261022/additions.json.gz" "$inputs/hidden-cube-additions.json.gz" "$inputs/dual-sources/steam-26077854.json" "$inputs/dual-sources/purple-20261022-en-US.json"
           if ($LASTEXITCODE) { throw 'Hidden Cube terminology normalization failed' }
-          ./prepare-localization.ps1 -Engine release-stage/materials/component/Aion2-Steam-CN-v2.4.0.exe -DecoderPath release-stage/materials/component/dependencies/oo2core_9_win64.dll -AdditionsPath "$inputs/hidden-cube-additions.json.gz" -Destination release-stage/component
+          python localization/build_clients_20261028.py "$inputs/hidden-cube-additions.json.gz" "$inputs/dual-sources/steam-26262663.json" "$inputs/dual-sources/steam-26077854-independent.json" "$inputs/dual-sources/purple-127-en-US.json" "$inputs/dual-sources/purple-127-zh-TW.json" "$inputs/dual-sources/purple-20261022-en-US.json" "$inputs/clients-20261028"
+          if ($LASTEXITCODE) { throw 'Current dual-client generation failed' }
+          python localization/unify_hidden_cube.py "$inputs/clients-20261028/additions.json.gz" "$inputs/clients-20261028-hidden-cube.json.gz" "$inputs/dual-sources/steam-26262663.json" "$inputs/dual-sources/purple-127-en-US.json"
+          if ($LASTEXITCODE) { throw 'Current Hidden Cube terminology normalization failed' }
+          ./prepare-localization.ps1 -Engine release-stage/materials/component/Aion2-Steam-CN-v2.4.0.exe -DecoderPath release-stage/materials/component/dependencies/oo2core_9_win64.dll -AdditionsPath "$inputs/clients-20261028-hidden-cube.json.gz" -Destination release-stage/component
           if ($LASTEXITCODE) { throw 'Current-source bridge build failed' }
           Copy-Item release-stage/component/* release-stage/materials/component/ -Recurse -Force
           Copy-Item release-stage/component/* desktop/src-tauri/vendor/localization/ -Recurse -Force
@@ -105,10 +109,10 @@ jobs:
           if ($null -eq $compatibility.verified_game_builds) { throw 'Missing verified client builds' }
           $review = Get-Content "$inputs/dual/review.json" -Raw | ConvertFrom-Json
           if ($null -eq $review.inputs) { throw 'Missing localization snapshot provenance' }
-          $review.inputs | Add-Member -NotePropertyName current_steam -NotePropertyValue '6cff77bce26125541e7bc7999b8e4a43e859db2d8d3b09bed8eeffa0d648638d'
+          $review.inputs | Add-Member -NotePropertyName current_steam -NotePropertyValue '37fb7ea8bc04abf35a671101a431a196192706c9aa6f331049f71acf086f73c5'
           $review.inputs | Add-Member -NotePropertyName current_steam_report -NotePropertyValue 'bf856c067b9eb6b6594d32f3903a6b07fcff6959bb64d607c27ce0699576c469'
-          $review.inputs | Add-Member -NotePropertyName current_purple -NotePropertyValue '275173f15d13479dcd4ce156467d2fded8976cd6441bc41e34dfb8149da43f79'
-          $review.inputs | Add-Member -NotePropertyName current_traditional -NotePropertyValue 'b5f328a5f2947cde5476c1eb8a203264b1c814007ca06313600c955d08c27058'
+          $review.inputs | Add-Member -NotePropertyName current_purple -NotePropertyValue '017e180fb47b3d51c3de7510781887fe5205c0f0dbc23c228aaf1ce492455a02'
+          $review.inputs | Add-Member -NotePropertyName current_traditional -NotePropertyValue '0829937316c9636617059c28b73ada2df536fa24a2a7a8f537101b95b3b08ccd'
           [ordered]@{
             version = $version
             commit = $env:GITHUB_SHA
@@ -120,6 +124,7 @@ jobs:
             cargo_source_packages = $baseBuild.cargo_source_packages
             verified_game_builds = $compatibility.verified_game_builds
             localization_snapshot_sha256 = $review.inputs
+            current_client_update = (Get-Content "$inputs/clients-20261028/report.json" -Raw | ConvertFrom-Json)
           } | ConvertTo-Json -Depth 10 | Set-Content release-stage/materials/build.json -Encoding utf8
           Compress-Archive -Path release-stage/materials/* -DestinationPath "release-stage/publish/Atreia-Assistant_${version}_build-materials.zip"
           Get-ChildItem release-stage/publish | ForEach-Object { "$((Get-FileHash $_.FullName).Hash.ToLower())  $($_.Name)" } | Set-Content release-stage/publish/SHA256SUMS.txt -Encoding ascii

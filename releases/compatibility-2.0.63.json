@@ -1,0 +1,11 @@
+{
+  "version": "2.0.63",
+  "verified_game_builds": {"steam": "26262663", "purple_tw": "127"},
+  "source_key_counts": {"steam": 153297, "purple_tw": 160286},
+  "supplemented": {"steam": 4170, "purple_tw": 24606},
+  "isolated_payload_sha256": {
+    "steam": "8a98b714abd22115bdabbc84325cbafcbbc599ce06eedfbdf035abeab2fa1891",
+    "purple_tw": "93024e1fb9761df9167db30f4ff74f28e0885819c3a62639eef69498f19ebce5"
+  },
+  "note": "Read-only inspection and isolated production-bridge install/reinstall/restore verified. Independent decode confirms key order and zero runtime parameter differences. Steam preserves 152916 unchanged-source translations. No writes to real game directories; no full in-game text acceptance claim. Published installer provenance is recorded separately in CI and Release assets."
+}
