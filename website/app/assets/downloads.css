@@ -1,0 +1,9 @@
+.official-download form { margin: 0; }
+.official-download button { border: 0; font-family: inherit; cursor: pointer; }
+.official-download button:focus-visible { outline: 3px solid #0b8e89; outline-offset: 5px; }
+.official-download button:disabled { cursor: wait; opacity: .75; }
+.website-download-count { min-height: 24px; margin-top: 5px; font-size: 12px; color: #096d68; }
+.download-fallback { display: block; margin-top: 6px; font-size: 12px; text-decoration: underline; }
+.download .official-download { margin-left: auto; }
+@media (max-width: 850px) { .download .official-download { margin-left: 0; } }
+@media (max-width: 600px) { .download .official-download, .official-download form, .official-download button { width: 100%; } }

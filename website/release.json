@@ -1,8 +1,8 @@
 {
-  "version": "2.0.62",
-  "size": 31392364,
-  "sha256": "52c1f52da455e8936706ae1be4d5bbfd2673a18e279dbccaf7ed6e8bd850585e",
-  "url": "https://atreia-downloads-487694861369.s3.ap-southeast-1.amazonaws.com/releases/v2.0.62/Atreia-Assistant_2.0.62_x64.msi",
-  "title": "雷达定位改进与隐藏宝箱术语统一",
-  "summary": "改进游戏连接识别与角色定位，雷达支持一键开启，主窗口关闭后保留托盘。支持 Steam / Global 与 PURPLE 汉化；宝箱雷达仍为实验功能。"
+  "version": "2.0.63",
+  "size": 31507052,
+  "sha256": "fd3720c8ed8e03c148a4fbaa45e4143d58d6572367ccc391c5b3509c87c4f4de",
+  "url": "https://atreia-downloads-487694861369.s3.ap-southeast-1.amazonaws.com/releases/v2.0.63/Atreia-Assistant_2.0.63_x64.msi",
+  "title": "Steam 与 PURPLE 双端汉化更新",
+  "summary": "适配 Steam Build 26262663 与 PURPLE TW 127。补充本次新增及变更文本，保留国服术语与隐藏宝箱统一译名；两端通过隔离安装、重复安装、还原及独立解码核对。"
 }

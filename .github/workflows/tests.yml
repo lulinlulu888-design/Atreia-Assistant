@@ -10,6 +10,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - run: python -m pip install opencc-python-reimplemented==0.1.7
       - run: python -m unittest discover -s tests -v
   protocol:
     strategy:
@@ -24,6 +25,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: cargo build --manifest-path backend/Cargo.toml --locked
+      - run: python -m pip install opencc-python-reimplemented==0.1.7
       - name: End-to-end capture to backend tests (Windows)
         if: runner.os == 'Windows'
         shell: pwsh

@@ -3,6 +3,7 @@ $ErrorActionPreference = 'Stop'
 $site = Split-Path $PSScriptRoot -Parent
 $public = Join-Path $site '.output/public'
 if (-not (Test-Path (Join-Path $public 'index.html'))) { throw 'Generate the Nuxt site first.' }
+Copy-Item -LiteralPath (Join-Path $site 'release.json') -Destination (Join-Path $public 'download-release.json')
 $stamp = [DateTime]::UtcNow.ToString('yyyyMMddHHmmss')
 $archive = Join-Path ([IO.Path]::GetTempPath()) "atreia-site-$stamp.tar.gz"
 tar -czf $archive -C $public .

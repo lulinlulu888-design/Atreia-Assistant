@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2026-10-22',
   devtools: { enabled: false },
-  css: ['~/assets/main.css', '~/assets/polish.css'],
+  css: ['~/assets/main.css', '~/assets/polish.css', '~/assets/downloads.css'],
   app: { head: {
     htmlAttrs: { lang: 'zh-CN' },
     title: '亚特雷亚助手官网 | AION2 汉化、DPS统计与宝箱雷达',

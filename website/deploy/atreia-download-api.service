@@ -1,0 +1,19 @@
+[Unit]
+Description=Atreia official website download gateway
+After=network.target mongod.service
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/srv/atreia/bin
+ExecStart=/srv/atreia/download-api-venv/bin/python /srv/atreia/bin/download_api.py
+EnvironmentFile=-/etc/atreia-download-api.env
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
