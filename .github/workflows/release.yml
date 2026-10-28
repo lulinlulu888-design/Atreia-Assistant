@@ -9,6 +9,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   windows-release:
+    if: ${{ !endsWith(github.ref_name, '-downloads') }}
     runs-on: windows-latest
     defaults:
       run:
@@ -163,6 +164,7 @@ jobs:
           version="${GITHUB_REF_NAME#v}"
           gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease --jq 'if .isDraft or .isPrerelease then error("Not a formal release") else "Formal release verified" end'
           cd release-downloads
+          sed -i 's/\r$//' SHA256SUMS.txt
           installer="Atreia-Assistant_${version}_x64.msi"
           test -s "$installer"
           test "$(grep -Ec "^[a-f0-9]{64}  ${installer//./\\.}$" SHA256SUMS.txt)" = 1

@@ -1,0 +1,51 @@
+name: Repair official S3 downloads
+on:
+  push:
+    tags: ['v2.*-downloads']
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify existing formal release and download installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF_NAME" =~ ^v2\.[0-9]+\.[0-9]+-downloads$ ]]
+          tag="${GITHUB_REF_NAME%-downloads}"
+          version="${tag#v}"
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease --jq 'if .isDraft or .isPrerelease then error("Not formal") else "Formal release verified" end'
+          mkdir files
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "Atreia-Assistant_${version}_x64.msi" --pattern SHA256SUMS.txt --dir files
+          python3 - "$version" <<'PY'
+          import hashlib, pathlib, sys
+          name = f'Atreia-Assistant_{sys.argv[1]}_x64.msi'
+          lines = pathlib.Path('files/SHA256SUMS.txt').read_text().splitlines()
+          matches = [line.split()[0] for line in lines if line.split()[1:] == [name]]
+          assert len(matches) == 1
+          assert hashlib.sha256(pathlib.Path('files', name).read_bytes()).hexdigest() == matches[0]
+          print('Installer checksum verified')
+          PY
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::487694861369:role/AtreiaGitHubReleasePublisher
+          aws-region: ap-southeast-1
+          role-session-name: atreia-download-repair-${{ github.run_id }}
+          role-duration-seconds: 900
+      - name: Upload exact formal files and verify round trip
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME%-downloads}"
+          version="${tag#v}"
+          destination="s3://atreia-downloads-487694861369/releases/$tag"
+          installer="Atreia-Assistant_${version}_x64.msi"
+          aws s3 cp "files/$installer" "$destination/$installer" --content-type application/octet-stream --no-progress
+          aws s3 cp files/SHA256SUMS.txt "$destination/SHA256SUMS.txt" --content-type text/plain --no-progress
+          mkdir verified
+          aws s3 cp "$destination/$installer" "verified/$installer" --no-progress
+          aws s3 cp "$destination/SHA256SUMS.txt" verified/SHA256SUMS.txt --no-progress
+          cmp "files/$installer" "verified/$installer"
+          cmp files/SHA256SUMS.txt verified/SHA256SUMS.txt
