@@ -43,6 +43,8 @@ def propose(english, japanese, previous, own, tw_english, traditional):
         else:
             chinese = transform_prose(traditional[key], converter.convert)
             chinese = mainland_terms(chinese, terms, english[key])
+            if re.search(r'\bHidden Cubes?\b', english[key], re.I):
+                chinese = chinese.replace('隐藏背包', '隐藏宝箱')
             if signature(chinese) != signature(japanese[key]):
                 reason = 'japanese_runtime_signature_differs'
             elif numbers(chinese) != numbers(japanese[key]):

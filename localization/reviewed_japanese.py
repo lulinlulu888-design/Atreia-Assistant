@@ -4,6 +4,7 @@ No upstream translation payload is read. Unknown prose remains unresolved.
 The caller binds each result to the complete Japanese and English source hashes.
 """
 import re
+import unicodedata
 
 SKILL_PROPERTIES = {
     'ノンターゲット': '非锁定',
@@ -72,6 +73,21 @@ def skill_description(japanese):
 
 
 def reviewed_translation(key, japanese):
+    if key.startswith('AchievementString_'):
+        plain = unicodedata.normalize('NFKC', japanese)
+        pet = re.fullmatch(r'(野性|自然|変形|知性)ペット(\d+)体レベル(\d+)達成', plain)
+        if pet:
+            kind = {'野性': '野性', '自然': '自然', '変形': '变形', '知性': '知性'}[pet[1]]
+            return '使' + pet[2] + '只' + kind + '宠物达到' + pet[3] + '级'
+        score = re.fullmatch(r'覚醒戦最終ポイント([0-9,]+)達成', plain)
+        if score:
+            return '飞升试炼最终积分达到' + score[1] + '分'
+        ranks = {'一': '1', '二': '2', '三': '3', '四': '4', '五': '5', '六': '6', '七': '7', '八': '8', '九': '9'}
+        kill = re.fullmatch(r'(天族|魔族)?\[([一二三四五六七八九1-9])(等|星)[~〜]([一二三四五六七八九1-9])(?:等兵|星将校)\](\d+)回KILL', plain)
+        if kill:
+            low, high = ranks.get(kill[2], kill[2]), ranks.get(kill[4], kill[4])
+            target = (low + '等兵至' + high + '等兵') if kill[3] == '等' else (low + '星~' + high + '星军官')
+            return '击败' + (kill[1] or '') + '[' + target + ']' + kill[5] + '次'
     if key.startswith('SkillString_') and key.endswith('_skill_spec_effect'):
         match = re.fullmatch(r'<(unique|Unique)>([^<>]+)</>', japanese)
         if match:

@@ -41,6 +41,12 @@ class OfficialJapaneseReviewTests(unittest.TestCase):
         self.assertFalse(reviews)
         self.assertEqual(rejected[0]['reason'], 'official_english_sources_differ')
 
+    def test_hidden_cube_term_does_not_rename_regular_backpack(self):
+        reviews, _ = propose({'a': 'Hidden Cube'}, {'a': '隠されたキューブ'}, {}, {}, {'a': 'Hidden Cube'}, {'a': '隱藏背包'})
+        self.assertEqual(reviews['a']['translation'], '隐藏宝箱')
+        reviews, _ = propose({'a': 'Backpack'}, {'a': 'バッグ'}, {}, {}, {'a': 'Backpack'}, {'a': '背包'})
+        self.assertEqual(reviews['a']['translation'], '背包')
+
 
 if __name__ == '__main__':
     unittest.main()

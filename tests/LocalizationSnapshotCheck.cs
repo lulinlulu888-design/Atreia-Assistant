@@ -14,8 +14,8 @@ static class LocalizationSnapshotCheck
     {
         try
         {
-            if (args.Length != 3 || Directory.Exists(args[2]))
-                throw new ArgumentException("engine.exe source.json new-output-directory");
+            if ((args.Length != 3 && args.Length != 4) || Directory.Exists(args[2]))
+                throw new ArgumentException("engine.exe source.json new-output-directory [official-source.dat]");
             var serializer = new JavaScriptSerializer { MaxJsonLength = 128 * 1024 * 1024 };
             var snapshot = serializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(args[1], Encoding.UTF8));
             Assembly assembly = Assembly.LoadFrom(Path.GetFullPath(args[0]));
@@ -25,7 +25,7 @@ static class LocalizationSnapshotCheck
             using (Stream stream = assembly.GetManifestResourceStream("Aion2CNTool.Payload.L10NString.dat"))
             using (var buffer = new MemoryStream()) { stream.CopyTo(buffer); bytes = buffer.ToArray(); }
             object baseline = type.GetMethod("Decode", Flags).Invoke(codec, new object[] { bytes });
-            object current = type.GetMethod("Decode", Flags).Invoke(codec, new object[] { bytes });
+            object current = type.GetMethod("Decode", Flags).Invoke(codec, new object[] { args.Length == 4 ? File.ReadAllBytes(args[3]) : bytes });
             var rows = (IList)current.GetType().GetField("Rows", Flags).GetValue(current);
             Type rowType = rows[0].GetType();
             rows.Clear();

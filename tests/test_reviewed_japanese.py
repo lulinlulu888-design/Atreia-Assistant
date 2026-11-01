@@ -32,6 +32,14 @@ class ReviewedJapaneseTests(unittest.TestCase):
         self.assertIsNone(reviewed_translation('SkillString_TEST_skill_desc_effect', 'スキル速度が20%増加します。未知の効果を付与します。'))
         self.assertIsNone(reviewed_translation('SkillString_TEST_skill_desc_effect', 'HP20%吸収§0§'))
 
+    def test_pet_achievement_uses_japanese_count_and_level(self):
+        self.assertEqual(reviewed_translation('AchievementString_TEST_obj_desc', '自然ペット20体レベル3達成'), '使20只自然宠物达到3级')
+        self.assertIsNone(reviewed_translation('NpcTalk_TEST_text', '自然ペット20体レベル3達成'))
+
+    def test_rank_range_preserves_faction_and_quantities(self):
+        self.assertEqual(reviewed_translation('AchievementString_TEST_obj_desc', '天族[一星～五星将校]45回KILL'), '击败天族[1星~5星军官]45次')
+        self.assertEqual(reviewed_translation('AchievementString_TEST_obj_desc', '[一等～九等兵]10回KILL'), '击败[1等兵至9等兵]10次')
+
 
 if __name__ == '__main__':
     unittest.main()
