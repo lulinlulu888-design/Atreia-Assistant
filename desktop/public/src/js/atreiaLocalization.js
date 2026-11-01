@@ -84,8 +84,8 @@
     }
     const refreshClient = () => {
       status.textContent = client.value === 'purple'
-        ? '请先退出游戏。可自动查找常见安装位置，也可手动选择；安装后文字语言设为 English。'
-        : '点击检测自动查找 Steam 游戏目录。请先退出游戏；安装前备份，支持还原。';
+        ? '请先退出游戏并准备完整的官方日文文字资源。安装后文字语言设为“日本語”，语音保持原设置。'
+        : '点击检测自动查找 Steam 游戏目录。安装日文入口汉化后，文字语言请选择“日本語”；语音保持原设置。';
     };
     client.addEventListener('change', () => { if (busy) return; verifiedKey = null; root.value = ''; root.title = ''; candidates.hidden = true; refreshClient(); setBusy(false); });
     root.addEventListener('input', () => { if (busy) return; verifiedKey = null; root.title = root.value; candidates.hidden = true; status.textContent = '目录已更改，请重新检测。'; setBusy(false); });

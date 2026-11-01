@@ -14,6 +14,12 @@ static LOCALIZATION_BUSY: AtomicBool = AtomicBool::new(false);
 static CAPTURE_STARTING: AtomicBool = AtomicBool::new(false);
 const ENGINE_HASH: &str = "1d01a3ab4c9604296da6b2265fd0a5a1247d628d31fd4ab02eb8bac539340e58";
 
+fn valid_japanese_protocol(value: &Value) -> bool {
+    value["protocol"] == 1 && value["entry"] == "ja-JP"
+        && ["inspect", "install", "restore"].iter().all(|operation|
+            value["operations"].as_array().is_some_and(|items| items.iter().any(|item| item.as_str() == Some(*operation))))
+}
+
 pub fn is_busy() -> bool {
     LOCALIZATION_BUSY.load(Ordering::SeqCst)
 }
@@ -182,13 +188,13 @@ pub fn inspect_localization_target(root: String, client: String) -> Result<Value
             "ok": true,
             "supported": true,
             "root": root,
-            "message": "已检测到 Steam / Global 游戏目录和本地化文本包；可继续使用 Steam 汉化组件检测、安装或还原。"
+            "message": "已找到 Steam / Global 游戏目录；下一步核对官方日文语言包。日文入口汉化安装后，文字语言请选择“日本語”。"
         })),
         "purple" => Ok(serde_json::json!({
             "ok": true,
             "supported": true,
             "root": root,
-            "message": "已检测到 PURPLE 游戏目录和本地化文本包；安装时将读取当前英文语言表并核对键值，使用独立的本地备份支持还原。"
+            "message": "已找到 PURPLE 游戏目录；日文入口需要完整的官方日文文字资源。检测将核对资源版本，使用独立备份支持还原。"
         })),
         _ => Err("未知客户端。".into()),
     }
@@ -264,13 +270,25 @@ pub async fn localization_execute(
         if digest != ENGINE_HASH || !helper.is_file() {
             return Err("汉化组件缺失或校验不匹配。".into());
         }
+        // Refuse an old English-entry bridge before it can modify game files.
+        let mut probe = Command::new(&helper);
+        probe.current_dir(dunce::simplified(&directory)).arg("--protocol");
+        #[cfg(windows)] {
+            use std::os::windows::process::CommandExt;
+            probe.creation_flags(0x08000000);
+        }
+        let protocol = probe.output().map_err(|_| "无法核对日文入口组件协议。")?;
+        let value = if protocol.stdout.len() <= 4096 { serde_json::from_slice::<Value>(&protocol.stdout).ok() } else { None };
+        if !protocol.status.success() || !value.as_ref().is_some_and(valid_japanese_protocol) {
+            return Err("当前汉化组件不是已审核的日文入口版本，未修改游戏。请安装新版完整助手。".into());
+        }
         if operation != "inspect" {
             let restoring = operation == "restore";
             let accepted = tauri::async_runtime::block_on(crate::atreia_confirmation::ask(&app, crate::atreia_confirmation::Prompt {
                 title: if restoring { "还原游戏语言" } else { "安装 / 更新汉化" }.into(),
                 confirm_label: if restoring { "确认还原" } else { "确认安装" }.into(),
                 details: vec![("客户端".into(), if client == "purple" { "PURPLE" } else { "Steam / Global" }.into()), ("游戏目录".into(), root.display().to_string())],
-                message: if restoring { "请先完全退出游戏。\n将根据校验过的备份还原语言文件；若游戏版本或备份不匹配，会停止操作。\n取消会返回汉化面板，不修改游戏文件。" } else { "请先完全退出游戏。\n将重新核对当前语言资源并写入汉化文件。原引擎保留备份、兼容检查和失败回滚。\n取消会返回汉化面板，不修改游戏文件。" }.into(),
+                message: if restoring { "请先完全退出游戏。\n将根据校验过的备份还原语言文件；若游戏版本或备份不匹配，会停止操作。\n取消会返回汉化面板，不修改游戏文件。" } else { "请先完全退出游戏。\n将重新核对当前语言资源并写入汉化文件。使用日文入口，保留独立备份并支持失败回滚。安装后文字语言请选择“日本語”，语音保持原设置。\n取消会返回汉化面板，不修改游戏文件。" }.into(),
             }))?;
             if !accepted {
                 return Ok(serde_json::json!({"ok":false,"cancelled":true,"operation":operation,"message":"已取消，未修改游戏。"}));
@@ -299,6 +317,16 @@ pub async fn localization_execute(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn japanese_protocol_rejects_legacy_and_incomplete_helpers() {
+        let good = serde_json::json!({"protocol":1,"entry":"ja-JP","operations":["inspect","install","restore"]});
+        assert!(valid_japanese_protocol(&good));
+        assert!(!valid_japanese_protocol(&serde_json::json!({"ok":false,"operation":"invalid"})));
+        let mut wrong = good.clone(); wrong["entry"] = "en-US".into();
+        assert!(!valid_japanese_protocol(&wrong));
+        let mut incomplete = good; incomplete["operations"] = serde_json::json!(["inspect","install"]);
+        assert!(!valid_japanese_protocol(&incomplete));
+    }
     #[cfg(windows)]
     #[test]
     fn game_root_does_not_pass_verbatim_prefix_to_framework() {
