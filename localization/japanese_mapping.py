@@ -42,13 +42,16 @@ def numbers(text, written=False):
     # name without an Arabic digit; stripping only this name retains all
     # actual quantities elsewhere in the sentence.
     text = re.sub(r'(?i)(?<![A-Za-z0-9_])fromis_?9(?![A-Za-z0-9_])', 'fromisnine', text)
+    # The named four-element state and a per-second interval have explicit
+    # numeric counterparts in Japanese. These are not new gameplay values.
+    text = text.replace('四元素', '4元素').replace('每秒', '每1秒').replace('毎秒', '毎1秒').replace('每小时', '每1小时')
     def quantity(match):
         value = small_han_number(match.group())
         return match.group() if value is None else ' ' + str(value) + ' '
     # Written Chinese quantities are equivalent to Arabic digits; prose itself
     # stays unchanged. Requiring an explicit classifier avoids parsing names.
     if written:
-        text = re.sub(r'[零〇一二两三四五六七八九十]+(?=分钟|分鐘|小时|小時|時間|阶段|階段|等兵|个人|個人|種類|个|個|种|種|只|名|次|秒|分間|天|日|级|級|层|層|颗|顆|枚|件|项|項|回|度|瓶|条|條|米|段|つ|人|体|匹|本)', quantity, text)
+        text = re.sub(r'[零〇一二两三四五六七八九十]+(?=分钟|分鐘|小时|小時|時間|阶段|階段|等兵|个人|個人|種類|个|個|种|種|只|名|次|秒|分間|天|日|年|位|级|級|层|層|颗|顆|枚|件|项|項|回|度|瓶|条|條|米|段|つ|人|体|匹|本)', quantity, text)
     def ordinal(match):
         value = small_han_number(match.group(1))
         return match.group() if value is None else '第' + str(value)
@@ -80,7 +83,8 @@ def numeric_equivalent(first, second):
     # Keep this as a separate interpretation so an idiom cannot create a new
     # mismatch in prose which was already numerically equivalent.
     def semantic(text):
-        text = text.replace('独自', '1人').replace('最初の', '第1个').replace('最初に', '第1次')
+        text = text.replace('独自', '1人').replace('ソロ', '1人').replace('最初の', '第1个').replace('最初に', '第1次')
+        text = text.replace('每件', '每1件').replace('单件', '1件').replace('每个栏位', '每1个栏位')
         return text
     return numbers(semantic(first), written=True) == numbers(semantic(second), written=True)
 

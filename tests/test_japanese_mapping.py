@@ -106,6 +106,11 @@ class JapaneseMappingTests(unittest.TestCase):
         self.assertTrue(mapping.numeric_equivalent('最初のチェック ポイント', '第一个存档点'))
         self.assertFalse(mapping.numeric_equivalent('2人でクリア', '独自完成'))
         self.assertFalse(mapping.numeric_equivalent('200日記念', '百日纪念'))
+        self.assertTrue(mapping.numeric_equivalent('1秒ごとに10%回復', '每秒恢复10%'))
+        self.assertTrue(mapping.numeric_equivalent('毎秒ごとに10%回復', '每秒恢复10%'))
+        self.assertFalse(mapping.numeric_equivalent('2秒ごとに10%回復', '每秒恢复10%'))
+        self.assertTrue(mapping.numeric_equivalent('4元素を獲得', '获得四元素'))
+        self.assertFalse(mapping.numeric_equivalent('5元素を獲得', '获得四元素'))
 
     def test_camera_and_machine_identifiers_are_source_bound_not_public_names(self):
         key = 'NpcTalk_' + 'A' * 32 + '_cv_text'

@@ -8,6 +8,16 @@ from reviewed_japanese import reviewed_translation, reviewed_wing_stats, reviewe
 
 
 class OfficialJapaneseReviewTests(unittest.TestCase):
+    def test_evasion_review_retains_current_cap_and_markup(self):
+        key = 'String_UI_desc_Evasion_body'
+        jp = '攻撃を回避するとダメージを受けません。\n回避率は最大<Mythic>30%</>です。'
+        reviews, rejected = propose({key: 'Evasion'}, {key: jp}, {key: 'Evasion'},
+                                    {key: '回避率最多<Mythic>50%</>。'}, {}, {})
+        self.assertFalse(rejected)
+        self.assertIn('<Mythic>30%</>', reviews[key]['translation'])
+        self.assertNotIn('50%', reviews[key]['translation'])
+        self.assertIsNone(reviewed_translation(key, jp + '\n未知の説明。'))
+
     def test_title_review_preserves_name_and_replaces_all_outdated_attributes(self):
         key = 'String_STR_ITEM_TITLE_L_TEST_DESC_body'
         ja = '[空間を支配する者]のタイトルを獲得します。\n\n[保有効果]\nPvEダメージ耐性：1.0%\n\n[装着効果]\n追加防御力：340\nHP：1,000'
