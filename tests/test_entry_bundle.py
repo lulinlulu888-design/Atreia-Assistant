@@ -7,6 +7,8 @@ sys.path.insert(0, str(Path(__file__).parents[1] / 'localization'))
 from entry_bundle import write_bundle, load_bundle, verify_original_packages, sha
 from entry_transaction import NAMES
 from entry_container import encode, configuration
+from legacy_english import EN_NAMES
+import json
 
 
 class EntryBundleTests(unittest.TestCase):
@@ -30,10 +32,34 @@ class EntryBundleTests(unittest.TestCase):
         self.sources['official_japanese'] = sha(self.official.read_bytes())
         self.destination = self.root / 'bundle'
 
-    def create(self):
+    def create(self, **kwargs):
         return write_bundle(self.destination, 'steam', self.paths, self.japanese, self.mapping,
                             self.report, self.payload, self.sources, codec_manifest=self.manifest,
-                            official_japanese_container=self.official)
+                            official_japanese_container=self.official, **kwargs)
+
+    def test_english_migration_binding_requires_all_official_files(self):
+        paths = {}
+        for name in EN_NAMES:
+            path = self.root / name
+            path.write_bytes(('official ' + name).encode())
+            paths[name] = path
+        self.create(official_english_paths=paths)
+        pin = sha((self.destination / 'bundle.json').read_bytes())
+        metadata, _ = load_bundle(self.destination, 'steam', pin)
+        self.assertEqual(metadata['legacy_english_package_sha256'], {k: sha(v.read_bytes()) for k, v in paths.items()})
+        metadata['legacy_english_package_sha256'].pop(EN_NAMES[1])
+        (self.destination / 'bundle.json').write_text(json.dumps(metadata), encoding='utf-8')
+        with self.assertRaises(ValueError):
+            load_bundle(self.destination, 'steam', sha((self.destination / 'bundle.json').read_bytes()))
+
+    def test_empty_english_source_is_rejected_before_bundle_creation(self):
+        paths = {name: self.root / name for name in EN_NAMES}
+        for path in paths.values():
+            path.write_bytes(b'official')
+        paths[EN_NAMES[0]].write_bytes(b'')
+        with self.assertRaises(ValueError):
+            self.create(official_english_paths=paths)
+        self.assertFalse(self.destination.exists())
 
     def test_bundle_binding_and_wrong_client_refusal(self):
         self.create()

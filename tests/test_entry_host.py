@@ -8,6 +8,8 @@ from entry_host import execute
 from entry_bundle import write_bundle, sha
 from entry_container import encode, configuration
 from entry_transaction import NAMES
+from legacy_english import EN_NAMES
+import json
 
 
 class EntryHostTests(unittest.TestCase):
@@ -36,6 +38,47 @@ class EntryHostTests(unittest.TestCase):
                      {'publishable': True, 'unresolved': []}, payload, sources,
                      codec_manifest=manifest, official_japanese_container=official)
         self.bindings = {'steam': sha((self.bundle / 'bundle.json').read_bytes())}
+
+    def legacy_english_fixture(self):
+        paks = self.game / 'Aion2/Content/Paks/L10N/Text/en-US'
+        paks.mkdir(parents=True)
+        hashes = {}
+        for name in EN_NAMES:
+            data = ('official English ' + name).encode()
+            (paks / name).write_bytes(data)
+            hashes[name] = sha(data)
+        backup = paks / (EN_NAMES[0] + '.aion2cn.v2.backup')
+        backup.write_bytes((paks / EN_NAMES[0]).read_bytes())
+        (paks / EN_NAMES[0]).write_bytes(b'AION2CN 2.4.0 payload=test\r\n')
+        dat_dir = self.game / 'Aion2/Content/L10N/Text/en-US'
+        dat_dir.mkdir(parents=True)
+        (dat_dir / 'L10NString.dat').write_bytes(b'old translation')
+        (dat_dir / 'Aion2CNTool.state').write_text('format=2\nstatus=installed\nhad_dat=False\npre_pak_hash=' + hashes[EN_NAMES[0]] + '\npayload_hash=' + sha(b'old translation'), encoding='utf-8')
+        path = self.bundle / 'bundle.json'
+        metadata = json.loads(path.read_text(encoding='utf-8'))
+        metadata['legacy_english_package_sha256'] = hashes
+        path.write_text(json.dumps(metadata), encoding='utf-8')
+        self.bindings['steam'] = sha(path.read_bytes())
+        return paks, dat_dir, backup
+
+    def test_host_recovers_owned_english_entry_before_japanese_install(self):
+        paks, dat_dir, backup = self.legacy_english_fixture()
+        execute('inspect', self.game, 'steam', self.bundles, self.bindings,
+                lambda: self.fail('Inspection must not mutate'))
+        self.assertTrue((dat_dir / 'L10NString.dat').exists())
+        self.assertFalse((self.game / 'Atreia_English_Entry_Recovery').exists())
+        result = execute('install', self.game, 'steam', self.bundles, self.bindings, lambda: None)
+        self.assertEqual(result['state'], 'installed')
+        self.assertEqual((paks / EN_NAMES[0]).read_bytes(), backup.read_bytes())
+        self.assertFalse((dat_dir / 'L10NString.dat').exists())
+
+    def test_bad_english_backup_prevents_any_japanese_mutation(self):
+        _, _, backup = self.legacy_english_fixture()
+        backup.write_bytes(b'wrong version')
+        with self.assertRaises(ValueError):
+            execute('install', self.game, 'steam', self.bundles, self.bindings, lambda: None)
+        self.assertFalse((self.game / 'Atreia_Japanese_Entry_Backup').exists())
+        self.assertTrue(self.originals[NAMES[0]].stat().st_size)
 
     def test_inspect_install_repeat_restore_through_host(self):
         inspect = execute('inspect', self.game, 'steam', self.bundles, self.bindings,

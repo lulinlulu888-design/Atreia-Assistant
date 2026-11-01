@@ -12,6 +12,7 @@ from entry_transaction import NAMES
 from japanese_mapping import require_complete
 from locale_codec import decode
 from entry_container import unpack
+from legacy_english import EN_NAMES
 
 
 def sha(data):
@@ -23,7 +24,7 @@ def valid_hash(value):
 
 
 def write_bundle(destination, client, official_paths, japanese, mapping, report, payload, source_hashes,
-                 *, codec_manifest, official_japanese_container):
+                 *, codec_manifest, official_japanese_container, official_english_paths=None):
     destination = Path(destination)
     if destination.exists():
         raise ValueError('Bundle destination must be new')
@@ -60,6 +61,16 @@ def write_bundle(destination, client, official_paths, japanese, mapping, report,
     metadata = {'format': 1, 'entry': 'ja-JP', 'text_language': '日本語', 'client': client,
                 'keys': len(japanese), 'payload_sha256': sha(payload), 'package_sha256': package_hashes,
                 'source_sha256': source_hashes, 'translation_origin': 'atreia_mainland_reviewed'}
+    if official_english_paths is not None:
+        if set(official_english_paths) != set(EN_NAMES):
+            raise ValueError('Complete official English packages required for legacy migration')
+        english_hashes = {}
+        for name in EN_NAMES:
+            data = Path(official_english_paths[name]).read_bytes()
+            if not data:
+                raise ValueError('Official English source package cannot be empty')
+            english_hashes[name] = sha(data)
+        metadata['legacy_english_package_sha256'] = english_hashes
     destination.mkdir(parents=True)
     (destination / 'L10NString.dat').write_bytes(payload)
     (destination / 'bundle.json').write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding='utf-8')
@@ -78,6 +89,10 @@ def load_bundle(directory, client, expected_metadata_hash):
         raise ValueError('Unknown translation origin')
     if set(metadata.get('package_sha256', {})) != set(NAMES) or not all(valid_hash(value) for value in metadata['package_sha256'].values()):
         raise ValueError('Invalid original package binding')
+    if 'legacy_english_package_sha256' in metadata:
+        english_hashes = metadata['legacy_english_package_sha256']
+        if set(english_hashes) != set(EN_NAMES) or not all(valid_hash(v) for v in english_hashes.values()):
+            raise ValueError('Invalid legacy English package binding')
     payload = (directory / 'L10NString.dat').read_bytes()
     if sha(payload) != metadata.get('payload_sha256'):
         raise ValueError('Bundled payload hash mismatch')

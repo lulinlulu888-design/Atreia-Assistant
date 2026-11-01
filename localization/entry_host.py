@@ -13,6 +13,7 @@ import sys
 
 from entry_bundle import load_bundle, verify_original_packages
 from entry_transaction import JapaneseEntryTransaction, NAMES
+from legacy_english import LegacyEnglishRecovery
 
 PROTOCOL = {'protocol': 1, 'entry': 'ja-JP', 'operations': ['inspect', 'install', 'restore']}
 
@@ -85,7 +86,13 @@ def execute(operation, root, client, bundle_root, bindings, closed_check=ensure_
             verify_original_packages(metadata, originals)
         except FileNotFoundError:
             raise ValueError('缺少完整的官方日文语言包，请先安装日文文字资源或还原旧入口备份。') from None
+        english = None
+        if 'legacy_english_package_sha256' in metadata:
+            english = LegacyEnglishRecovery(root, closed_check, metadata['legacy_english_package_sha256'])
+            english.inspect()
         if operation == 'install':
+            if english:
+                english.recover()
             if legacy:
                 transaction.adopt_legacy(metadata['package_sha256'])
             result = transaction.install(payload)

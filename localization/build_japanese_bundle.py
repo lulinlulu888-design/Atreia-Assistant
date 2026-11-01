@@ -12,13 +12,14 @@ from entry_container import encode, unpack
 from entry_transaction import NAMES
 from japanese_mapping import build, require_complete
 from locale_codec import read_manifest, decode
+from legacy_english import EN_NAMES
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--client', required=True, choices=('steam', 'purple'))
     for name in ('official-english', 'official-japanese', 'manifest', 'previous-english',
-                 'own-chinese', 'reviews', 'packages', 'destination'):
+                 'own-chinese', 'reviews', 'packages', 'english-packages', 'destination'):
         parser.add_argument('--' + name, type=Path, required=True)
     args = parser.parse_args()
     if args.destination.exists():
@@ -38,14 +39,15 @@ def main():
     metadata = write_bundle(args.destination, args.client,
                             {name: args.packages / name for name in NAMES}, japanese, mapping,
                             report, payload, source_hashes, codec_manifest=manifest,
-                            official_japanese_container=args.official_japanese)
+                            official_japanese_container=args.official_japanese,
+                            official_english_paths={name: args.english_packages / name for name in EN_NAMES})
     report['input_sha256'] = {name: sha(getattr(args, name).read_bytes()) for name in (
         'official_english', 'official_japanese', 'manifest', 'previous_english', 'own_chinese', 'reviews')}
     source = Path(__file__).parent
     report['maintainer_source_sha256'] = {name: sha((source / name).read_bytes()) for name in (
         'build_japanese_bundle.py', 'japanese_mapping.py', 'reviewed_japanese.py',
         'japanese_manual_reviews.json', 'official_japanese_reviews.py',
-        'entry_bundle.py', 'entry_container.py', 'locale_codec.py')}
+        'entry_bundle.py', 'entry_container.py', 'locale_codec.py', 'legacy_english.py')}
     (args.destination / 'audit.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     print(json.dumps({'ok': True, 'client': args.client, 'keys': metadata['keys'],
                       'payload_sha256': metadata['payload_sha256'], 'bytes': len(payload)}))

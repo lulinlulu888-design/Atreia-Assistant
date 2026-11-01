@@ -52,7 +52,7 @@ def main():
     if len(check.stdout) > 4096 or json.loads(check.stdout.decode('utf-8-sig')) != PROTOCOL:
         raise ValueError('Frozen helper protocol verification failed')
     dependencies = {name: importlib.metadata.version(name) for name in ('pyinstaller', 'blake3', 'cryptography', 'lz4')}
-    source_files = ('entry_host.py', 'entry_bundle.py', 'entry_container.py', 'entry_transaction.py', 'japanese_mapping.py', 'locale_codec.py')
+    source_files = ('entry_host.py', 'entry_bundle.py', 'entry_container.py', 'entry_transaction.py', 'legacy_english.py', 'japanese_mapping.py', 'locale_codec.py')
     manifest = {'protocol': PROTOCOL, 'bundle_sha256': bindings, 'dependencies': dependencies,
                 'source_sha256': {name: sha((source / name).read_bytes()) for name in source_files},
                 'executable_sha256': sha(executable.read_bytes()), 'python': sys.version.split()[0]}
