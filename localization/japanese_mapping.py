@@ -45,6 +45,7 @@ def numbers(text, written=False):
     # The named four-element state and a per-second interval have explicit
     # numeric counterparts in Japanese. These are not new gameplay values.
     text = text.replace('四元素', '4元素').replace('每秒', '每1秒').replace('毎秒', '毎1秒').replace('每小时', '每1小时')
+    text = text.replace('五星増幅石', '5星増幅石').replace('五星增幅石', '5星增幅石')
     def quantity(match):
         value = small_han_number(match.group())
         return match.group() if value is None else ' ' + str(value) + ' '

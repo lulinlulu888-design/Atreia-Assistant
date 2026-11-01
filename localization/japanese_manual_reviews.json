@@ -1,0 +1,206 @@
+{
+  "String_STR_ITEM_G_BOX_FOUNDERS_SKIN_WEAPON_A_02_B_DESC_body": {
+    "japanese_sha256": "636e2f6081af99b24025eeb67e3aae9b7afc4c5205b8ef73ae7c5ae88e58d0ab",
+    "translation": "使用宝箱后，可获得永恒之日系列的8种武器外形（巨剑、长剑、短剑、弓、法书、宝珠、战棍、法杖），每种各1件。"
+  },
+  "String_STR_ITEM_BM_SKINSHOP_SKIN_AR_PART_092_B_body": {
+    "japanese_sha256": "4da1a0a3082a12e64195af46776209afe915acb8a42699770418d5989008fb4e",
+    "translation": "羊咩帽01（外形：头盔）（绑定）"
+  },
+  "String_STR_ITEM_EVENT_BOX_ONBOARDING_BOX_A_11_B_DESC_body": {
+    "japanese_sha256": "f9094c6b3944d91c7487d6c8646edfb75cc69f18532ef06f6e55b46a0a357404",
+    "translation": "为帮助《永恒之塔2》角色成长而特别制作的潜能增幅石宝箱。\n使用后可选择获得唯一级欧比斯增幅石或五星增幅石。"
+  },
+  "String_STR_ITEM_EVENT_BOX_SEASON2RANKING_A_02_B_DESC_body": {
+    "japanese_sha256": "6c46dd40ba3e6665141e7135ef213971f020294c720fec4799fcccf133ddc9f5",
+    "translation": "内含第2赛季排名奖励物品的宝箱。\n使用后可获得第2赛季的4种排名称号及2种万神殿装饰。"
+  },
+  "String_STR_ITEM_BOX_PARTYDUNGEON_SMELTSTONE_A_01_F_DESC_body": {
+    "japanese_sha256": "c064e9cdab69449dd5bd91386a38584f4774c1797747865b932f09a4d2bb46d5",
+    "translation": "使用后，将按各自概率获得以下1种道具，共1个：精炼石（绑定）、匠人精炼石（绑定）、达人精炼石（绑定）、达人最上级精炼石（绑定）。"
+  },
+  "String_STR_AD_pic_A_MOB_Protect_01_body": {
+    "japanese_sha256": "5a2e99a49889b7f6638eb747d92dd62120d6a69cdbd2bcb644022d6e1f7cf9b2",
+    "translation": "名画：显现的庇护之羽[第3赛季]"
+  },
+  "String_STR_LOGIN_BLOCK_UNDER19_body": {
+    "japanese_sha256": "d877f797be016b9c256800b1bf565fdd34c115264f9d4aef451df0dc2b193e6a",
+    "translation": "由于年龄限制，该账号无法登录。"
+  },
+  "String_STR_LOBBY_SECURITY_NETWORK_ERROR_body": {
+    "japanese_sha256": "eb853075dd0bf29558efbdc495c2664eb86d8e3fe01f8a55834bc057cef6873b",
+    "translation": "二次验证时发生网络错误，请稍后重试。"
+  },
+  "String_STR_LOBBY_SECURITY_NETWORK_NO_CONNECTION_body": {
+    "japanese_sha256": "ea174ffab5fbe0f63e1c9a5465e380c1098c3e2da4e89e796e94cff43756e46b",
+    "translation": "网络连接不稳定，无法进行二次验证。请检查连接后重试。"
+  },
+  "String_UI_SEASON_ARENA_PARTICIPANTS_TEAM_body": {
+    "japanese_sha256": "b6b15160f0cf00cd44f25609520283e7bc2d39e4277719e188e77b5b80b9149c",
+    "translation": "5：5"
+  },
+  "String_UI_SETTING_TAB_CONTROL_SUBTAB_CONTROL_MODE_DESC_body": {
+    "japanese_sha256": "20698c3aac8e583f294590d31790fdd45c8deee8f585c5f02dcb00ee43f14e5a",
+    "translation": "设置操作模式。\n\n[AION 2]\n适合习惯动作RPG战斗操作的玩家。\n画面中有瞄准点（准星），鼠标指针默认隐藏。\n按[Alt]键或打开界面窗口后，会显示用于操作界面的鼠标指针。\n无需按住鼠标按键，移动鼠标即可转动镜头。\n角色只能通过键盘移动。\n\n[AION1]\n提供与AION1相同的操作方式。\n鼠标指针始终显示。\n按住鼠标按键并拖动可转动镜头。\n可使用鼠标选择目标和移动。"
+  },
+  "String_UI_SHOP_BUY_WARNING_POPUP_DESC_body": {
+    "japanese_sha256": "bd1998dfff4b329861ad5a60dbede2412a1e7ddce4119465d348ecdbb1229926",
+    "translation": "退款等申请条件\n\n① 购买付费商品的会员，可自购买合同订立之日或该商品可使用之日（以较晚者为准）起7日内解除合同等。但提出解除合同时，若商品已开始提供（例如购买后，已从游戏内[付费道具仓库]领取至角色背包），解除合同（取消购买）可能受到限制。\n\n② 即使符合第1条，出现以下任一情形时，退款仍可能受到限制。\n- 已超过可退款期限\n- 会员使用或消耗部分商品，导致商品价值显著下降\n- 公司已提供试用商品，且数字内容类商品已开始提供。但由可分割数字内容组成的商品，尚未开始提供的部分不适用此限制\n- 会员通过活动、收取赠礼等方式免费获得商品\n- 存在游戏服务条款规定的其他退款限制事由\n\n③ 即使有第1款和第2款的规定，若付费商品与展示、广告内容不符，或未按合同履行，会员仍可自收到商品之日起3个月内，或自知晓或应当知晓该事实之日起30日内解除合同等。\n\n● 退款等的效力\n\n① 申请退款后，会员须保持相关商品处于公司可回收或删除的状态。\n\n② 公司将在会员申请退款等之日起3个工作日内退还已收款项。但使用需要确认入账的支付方式（例如手机支付等）时，将在确认入账之日起3个工作日内退款。\n\n③ 公司可根据需要要求会员提供退款所需的文件等。会员拒绝提供时，退款可能受到限制。\n\n● 错误收款退还政策\n\n① 发生错误收款时，公司将按原支付方式退还。无法按原方式退还时，将立即告知。\n\n② 因公司责任导致错误收款时，将不扣除合同费用、手续费等，全额退还。因会员责任导致时，公司可在合理范围内扣除退款所需费用后退还。\n\n● 退款等及错误收款退还申请\n\n可通过客户支持 > 联系客服，申请退款等及退还错误收款。\n\n● 延迟退款或退还错误收款时的赔偿条件及程序\n\n公司延迟退还解除合同等涉及的款项或错误收款时，将按照《电子商务等消费者保护相关法律》规定的利率支付延迟赔偿金。如有相关咨询或异议，请联系客户支持。\n\n● 商品购买注意事项\n\n① 因购买或使用商品时出现的瑕疵而产生的损害赔偿及争议，将按公平交易委员会公告的《消费者争议解决标准》处理。其他商品投诉或异议，请联系客户支持。\n\n② 根据商品种类，购买后将立即发放至游戏内商店保管箱，或直接在游戏中生效。领取及使用商品可能需要满足其他技术要求，请参阅PLAYNC官网另行公告的配置信息。\n\n③ 未成年人购买付费商品时，若未取得法定代理人同意，未成年人本人或其法定代理人可取消购买。\n\n游戏服务条款可在NC官网（<a href=\"https://www.nc.com/\" select=\"1\" color=\"Hyperlink\">https://www.nc.com/</>）底部菜单，或<a href=\"https://www.plaync.com/policy/service\" select=\"1\" color=\"Hyperlink\">https://www.plaync.com/policy/service</>查看。\n隐私政策可在NC官网底部的隐私政策菜单，或<a href=\"https://www.plaync.com/policy/privacy\" select=\"1\" color=\"Hyperlink\">https://www.plaync.com/policy/privacy</>查看。\n\n株式会社NC，京畿道城南市盆唐区大王板桥路644-12，共同代表Kim Taek-jin、Park Byung-moo，企业登记号220-81-43000，通信销售业登记第2026-城南盆唐 A-0316号，客户支持1600-0020，传真02-2186-3550。电子邮箱credit@ncsoft.com"
+  },
+  "String_STR_Test_Journal_desc_02_body": {
+    "japanese_sha256": "69e017c89b7a86e814c7e24cea59f237fb93ecb751e7310a2d8d03139dd48e9d",
+    "translation": "觉醒为神圣守护者的主角进入了防壁内。这里没有龙族的威胁，由5位代行者代替已经消失的诸神统领社会。主角与菲尔诺斯重逢，并被编入卡立德所属的极乐世界警备队。\n\n主角在执行警备队任务时结识了各位代行者。他们对收集根源并不感兴趣，只有光之代行者批判其他代行者，提议共同改变世界。主角与卡立德加入了光之代行者率领的面具团。\n\n面具团不断铲除政敌和神圣守护者，神圣守护者艾许则组织了反抗军。争夺白杰尔根源的过程中，主角与他们发生冲突。取得根源后，光之代行者企图将主角和神圣守护者一网打尽，卡立德也背叛了主角。\n得知光之代行者想完成光之神器、让自己成为神后，主角与神圣守护者合力夺回了白杰尔根源。\n\n主角与神圣守护者决定齐心协力阻止代行者，并完成神器。"
+  },
+  "String_STR_N_CLB01_07_05_body": {
+    "japanese_sha256": "19f7b00c803ce8c68af046744f1b8dd50bb022143926150c27256c251ca440b5",
+    "translation": "达令5"
+  },
+  "String_STR_N_CLB01_07_02_body": {
+    "japanese_sha256": "82b064641547596c760f853b0fe6a64303421ce1394dc85f7c4957a6b7486124",
+    "translation": "达令2"
+  },
+  "String_STR_N_CLB01_07_01_body": {
+    "japanese_sha256": "761de036b43f1da70652e9e3b1815214edf9cbd98cab3f62397bd9e202348c78",
+    "translation": "达令1"
+  },
+  "String_STR_N_CLB01_07_03_body": {
+    "japanese_sha256": "7c12f845c8e89b074ee08de9cdbf9a4ce4cd71eddde54fba385c8a73bbdea59d",
+    "translation": "达令3"
+  },
+  "String_STR_N_CLB01_07_04_body": {
+    "japanese_sha256": "472fa548e37162146d6f6d50a658db718d4ac3140f979c260b18ee9e034e51fe",
+    "translation": "达令4"
+  },
+  "String_UI_SUBSCRIBE_BENEFIT_ODENERGYCHARGE_body": {
+    "japanese_sha256": "127776910167a33a8577f96a8d4711dd73379ab6cd1f16209fac07236765663a",
+    "translation": "奥德能量持有上限调整为840"
+  },
+  "String_UI_SUBSCRIBE_ODENERGYCHARGE_INFO_TOOLTIP_NOT_SUBSCRIBE_body": {
+    "japanese_sha256": "9d4f65c31fe67a95a353a3ecf0869982874a03efa0f6cfc1a22405cbdc87d784",
+    "translation": "奥德能量持有上限将调整为840。"
+  },
+  "String_UI_SUBSCRIBE_ABYSS_INFO_TOOLTIP_SUBSCRIBED_body": {
+    "japanese_sha256": "a6d5b7e3e70edbae26811df7a907772b0d7f7fa702327b35d43d8f591c75b944",
+    "translation": "订阅天加隆特级会员时，\n基本使用时间增加至2倍。"
+  },
+  "String_UI_LOBBY_SELECTCHARACTER_BUTTON_GAME_START_POPUP_body": {
+    "japanese_sha256": "3dc9b0e88cafb009a2ae7a67beaee6ee8ec2cfd9c4c6df96789424e6dc08a771",
+    "translation": "AION 2将于11月19日启航，很快就能与各位相见。感谢参与预创建角色活动。"
+  },
+  "String_UI_MONSTERCUBE_SELECT_GUIDE_body": {
+    "japanese_sha256": "6104679be1821b6fa53e67ac58e4448eb5a10bcfe91334d54cc95e50425130df",
+    "translation": "每1人最多可选择{0}个宝箱"
+  },
+  "String_UI_CONTENTSNAVIGATOR_PARTYDUNGEON_URUGUGU_DESC_body": {
+    "japanese_sha256": "27649387c573662fc1fff4318460abfec5f986632754b30dddca2023954d5990",
+    "translation": "乌努库库峡谷是被乌努库库部族占领的小队副本。\n\n+ 探险难度可由1人通关，也可与其他玩家一同挑战。\n+ 达到45级并满足装备等级要求后，可进入征服难度。\n+ 请在[全部菜单] - [远征]中查看副本列表。"
+  },
+  "String_UI_SUBSCRIBE_ODENERGYCHARGE_INFO_TOOLTIP_SUBSCRIBED_body": {
+    "japanese_sha256": "01884fea668afb101dd31b495f776fd5f90d46142e52e9bfa0cf9a9b0d29f7b9",
+    "translation": "订阅天加隆特级会员时，\n奥德能量持有上限将调整为840。"
+  },
+  "String_UI_SUBSCRIBE_FIELDEVENTRANKCOUNT_INFO_TOOLTIP_NOT_SUBSCRIBE_body": {
+    "japanese_sha256": "7f000e4d2a5b7ff2955e4c05858661168a45b4d5404346c39a1967f2826d7e7a",
+    "translation": "术古庆典奖励钥匙的基本持有上限增加至21个。"
+  },
+  "String_UI_SUBSCRIBE_BENEFIT_body": {
+    "japanese_sha256": "d91e176fea4d79d4abe9a5111994421007129c0463d1bd83ff9129a27cb2a1d3",
+    "translation": "30天会员权益"
+  },
+  "String_UI_SUBSCRIBE_FIELDEVENTRANKCOUNT_INFO_TOOLTIP_SUBSCRIBED_body": {
+    "japanese_sha256": "0ee738272aaef67ebddf3ba9a5f629598f261b4a95924c1330e30312d3898c7c",
+    "translation": "订阅天加隆特级会员时，\n奖励钥匙的基本持有上限增加至21个。"
+  },
+  "String_UI_CONTENTSNAVIGATOR_TYPE_QUEST_DUTY_DESC_body": {
+    "japanese_sha256": "d423e73bf60fcba52c8ce0e4b0191b146f49a58c934147281044be6da8c8fa4a",
+    "translation": "以1天为周期执行的简单任务内容。\n\n+ 每个服务器在1天内可执行的次数有限。\n+ 可自行选择想执行的任务。\n+ 购买并使用指令书后，可额外执行使命任务。"
+  },
+  "String_UI_SUBSCRIBE_BENEFIT_FIELDEVENTRANKCOUNT_body": {
+    "japanese_sha256": "137424cf6fde16e48116d4d596e6a2d86e1b865e19f20d413ef20498e930d265",
+    "translation": "术古庆典奖励钥匙的持有上限调整为21个"
+  },
+  "String_UI_CONTENTSNAVIGATOR_PARTYDUNGEON_FIRETEMPLE_DESC_body": {
+    "japanese_sha256": "1c09255f81395c9d3856d1704456afdce1bf66e31366c73413876f638ad2e4f8",
+    "translation": "火之神殿是小队副本，恶女克罗梅内分裂的自我之一“克罗梅内的欲望”就在其中。\n\n+ 探险难度可由1人通关，也可与其他玩家一同挑战。\n+ 达到45级并满足装备等级要求后，可进入征服难度。\n+ 请在[全部菜单] - [远征]中查看副本列表。"
+  },
+  "String_UI_CRAFT_RECIPE_RATE_POPUP_TAB_RATE_GUIDE_DESC_body": {
+    "japanese_sha256": "fc7462fa024ed0674b2067ab954bf34ccaf4abcbbd34fe0da65f2682bc98448f",
+    "translation": "[制作系统说明]\n\n- 制作时，成功进度条和失败进度条分别累计。\n- 制作过程中，成功或失败进度条增加1次，称为一个“回合”。\n- 每个回合的结果独立计算。\n- 成功进度条先达到目标值时制作成功；失败进度条先达到目标值时制作失败。\n- 若制作过程中受到攻击等，导致制作取消，则本次制作按失败处理。\n- 每个配方的目标进度和每次增加量不同，制作成功率也随之变化。\n- 角色熟练度与配方要求熟练度的等级差，会修正进度增加量，并影响最终制作成功率。\n- 普通制作成功后，会根据连击触发概率尝试制作连击配方。\n\n[成功概率说明]\n\n- 可在[预期概率]页签中查看当前配方在不同熟练度等级差下的最终成功概率。\n- 概率在小数点后第7位进行四舍五入。\n- 该概率综合配方进度信息、熟练度修正及其他影响制作成功率的因素计算得出。\n- 存在连击制作的配方，可在[预期概率]页签中点击“切换”，查看基础概率和连击概率。"
+  },
+  "String_STR_Subzone_PrimumLanding_Desc_body": {
+    "japanese_sha256": "bae4a19999ef2293502a6357f88bf9b1819adaa5c7d1275027af9402f357dc53",
+    "translation": "位于混沌埃雷修兰塔下层东北部的东部阵营据点。\n装备等级达到1,000后可进入"
+  },
+  "String_STR_Subzone_TeminonLanding_Desc_body": {
+    "japanese_sha256": "3b09db08236314b138c1120674c90daa9bcaf35fd3772573c8990a2aa290022f",
+    "translation": "位于混沌埃雷修兰塔下层西南部的西部阵营据点。\n装备等级达到1,000后可进入"
+  },
+  "CurrencyInfo_Mileage_desc_long": {
+    "japanese_sha256": "2ec5a67db35fb191a96fbd98eaea0e714e9730165a58a8fb8d3ad918a4a64be8",
+    "translation": "A2积分商店购物积分"
+  },
+  "CurrencyInfo_Mileage_desc": {
+    "japanese_sha256": "16f3c13e3b22774a17e5128ff9d3a6a94072988988bc4a2709c03139c40811c9",
+    "translation": "A2积分"
+  },
+  "Post_107_body": {
+    "japanese_sha256": "71a6172e4bec5fa494b3aa961c159e6b0077f846a74b29ee6fe1544f33e95a82",
+    "translation": "各位喜爱AION 2的守护者，大家好。我们是AION 2运营团队。\n\n衷心感谢各位陪伴AION 2迈出第一步，并始终给予支持与喜爱。\n为了感谢各位守护者与AION 2共同走过的闪耀旅程，我们准备了一份小小的礼物。\n\n礼物预计通过快递寄送。为说明详情并收集配送信息，请在3月1日前\n通过AION 2客户支持 > 联系客服进行咨询。确认后，我们将告知后续流程。\n\n2026年，我们也会继续努力，让各位守护者满意。\n\n今后也请继续支持AION 2。"
+  },
+  "Post_32_body": {
+    "japanese_sha256": "8c5da4b2c9d7ad0f2a7ed698d5fa1ca6034824567ff53a2402684b87512fc4ad",
+    "translation": "对于在11月26日例行维护后、临时维护前通关远征及超越副本并领取奖励的玩家，将按照上调后的标准补发奖励。\n衷心感谢您游玩AION 2。"
+  },
+  "Post_108_title": {
+    "japanese_sha256": "b5cffa420df4c8f68652b553fcf5ca06b53d1204b45669cb4f568ca18b870e88",
+    "translation": "AION 2 100日纪念特别礼物"
+  },
+  "Message_MSG_GUILD_ESTABLISH_FAILED_NAME_COUNT_body": {
+    "japanese_sha256": "20c87bf95aea0ae4a5825e8cf9fd97e1c7e8c1d8237355d1809b69d8d236adae",
+    "translation": "军团名称可输入1～12个平假名、片假名、汉字或英文字母。"
+  },
+  "Message_MSG_MONSTERCUBE_REWARD_1SLOT_MAX_TICKET_PLAYER1_body": {
+    "japanese_sha256": "4d042e4cfffd3faeb04b84a2e9d7a8c8a47118349620542407bb139832630671",
+    "translation": "该宝箱每1人最多可选择{0}个。"
+  },
+  "Message_MSG_PET_POLYMORPH_LEVEL_ERROR_body": {
+    "japanese_sha256": "75249a6d6efa37c6ecfe8fd5e276b7863a9b9c2738c0d0701650a9e72c89a397",
+    "translation": "宠物理解度达到3级后可进行宠物变身。"
+  },
+  "Message_MSG_CANNOT_GET_PVPPOINT_CHARACTER_body": {
+    "japanese_sha256": "ca3c408b9399093dd03c74245cd599a43afc98ceebd60b8ed8e517543b652a01",
+    "translation": "目前无法从该角色身上获得欧比斯点数。（整点00分重置）"
+  },
+  "Title_L_Achievement_022_desc_long": {
+    "japanese_sha256": "97833b8b383bd276cd5ae92a704fdc3aebcac964cf6ca9b87d6bcdcf886629ea",
+    "translation": "收集了10种宠物。\n如果我在下午4点到来，你会从3点开始感到快乐吗？"
+  },
+  "Title_D_Achievement_022_desc_long": {
+    "japanese_sha256": "97833b8b383bd276cd5ae92a704fdc3aebcac964cf6ca9b87d6bcdcf886629ea",
+    "translation": "收集了10种宠物。\n如果我在下午4点到来，你会从3点开始感到快乐吗？"
+  },
+  "Title_L_Achievement_142_desc_long": {
+    "japanese_sha256": "e4bba56f434d41bc67d7f981f931aa3ba31b6fd2c48776439b651ba3cdff72c8",
+    "translation": "获得了超过250个称号。"
+  },
+  "Title_D_Achievement_142_desc_long": {
+    "japanese_sha256": "e4bba56f434d41bc67d7f981f931aa3ba31b6fd2c48776439b651ba3cdff72c8",
+    "translation": "获得了超过250个称号。"
+  },
+  "Title_D_SealDungeon_062_desc": {
+    "japanese_sha256": "f73d2efcd3c62be065c533dde10fa0514b21871908c3effd6fc1976dfdc20236",
+    "translation": "种下1棵苹果树"
+  },
+  "Title_D_Monolith_002_desc_long": {
+    "japanese_sha256": "fcc6c58265c8999cfeccfb17ed3dd2b95d1ca9f40bb3409684827a91ea2d8a08",
+    "translation": "[阿尔特盖德独石柱]达到20级\n寻找主神痕迹的本领更加娴熟。"
+  },
+  "AchievementString_Archieve_STR_Group_D_Item_Collect_440101807_obj_desc": {
+    "japanese_sha256": "547a5b45077f95ee234f050cf87b2f92e395698e058d18a6eaf99c392d131bdb",
+    "translation": "收集250个称号"
+  },
+  "AchievementString_Archieve_STR_Group_L_Item_Collect_340101807_obj_desc": {
+    "japanese_sha256": "547a5b45077f95ee234f050cf87b2f92e395698e058d18a6eaf99c392d131bdb",
+    "translation": "收集250个称号"
+  }
+}

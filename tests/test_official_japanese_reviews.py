@@ -8,6 +8,13 @@ from reviewed_japanese import reviewed_translation, reviewed_wing_stats, reviewe
 
 
 class OfficialJapaneseReviewTests(unittest.TestCase):
+    def test_manual_japanese_review_is_bound_to_exact_source(self):
+        key = 'Message_MSG_PET_POLYMORPH_LEVEL_ERROR_body'
+        self.assertEqual(reviewed_translation(key, 'ペット変身は理解度レベル3から可能です。'), '宠物理解度达到3级后可进行宠物变身。')
+        self.assertIsNone(reviewed_translation(key, 'ペット変身は理解度レベル4から可能です。'))
+        self.assertEqual(reviewed_translation('String_UI_SUBSCRIBE_BENEFIT_ODENERGYCHARGE_body', 'オード エネルギー最大保有量を840に変更'), '奥德能量持有上限调整为840')
+        self.assertIsNone(reviewed_translation('String_UI_SUBSCRIBE_BENEFIT_ODENERGYCHARGE_body', 'オード エネルギー最大保有量を900に変更'))
+
     def test_evasion_review_retains_current_cap_and_markup(self):
         key = 'String_UI_desc_Evasion_body'
         jp = '攻撃を回避するとダメージを受けません。\n回避率は最大<Mythic>30%</>です。'

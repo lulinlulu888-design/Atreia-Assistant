@@ -5,7 +5,19 @@ The caller binds each result to the complete Japanese and English source hashes.
 """
 import re
 import unicodedata
+import hashlib
+import json
+from pathlib import Path
 from functools import lru_cache
+
+
+@lru_cache(maxsize=1)
+def manual_reviews():
+    data = json.loads(Path(__file__).with_name('japanese_manual_reviews.json').read_text(encoding='utf-8'))
+    for key, review in data.items():
+        if not isinstance(key, str) or set(review) != {'japanese_sha256', 'translation'} or not re.fullmatch(r'[a-f0-9]{64}', review['japanese_sha256']) or not isinstance(review['translation'], str) or not review['translation']:
+            raise ValueError('Invalid source-bound Japanese manual review')
+    return data
 
 SKILL_PROPERTIES = {
     'ノンターゲット': '非锁定',
@@ -307,6 +319,9 @@ def skill_description(japanese):
 
 
 def reviewed_translation(key, japanese):
+    manual = manual_reviews().get(key)
+    if manual and hashlib.sha256(japanese.encode('utf-8')).hexdigest() == manual['japanese_sha256']:
+        return manual['translation']
     if key == 'String_STR_ITEM_TITLE_D_C_SEALDUNGEON_017_B_body' and japanese == 'タイトル：リンゴの木を1本植える':
         return '称号：种下1棵苹果树'
     if key == 'String_STR_ITEM_TITLE_D_C_SEALDUNGEON_017_B_DESC_body' and japanese == '[リンゴの木を1本植える]のタイトルを獲得します。\n\n[保有効果]\nPvE回避5\n\n[装着効果]\n封魂石追加ダメージ7':
