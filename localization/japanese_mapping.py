@@ -7,9 +7,10 @@ an audit mapping; installation and container serialization are separate steps.
 from collections import Counter
 import hashlib
 import re
+import unicodedata
 
 TOKENS = re.compile(r'<[^>]*>|\{[^}]*\}|%\d*\$?[a-zA-Z]|\\[nrt]')
-NUMBERS = re.compile(r'(?<![\w])\d+(?:[.,]\d+)*(?:%)?')
+NUMBERS = re.compile(r'\d+(?:[.,]\d+)*(?:%)?')
 
 
 def fingerprint(text):
@@ -21,7 +22,7 @@ def signature(text):
 
 
 def numbers(text):
-    return Counter(NUMBERS.findall(TOKENS.sub('', text)))
+    return Counter(NUMBERS.findall(unicodedata.normalize('NFKC', TOKENS.sub('', text))))
 
 
 def build(official_english, official_japanese, previous_english, own_chinese, reviews=None):

@@ -29,6 +29,11 @@ class JapaneseMappingTests(unittest.TestCase):
         _, report = mapping.build({'a': 'Complete 5 times'}, {'a': '3 回達成'}, {'a': 'Complete 5 times'}, {'a': '完成 5 次'})
         self.assertEqual(report['unresolved'][0]['reason'], 'japanese_numeric_values_need_review')
 
+    def test_number_spacing_and_fullwidth_do_not_change_values(self):
+        result, report = mapping.build({'a': 'Complete 5 times'}, {'a': '５回達成'}, {'a': 'Complete 5 times'}, {'a': '完成5次'})
+        self.assertEqual(result['a'], '完成5次')
+        self.assertTrue(report['publishable'])
+
     def test_review_is_bound_to_both_sources(self):
         review = {'english_sha256': mapping.fingerprint('Damage'), 'japanese_sha256': mapping.fingerprint('{se:1}'), 'translation': '{se:1} 伤害'}
         result, report = mapping.build({'a': 'Damage'}, {'a': '{se:1}'}, {}, {}, {'a': review})
