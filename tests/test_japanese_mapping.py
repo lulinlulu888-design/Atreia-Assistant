@@ -120,6 +120,9 @@ class JapaneseMappingTests(unittest.TestCase):
         self.assertTrue(mapping.numeric_equivalent('1、2、3…', '一、二、三…'))
         self.assertFalse(mapping.numeric_equivalent('1、2、4…', '一、二、三…'))
         self.assertIsNone(mapping.small_han_number('一百一百'))
+        self.assertTrue(mapping.numeric_equivalent('五色の羽根', '五色羽毛'))
+        self.assertTrue(mapping.numeric_equivalent('5色の羽根', '五色羽毛'))
+        self.assertFalse(mapping.numeric_equivalent('6色の羽根', '五色羽毛'))
 
     def test_camera_and_machine_identifiers_are_source_bound_not_public_names(self):
         key = 'NpcTalk_' + 'A' * 32 + '_cv_text'

@@ -54,6 +54,7 @@ def numbers(text, written=False):
     text = text.replace('四元素', '4元素').replace('每秒', '每1秒').replace('毎秒', '毎1秒').replace('每小时', '每1小时')
     text = text.replace('五星増幅石', '5星増幅石').replace('五星增幅石', '5星增幅石')
     text = text.replace('四大祭壇', '4大祭壇').replace('四大祭坛', '4大祭坛')
+    text = text.replace('五色羽毛', '5色羽毛').replace('五色の羽根', '5色の羽根')
     def quantity(match):
         value = small_han_number(match.group())
         return match.group() if value is None else ' ' + str(value) + ' '

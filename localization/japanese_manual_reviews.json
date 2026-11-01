@@ -542,5 +542,113 @@
   "QuestString_STR_DQ2202053_quest_title": {
     "japanese_sha256": "dcd1424a6a1f370da0542d887d92c1f049ad174de31e510810c292e0e10fbbc2",
     "translation": "阿尔特盖德9大名胜·其1"
+  },
+  "QuestString_STR_DQ2202019_quest_summary_journal_complete": {
+    "japanese_sha256": "98c1d2f45b1ded92fdee184308f9ab865bbf535b7caddfd3bc193f4014631319",
+    "translation": "“露露……要找……叫醒妈妈的办法……”\n\n在森林里，遇见了失去母亲、独自哭泣的幼小艾利姆。\n他名叫露露，想救活为了保护自己而身受重伤的艾利姆母亲。\n\n这时，偶然听到事情经过的森林隐士说，他曾救活过濒死的树木，愿意帮忙。\n\n我和幼小的艾利姆来到隐士居住的洞穴。\n如他所说，洞内长满大树与鲜花。\n正惊讶于洞穴里竟有这样的景象，隐士说，这是他生命秘药的力量。\n收集制作生命秘药的材料时，\n艾可赶到，揭穿隐士的身份，也解除了幻影秘术。\n\n“幻术既然解开了，也没必要再演下去了。”\n\n洞内满是身份不明的尸体，腐臭扑鼻。\n原以为是年老艾利姆的大树，也只是丑陋岩石的伪装。\n声称要救活露露母亲的温柔隐士，原来是企图献祭艾利姆的邪恶诺尔尼尔。\n\n她曾为了治疗卡拉斯而接受石化魔法，却早已到了无药可救的地步。\n她迁怒于为自己治疗的无辜诺尔尼尔，不久便被解职、逐出族群。\n此后，她徘徊在玛斯兰森林，心灵渐渐被黑暗吞没……\n最终竟想献祭无数生命，让腐朽的身体恢复原状。\n\n这座洞穴就是她献祭生命的实验室。\n多亏前来寻找露露的艾可，我们才摆脱幻术，击退了邪恶的诺尔尼尔。\n\n听说露露的遭遇后，艾可想为他的母亲吹奏笛子。\n森林的旋律响起，令人惊讶的是，枯死的躯体中竟浮现出艾利姆精髓。\n清澈的光芒里，露露感受到母亲的温暖，再次流下眼泪。\n\n为了让母亲安眠，我们将她葬在奥达尔身边。\n奇迹般地，艾利姆树苗开出了花。艾可与露露满脸泪水，向我道谢。"
+  },
+  "QuestString_STR_DQ2202015_quest_summary_journal_complete": {
+    "japanese_sha256": "e5405969f3d02d7c2d2739fda3657996e61b0376b48c3721be76b5bddd3ff046",
+    "translation": "“一起把诅咒驱散吧。”\n\n邬尔古伦自从去过地下石室，便总梦见自己被墓地蜘蛛吞食，或被活埋的尸体追赶。\n最近尤其严重，睡醒后也浑身不适，肩头始终沉甸甸的。\n这一定就是“那个”……毫无疑问，他被诅咒了！\n\n守墓人特卡尔听着找上门来的傻瓜大倒苦水，只觉得厌烦：这又关自己什么事？\n这世上哪有什么解除诅咒的办法。\n看着邬尔古伦又去找同样傻气的帮手，他不禁咂了咂嘴。\n\n邬尔古伦带着最可靠的同伴，去了某位贵族守护者的石室。\n绝不是因为害怕，只因对方也该受到了石室诅咒，必须一起洗去厄运。\n顺利祭奠亡者、回到村里后，\n便该从亲近的人那里沾些好运了。\n\n“别紧张。这可是头一回收到信呢。”\n\n邬尔古伦忐忑地查看信件。\n哈达尔字迹工整，只是有几个字颜色不同，大概是墨水不够了。他决定下次送些墨水表达谢意。\n奈蒙的信翻来覆去都是空白，难道用了什么暗号魔法？\n至于迪诺……竟寄来了诅咒信！这个混蛋！\n\n必须在3天内，把这么长的信转寄给7个人，这下可麻烦了。\n该寄给谁呢？先是加罗利克，还有……\n不知为何，邬尔古伦脑海里总响起<QK>你怎么又上当了</>的声音。\n明明已经解除了诅咒，真是怪事。"
+  },
+  "QuestString_STR_DQ1202065_quest_summary_journal_complete": {
+    "japanese_sha256": "5ff751b834e21ca719854045295a2e28c4ccd6b190e92d1abd83587bb3007613",
+    "translation": "“能从这座危险的岛上带着收获回去的，恐怕我们还是最早的吧。哈哈！”\n\n据说红玉之岛埋藏着珍宝。塔奇斯拿到了红玉之岛的藏宝图，迫切想去寻找，可那座岛太过危险，连佣兵都不肯前往。\n\n我决定和塔奇斯一起在红玉之岛寻宝。探索过后，我们发现了闪光的遗物。虽然很难说它究竟是不是宝物，但塔奇斯似乎只因找到了东西、能将它带回去，就已经十分满足。"
+  },
+  "QuestString_STR_DQ1202070_quest_summary_journal_progress": {
+    "japanese_sha256": "8f8ac97cb1d57f08d784ca280c749ae44623ae11d571cf9f26a40fb8407c7e83",
+    "translation": "与内维斯踏遍9大名胜的比试仍在继续。\n去看看贝尔特伦9大名胜中尚未造访的地方吧。"
+  },
+  "QuestString_STR_DQ1202071_quest_summary_journal_progress": {
+    "japanese_sha256": "8f8ac97cb1d57f08d784ca280c749ae44623ae11d571cf9f26a40fb8407c7e83",
+    "translation": "与内维斯踏遍9大名胜的比试仍在继续。\n去看看贝尔特伦9大名胜中尚未造访的地方吧。"
+  },
+  "QuestString_STR_DQ1202071_quest_title": {
+    "japanese_sha256": "d4f6fdd0c00f696c717b0b086081e68df6a4ee1e31fcdf1eab6ffda9950bdc44",
+    "translation": "贝尔特伦9大名胜·终章"
+  },
+  "QuestString_STR_DQ1202071_quest_summary_popup_complete": {
+    "japanese_sha256": "8159632d691d08acce6343eac9f84f7552a967c5b350dfeb1641db7c44c113c1",
+    "translation": "\"我可是追寻浪漫的守护者。你应该明白这是什么意思吧？\"\n\n在阿尔塔米亚高原的遗迹里，观赏了高耸的祖米昂石像；在纳希德军团要塞的山丘上，看到了气势逼人的龙族要塞城墙。\n\n终于游遍贝尔特伦9大名胜。这场比试没有赢家，也没有输家，只有幸福与安宁。"
+  },
+  "QuestString_STR_DQ1202071_quest_summary_journal_complete": {
+    "japanese_sha256": "c5275c400bde55060a6856c0889d18cf2e2303c889a4317e8dcdc14fac272e8e",
+    "translation": "\"我可是追寻浪漫的守护者。你应该明白这是什么意思吧？\"\n\n与内维斯踏遍9大名胜的比试仍在继续。\n\n我们造访了贝尔特伦9大名胜中最后的两处。在阿尔塔米亚高原的遗迹里，观赏了高耸的祖米昂石像；在纳希德军团要塞的山丘上，看到了气势逼人的龙族要塞城墙。\n\n终于游遍贝尔特伦9大名胜。这场比试没有赢家，也没有输家，只有幸福与安宁。"
+  },
+  "QuestString_STR_DQ1202070_quest_summary_journal_complete": {
+    "japanese_sha256": "9cb3dc9e84baa1cadaafafb94a13d2cc5ee317c1eb9c1b1a918046e889461ac7",
+    "translation": "“也到附近飞一飞，把这如画的风景好好记在心里！”\n\n与内维斯踏遍9大名胜的比试仍在继续。\n\n我们造访了贝尔特伦9大名胜中的两处。在阿尔拉乌葬礼岛，能看到奥迦斯翱翔天际的雄姿。在库拉卡坡道，则能迎着清风，将天空与大地尽收眼底。\n\n果然是配得上9大名胜之名的绝景。"
+  },
+  "QuestString_STR_DQ1202070_quest_summary_popup_complete": {
+    "japanese_sha256": "bcdf40e6485e5c46e07fc3578e06f13d4e9da302d1b28e0373452d0e8d9ca60f",
+    "translation": "“也到附近飞一飞，把这如画的风景好好记在心里！”\n\n在阿尔拉乌葬礼岛，能看到奥迦斯翱翔天际的雄姿。在库拉卡坡道，则能迎着清风，将天空与大地尽收眼底。\n\n果然是配得上9大名胜之名的绝景。"
+  },
+  "QuestString_STR_DQ1202053_quest_summary_popup_complete": {
+    "japanese_sha256": "4fd24b64b4772fa4412b1d9650d7d4165cf1b7dd3d9da02c35a21c51c9a3a431",
+    "translation": "“要不要和我一起踏遍9大名胜？”\n\n先去看了贝尔特伦9大名胜中的两处。在艾尔伦河沼泽的悬崖上，能望见倒塌的贝尔特伦结界塔；在艾尔伦河中游的高原上，则能眺望一望无际的大海。\n\n果然是配得上9大名胜之名的绝景。"
+  },
+  "QuestString_STR_DQ1202053_quest_title": {
+    "japanese_sha256": "4425c18df3ceaa6394ca4731ca2665e42af9c1bd82acde83372a1664c13321bf",
+    "translation": "贝尔特伦9大名胜·其1"
+  },
+  "QuestString_STR_DQ1202065_quest_summary_popup_complete": {
+    "japanese_sha256": "bbfbb926b96cf8ccbce9308366ce9c6ffea28222a4c0a40ea6774b61d4269777",
+    "translation": "“能从这座危险的岛上带着收获回去的，恐怕我们还是最早的吧。哈哈！”\n\n与塔奇斯分头探索红玉之岛后，我找到了闪光的遗物。虽说难以确定它究竟是不是宝物，但塔奇斯似乎只因找到了东西、能将它带回去，就已经十分满足。"
+  },
+  "QuestString_STR_DQ1202070_quest_title": {
+    "japanese_sha256": "5e6f10b722529b5435dcea6438d0c0cfc2004939201e942e4d42ab04e84619b4",
+    "translation": "贝尔特伦9大名胜·其2"
+  },
+  "QuestString_STR_DQ1202053_quest_summary_journal_complete": {
+    "japanese_sha256": "0d5dec250921fb906ebd5c05649fae0be238184d6d7ef27f80e45f2c8d5e207c",
+    "translation": "“要不要和我一起踏遍9大名胜？”\n\n在蘑菇树上遇到的内维斯，是位向往贝尔特伦9大名胜的探险家。\n他提议比一比谁能先踏遍这些地方。\n我接受赌约，踏上了游览贝尔特伦9大名胜的旅程。\n\n先去看了贝尔特伦9大名胜中的两处。在艾尔伦河沼泽的悬崖上，能望见倒塌的贝尔特伦结界塔；在艾尔伦河中游的高原上，则能眺望一望无际的大海。\n\n果然是配得上9大名胜之名的绝景。"
+  },
+  "QuestString_STR_DQ1202053_quest_summary_journal_progress": {
+    "japanese_sha256": "5d11626a793d1361220881579b0c930f0c720cc4ca0f316e61b29d1a780a8dc9",
+    "translation": "在蘑菇树上遇到的内维斯，是位向往贝尔特伦9大名胜的探险家。\n他提议比一比谁能先踏遍这些地方。\n接受内维斯的赌约，去游览贝尔特伦9大名胜吧。"
+  },
+  "QuestString_STR_UQ1302131_quest_summary_popup_complete": {
+    "japanese_sha256": "40a72db197640d05dddcf9c6921d59b5e5920b19b37cdb110c7863e180cd8ca3",
+    "translation": "已从阿尔拉乌部落的流浪阿尔拉乌身上收集到五色羽毛"
+  },
+  "QuestString_STR_UQ1302131_quest_summary_journal_progress": {
+    "japanese_sha256": "37a55053992d363fb4d22ae589a6d7c86b918aef3c6fc7786e3489681183bbd8",
+    "translation": "<QK>阿尔拉乌部落</>的<QK>流浪阿尔拉乌</>拥有柔软的五色羽毛。这些羽毛防水性极佳，是制作防具不可或缺的材料。\n请协助收集短缺的五色羽毛。\n- 黎明军团 -"
+  },
+  "QuestString_STR_UQ1302131_step1_obj_1": {
+    "japanese_sha256": "7595acd292b4ea9f8d68587a627947c6f8de84e7ccf2272593eddc572fda3bf3",
+    "translation": "收集流浪阿尔拉乌的五色羽毛"
+  },
+  "QuestString_STR_UQ1302131_quest_short_summary": {
+    "japanese_sha256": "d6c484bf3551625cf125acf914e3dfbca8fd34f38686e1b8a17bf1083cd336d9",
+    "translation": "从阿尔拉乌部落的流浪阿尔拉乌身上收集五色羽毛"
+  },
+  "QuestString_STR_UQ1302131_quest_title": {
+    "japanese_sha256": "b99981c509228a7bff35a3738eee88c9ee99a5f433d1c24b0c0b0390a007eb3b",
+    "translation": "获取五色羽毛"
+  },
+  "QuestString_STR_HQ2102585_quest_summary_popup_complete": {
+    "japanese_sha256": "af922e6dc8919630255f221e51856e5ebe13b1a261f7543691fb13909a2b97f9",
+    "translation": "“有人说过……每个人，都有不该相遇的人。”\n\n邬尔古伦。进入刀刃团藏身处，首先遇到的就是灵魂被夺走的邬尔古伦。凯洛特仿佛早已料到奈蒙会来，将一切安排妥当。奈蒙没有屈服，直面凯洛特，终于为这段漫长的孽缘画上了句号。\n\n然而，大神官希斯坦的法夫奈特早已落入莱卡恩之手。"
+  },
+  "QuestString_STR_HQ2102585_quest_summary_journal_complete": {
+    "japanese_sha256": "6e2a227c35ed2a529db4629ca7101fa856953e9ccc7f95541e27d563d56e36a4",
+    "translation": "“有人说过……每个人，都有不该相遇的人。”\n\n一切准备就绪，复仇近在眼前。\n奈蒙不愿再浪费时间，提议秘密潜入伊顿湖，在当地会合。\n\n喝下保护秘药，前往伊顿湖下的刀刃团藏身处，首先遇到的就是灵魂被夺走的邬尔古伦。凯洛特仿佛早已料到奈蒙会来，将一切安排妥当。奈蒙没有屈服，直面凯洛特，终于为这段漫长的孽缘画上了句号。\n\n然而，大神官希斯坦的法夫奈特早已落入莱卡恩之手。"
+  },
+  "QuestString_STR_HQ2103140_quest_summary_journal_complete": {
+    "japanese_sha256": "4179eb1af5da5050b613f654932842ddfd825f0a5aab5c6168c287f7f880a176",
+    "translation": "“稍后在祭坛见。”\n\n终于见到了结束研究、返回村庄的斯库尔德和贝尔丹迪。2人已从乌尔德那里听说事情经过，却没有提供马勒库坦根源的线索，而是提起了另一件事。\n\n她们说，有个更重要、也更可靠的办法可以拯救世界。村里不便详谈，于是约好到村外的贝尔丹迪祭坛，继续了解详情。\n\n不过，修复结界石刻不容缓。我先检查材料箱，却发现里面已经空了。\n应命运姐妹之托，收齐修复结界石的材料后，我前往贝尔丹迪祭坛。"
+  },
+  "QuestString_STR_HQ1101012_quest_summary_journal_complete": {
+    "japanese_sha256": "a7edc60f0c2f1bfcc14eaf6fe6f95b83f59248ff5d948a62d487f10591e24c85",
+    "translation": "“干得不错！”\n\n初次任务开始了。\n我要和罗宾一起寻找运往普埃塔途中遗失的物资。\n在达弥努森林附近，救下遭凯鲁宾袭击的黎明军团团员后，终于找到了完好的物资，并将其收回。\n\n罗宾起初对同行颇有不满，但共同完成任务后，他终于接纳我成为伙伴。"
+  },
+  "QuestString_STR_HQ1101012_quest_summary_journal_progress": {
+    "japanese_sha256": "931e7f230c74492e616aca78c967342fc176ba7e44d335a06b9435c4c79287ca",
+    "translation": "初次任务开始了。\n和罗宾一起寻找运往普埃塔途中遗失的物资吧。"
+  },
+  "QuestString_TestQuest_All_District_None_020_complete_desc": {
+    "japanese_sha256": "a08cff3e28cb3cbdf9b23e6e400eacda7ca4699f23dccde492b57d12354a72fe",
+    "translation": "告诉达达喝3口药水后的效果。"
   }
 }
