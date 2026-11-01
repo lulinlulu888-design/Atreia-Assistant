@@ -61,6 +61,19 @@ class JapaneseMappingTests(unittest.TestCase):
         _, report = mapping.build({'a': 'Accept'}, {'a': '承諾'}, {'a': 'Accept'}, {'a': 'Accept'})
         self.assertFalse(report['publishable'])
 
+    def test_literal_headings_are_not_runtime_tags(self):
+        self.assertEqual(mapping.signature('<功效>\n测试<QK>{pcname}</>'), mapping.signature('<効果>\n説明<QK>{pcname}</>'))
+        self.assertNotEqual(mapping.signature('<QK>测试</>'), mapping.signature('测试'))
+
+    def test_literals_require_both_official_sources_and_narrow_category(self):
+        result, report = mapping.build({'InputKeyText_TEST_desc': 'Gamepad_LeftTriggerAxis'},
+                                       {'InputKeyText_TEST_desc': 'Gamepad_LeftTriggerAxis'},
+                                       {'InputKeyText_TEST_desc': 'Gamepad_LeftTriggerAxis'},
+                                       {'InputKeyText_TEST_desc': 'Gamepad_LeftTriggerAxis'})
+        self.assertTrue(report['publishable'])
+        self.assertFalse(mapping.literal_identifier('Quest_title', 'Accept', 'Accept', 'Accept'))
+        self.assertFalse(mapping.literal_identifier('InputKeyText_TEST_desc', 'Jump', 'ジャンプ', 'Jump'))
+
 
 if __name__ == '__main__':
     unittest.main()

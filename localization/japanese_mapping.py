@@ -10,7 +10,7 @@ import re
 import unicodedata
 from decimal import Decimal
 
-TOKENS = re.compile(r'<[^>]*>|\{[^}]*\}|%\d*\$?[a-zA-Z]|\\[nrt]')
+TOKENS = re.compile(r'''</>|<[A-Za-z_][A-Za-z0-9_.-]*(?:\s+[A-Za-z_]\w*=(?:"[^"]*"|'[^']*'|[^<>\s]+))*\s*/?>|\{[^{}]*\}|%\d*\$?[a-zA-Z]|\\[nrt]''')
 NUMBERS = re.compile(r'(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)(?:万|萬|千)?%?')
 HAN_DIGITS = {'零': 0, '〇': 0, '一': 1, '二': 2, '两': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9}
 
@@ -40,7 +40,7 @@ def numbers(text):
         return match.group() if value is None else '第' + str(value)
     # Compare known number spellings without rewriting the translated text.
     text = re.sub(r'第([零〇一二两三四五六七八九十]+)(?=阶段|階段|段階|级|級|层|層|章)', ordinal, text)
-    text = re.sub(r'([一二三四五六七八九])(?=星(?:[~～\]将军官]|$)|等兵)', lambda m: str(HAN_DIGITS[m.group()]), text)
+    text = re.sub(r'([一二三四五六七八九])(?=星(?:[~～\]将军官]|$)|等(?:兵|[~～\]]))', lambda m: str(HAN_DIGITS[m.group()]), text)
     result = []
     for token in NUMBERS.findall(text):
         percentage = token.endswith('%')
@@ -52,6 +52,18 @@ def numbers(text):
         canonical = format(value.normalize(), 'f')
         result.append(canonical + ('%' if percentage else ''))
     return Counter(result)
+
+
+def literal_identifier(key, english, japanese, translation):
+    if ''.join(english.split()) != ''.join(japanese.split()) or ''.join(english.split()) != ''.join(translation.split()):
+        return False
+    if re.fullmatch(r'[IVXLCDM★☆\d\s.+-]+', english):
+        return True
+    if key.startswith('InputKeyText_') and re.fullmatch(r'[A-Za-z0-9_+ .-]+', english):
+        return True
+    if re.fullmatch(r'ServerName_\d+_short_desc', key) and english in {'RUT', 'TAS', 'RED', 'HIT', 'GAU', 'LAM', 'TIE', 'HEL'}:
+        return True
+    return english in {'NVIDIA', 'DLSS', 'AMD FSR', 'Intel XeSS', 'DirectX 12', 'FPS', 'UTC', 'DPS', 'PNG', 'JPG'}
 
 
 def build(official_english, official_japanese, previous_english, own_chinese, reviews=None):
@@ -81,7 +93,7 @@ def build(official_english, official_japanese, previous_english, own_chinese, re
                 reason = 'japanese_runtime_tokens_or_markup_changed'
             elif numbers(translation) != numbers(japanese):
                 reason = 'japanese_numeric_values_need_review'
-            elif english and translation == english and re.search(r'[A-Za-z]{3}', TOKENS.sub('', english)):
+            elif english and translation == english and re.search(r'[A-Za-z]{3}', TOKENS.sub('', english)) and not literal_identifier(key, english, japanese, translation):
                 reason = 'untranslated_english_needs_review'
             else:
                 output[key] = translation
