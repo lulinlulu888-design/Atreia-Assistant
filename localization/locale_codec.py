@@ -95,7 +95,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("manifest", type=Path)
     parser.add_argument("table", type=Path)
-    parser.add_argument("locale", choices=("en-US", "zh-TW", "ko-KR"))
+    parser.add_argument("locale", choices=("en-US", "zh-TW", "ko-KR", "ja-JP"))
     parser.add_argument("output", type=Path)
     args = parser.parse_args()
     if args.output.exists():

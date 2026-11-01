@@ -21,7 +21,7 @@ static class LanguagePakReader
     internal static string ExpectedMember(string locale)
     {
         if (locale == "manifest") return "Aion2/Content/StartUpData/Table/key_manifest.dat";
-        if (locale != "en-US" && locale != "zh-TW" && locale != "ko-KR")
+        if (locale != "en-US" && locale != "zh-TW" && locale != "ko-KR" && locale != "ja-JP")
             throw new ArgumentException("不支持此语言资源。");
         return "Aion2/Content/L10N/Text/" + locale + "/L10NString.dat";
     }
