@@ -62,6 +62,9 @@ def execute(operation, root, client, bundle_root, bindings, closed_check=ensure_
         raise ValueError('请选择包含 Aion2/Content 的游戏根目录。')
     transaction = JapaneseEntryTransaction(root, closed_check)
     if operation == 'restore':
+        if transaction._read_state() is None and client in bindings:
+            metadata, _ = load_bundle(Path(bundle_root) / client, client, bindings[client])
+            transaction.adopt_legacy(metadata['package_sha256'])
         result = transaction.restore()
         message = '已还原原始日文语言资源。'
     else:
@@ -69,20 +72,28 @@ def execute(operation, root, client, bundle_root, bindings, closed_check=ensure_
             raise ValueError('安装包尚未包含此客户端已审核的日文入口组件。')
         metadata, payload = load_bundle(Path(bundle_root) / client, client, bindings[client])
         state = transaction._read_state()
+        legacy = False
         if state and state['status'] == 'installed':
             transaction._originals(state)
             originals = {name: transaction.recovery / state['generation'] / name for name in NAMES}
         else:
             originals = {name: transaction.paths[name] for name in NAMES}
+            if not state and originals[NAMES[0]].is_file() and originals[NAMES[0]].stat().st_size == 0:
+                originals = transaction.legacy_originals(metadata['package_sha256'])
+                legacy = True
         try:
             verify_original_packages(metadata, originals)
         except FileNotFoundError:
             raise ValueError('缺少完整的官方日文语言包，请先安装日文文字资源或还原旧入口备份。') from None
         if operation == 'install':
+            if legacy:
+                transaction.adopt_legacy(metadata['package_sha256'])
             result = transaction.install(payload)
             message = '日文入口汉化安装完成。请将游戏文字语言设为“日本語”并重启客户端；语音保持原设置。'
         else:
             result = transaction.inspect()
+            if legacy:
+                result['status'] = 'legacy_ready_to_migrate'
             message = '已核对官方日文语言包及国服风格译文组件。安装后文字语言请选择“日本語”；语音保持原设置。'
     return {'ok': True, 'cancelled': False, 'operation': operation, 'client': client,
             'game_root': str(root), 'entry': 'ja-JP', 'state': result['status'], 'message': message}

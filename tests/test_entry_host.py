@@ -63,6 +63,59 @@ class EntryHostTests(unittest.TestCase):
             execute('install', self.game, 'purple', self.bundles, self.bindings, lambda: None)
         self.assertTrue(self.originals[NAMES[0]].stat().st_size)
 
+    def legacy_layout(self):
+        safe = self.game / 'Aion2_Japanese_Backup_Safe'
+        safe.mkdir()
+        for name, path in self.originals.items():
+            (safe / name).write_bytes(path.read_bytes())
+            if name == NAMES[0]:
+                path.write_bytes(b'')
+            else:
+                path.unlink()
+        dat = self.game / 'Aion2/Content/L10N/Text/ja-JP/L10NString.dat'
+        dat.parent.mkdir(parents=True)
+        dat.write_bytes(b'previous experimental translation')
+        return safe, dat
+
+    def test_verified_legacy_inspection_is_read_only_then_migrates_and_restores(self):
+        safe, dat = self.legacy_layout()
+        result = execute('inspect', self.game, 'steam', self.bundles, self.bindings,
+                         lambda: self.fail('Inspection must be read-only'))
+        self.assertEqual(result['state'], 'legacy_ready_to_migrate')
+        self.assertFalse((self.game / 'Atreia_Japanese_Entry_Backup').exists())
+        result = execute('install', self.game, 'steam', self.bundles, self.bindings, lambda: None)
+        self.assertEqual(result['state'], 'installed')
+        state_path = self.game / 'Atreia_Japanese_Entry_Backup/state.json'
+        import json
+        state = json.loads(state_path.read_text(encoding='utf-8'))
+        archived = state_path.parent / state['generation'] / 'legacy-L10NString.dat'
+        self.assertEqual(archived.read_bytes(), b'previous experimental translation')
+        execute('restore', self.game, 'steam', self.bundles, {}, lambda: None)
+        self.assertFalse(dat.exists())
+        for name, path in self.originals.items():
+            self.assertEqual(path.read_bytes(), (safe / name).read_bytes())
+
+    def test_legacy_migration_rejects_wrong_original_and_running_game(self):
+        safe, dat = self.legacy_layout()
+        (safe / NAMES[1]).write_bytes(b'wrong version signature')
+        with self.assertRaises(ValueError):
+            execute('install', self.game, 'steam', self.bundles, self.bindings, lambda: None)
+        self.assertEqual(dat.read_bytes(), b'previous experimental translation')
+        self.assertFalse((self.game / 'Atreia_Japanese_Entry_Backup').exists())
+        (safe / NAMES[1]).write_bytes(('official ' + NAMES[1]).encode())
+        def running():
+            raise RuntimeError('Game is running')
+        with self.assertRaises(RuntimeError):
+            execute('install', self.game, 'steam', self.bundles, self.bindings, running)
+        self.assertFalse((self.game / 'Atreia_Japanese_Entry_Backup').exists())
+
+    def test_legacy_can_be_restored_without_installing_new_payload(self):
+        safe, dat = self.legacy_layout()
+        result = execute('restore', self.game, 'steam', self.bundles, self.bindings, lambda: None)
+        self.assertEqual(result['state'], 'restored')
+        self.assertFalse(dat.exists())
+        self.assertEqual(self.originals[NAMES[0]].read_bytes(), (safe / NAMES[0]).read_bytes())
+
 
 if __name__ == '__main__':
     unittest.main()

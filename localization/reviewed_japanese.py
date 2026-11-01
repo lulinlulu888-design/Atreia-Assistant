@@ -35,6 +35,15 @@ REGIONS = {
            '欧洲', '德国（法兰克福）', '德国、爱尔兰、英国、法国、瑞典、意大利、西班牙、瑞士'),
 }
 
+QUEST_CLAUSES = {
+    '「それじゃ、私たちの最初の共同作戦を始めましょうか？」': '“那么，就开始我们的第一次联合行动吧？”',
+    'クロリスと協力して、アーティファクトを探すことにした。': '决定与克萝莉丝合作，寻找神器。',
+    'クロリス団は、エルテネン結界塔廃墟にアーティファクトがあると推測し、そこに野営地を設けてアーティファクトの調査を続けているという。': '据说克萝莉丝团推测埃尔特内结界塔废墟中藏有神器，因此在那里设立营地，持续展开调查。',
+    'しかし、実際に廃墟調査の野営地を守っているクロリス団は、レパル団との勢力争いのため、アーティファクトの調査が思うように進んでいなかった。': '然而，驻守废墟调查营地的克萝莉丝团正与龙信徒争夺势力范围，神器调查迟迟没有进展。',
+    'クロリス団はレパル団との勢力争いのため、アーティファクトの調査が思うように進んでいなかった。': '克萝莉丝团正与龙信徒争夺势力范围，神器调查迟迟没有进展。',
+    '何の情報もない中、エルテネン結界塔廃墟を捜索していたところ、謎の遺物を発見した。': '在毫无线索的情况下搜索埃尔特内结界塔废墟时，发现了一件神秘遗物。',
+}
+
 # Complete Japanese clauses only. Slots stand for original runtime parameters
 # or literal numbers, never arbitrary Japanese prose. Unknown clauses block the
 # entire description; there is no partial Japanese/Chinese publication path.
@@ -194,6 +203,32 @@ def skill_description(japanese):
 
 
 def reviewed_translation(key, japanese):
+    exact_labels = {
+        'String_STR_sub_N_CLB01_body': ('プロミスナイン', 'fromis_9组合'),
+        'String_STR_ITEM_TOOLTIP_Cash_body': ('Cash', '付费道具'),
+        'String_UI_HUD_TARGETINFO_TAG_MANNER_body': ('MANNER', '礼让'),
+        'String_UI_RIFT_SKIRMISH_PVP_MODE_ICON_TEXT_body': ('S-PvP', 'S-PvP'),
+        'String_UI_DAMAGEANALYZER_SKILL_RESTORATION_COUNT_body': ('RSTO', '恢复'),
+        'String_UI_DAMAGEANALYZER_SKILL_IRONWALL_COUNT_body': ('ENDR', '铁壁'),
+        'String_UI_DAMAGEANALYZER_SKILL_HARDHIT_COUNT_body': ('DOUB', '强击'),
+        'String_UI_DAMAGEANALYZER_SKILL_FRONTATTACK_COUNT_body': ('FRNT', '正面攻击'),
+        'String_UI_DAMAGEANALYZER_SKILL_ADDITIONALHIT_COUNT_body': ('MULT', '追加攻击'),
+    }
+    if key in exact_labels and japanese == exact_labels[key][0]:
+        return exact_labels[key][1]
+    if key in {'SkillString_SkillString_ETC_9351_skill_desc_effect', 'SkillString_SkillString_ETC_9351_skill_name'} and japanese == 'EndCastSkillByCasterをDispel':
+        return '驱散EndCastSkillByCaster效果'
+    if key.startswith('NpcTalk_'):
+        if japanese == '…':
+            return '……'
+        if japanese == 'それじゃ、私たちの最初の共同作戦を始めましょうか？\n新しい仲間になったんだから、もう少し喜んでほしいわ。':
+            return '那么，就开始我们的第一次联合行动吧？\n既然已经成为新的伙伴，就表现得高兴一点嘛。'
+        if japanese == 'いつの話をしてるの？\nレパル団が真っ先に占領したのが神秘の泉なのよ。':
+            return '你说的都是什么时候的事了？\n龙信徒最先占领的就是神秘之泉。'
+    if key.startswith('QuestString_STR_HQ1103280_quest_summary_'):
+        lines = japanese.split('\n')
+        if all(not line or line in QUEST_CLAUSES for line in lines):
+            return '\n'.join(QUEST_CLAUSES.get(line, '') for line in lines)
     if key == 'NpcTalk_6B632FCDECEE4325928285141BB9B30F_cv_text' and japanese == '待て！\n最初の文字だけ見ると<QK>湖の中の洞窟</>という言葉になる。':
         return '等等！\n只看每句开头的字，连起来就是<QK>湖中的洞窟</>。'
     if key.startswith('String_'):

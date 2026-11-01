@@ -93,8 +93,18 @@ def literal_identifier(key, english, japanese, translation):
             return True
         if re.fullmatch(r'abnormal effect type = ForceKill(?:ByGetDamage)? (?:skill_damage_type = Magic|skill_attribute_type = Fire|skill_type Active|Abrnoaml Effect Type = Stun|need_condition)', english):
             return True
-        if english in {'System', 'SelfDamage', 'EndCastSkillByCasterをDispel'} or re.fullmatch(r'movable_in_use=(?:true|false), overlap=none(?:, (?:charging|casting))?', english):
+        if english in {'System', 'SelfDamage', 'EndCastSkillByCasterをDispel'} or re.fullmatch(r'movable_in_use=(?:true|false),overlap=none(?:,(?:charging|casting))?', ''.join(english.split())):
             return True
+    if key.startswith('String_STR_N_') and (key.removeprefix('String_').removesuffix('_body') == english or re.fullmatch(r'SEQ(?:2273|2311)', english)):
+        return True
+    if key in {'String_STR_ITEM_Currency_CASH_body', 'String_STR_ITEM_Currency_DIVINESHARD_body'} and english in {'#Cash', '#DivineShard'}:
+        return True
+    if key.startswith('String_STR_Test_Object_Terrain_Type_') and english in {'Ground', 'Water', 'Air'}:
+        return True
+    if key == 'String_UI_HUD_CONTROL_VIRTUALPAD_TAB_body' and english == 'TAB':
+        return True
+    if key in {'String_UI_SNAPSHOT_OPTIONS_BUTTON_NAMEPLATE_NPC_body', 'String_UI_SNAPSHOT_OPTIONS_BUTTON_SHOW_NPC_body'} and english == 'NPC':
+        return True
     if key.startswith('String_STR_Desc_Map_') and key.removeprefix('String_').removesuffix('_body') == english:
         return True
     # An English quotation is deliberately identical in the official locales.

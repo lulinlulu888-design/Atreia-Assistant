@@ -119,6 +119,53 @@ class JapaneseEntryTransaction:
             status = state['status']
         return {'entry': 'ja-JP', 'status': status, 'text_language': '日本語'}
 
+    def legacy_originals(self, expected_hashes):
+        """Recognize the former Safe layout only against embedded official hashes.
+
+        No legacy metadata or translation is trusted as an original. This is
+        read-only so detection remains usable while the game is running.
+        """
+        if self._read_state() is not None or set(expected_hashes) != set(NAMES):
+            raise ValueError('Legacy adoption requires an unmanaged entry and complete official bindings')
+        if not self.paths[NAMES[0]].is_file() or self.paths[NAMES[0]].stat().st_size:
+            raise ValueError('Not a legacy empty Japanese package')
+        if any(self.paths[name].exists() for name in NAMES[1:]) or not self.dat.is_file():
+            raise ValueError('Legacy Japanese layout is incomplete or has changed')
+        paths = {name: self.root / 'Aion2_Japanese_Backup_Safe' / name for name in NAMES}
+        for name, path in paths.items():
+            self._check_path(path)
+            if not path.is_file() or digest(path.read_bytes()) != expected_hashes[name]:
+                raise ValueError('Legacy original does not match the reviewed official package: ' + name)
+        return paths
+
+    def adopt_legacy(self, expected_hashes):
+        """Create verified recovery state without changing any live game file."""
+        self._closed()
+        paths = self.legacy_originals(expected_hashes)
+        original_bytes = {name: path.read_bytes() for name, path in paths.items()}
+        legacy_payload = self.dat.read_bytes()
+        state = {'format': 1, 'entry': 'ja-JP', 'generation': uuid4().hex,
+                 'status': 'installed', 'payload_sha256': digest(legacy_payload),
+                 'originals': dict(expected_hashes, **{'L10NString.dat': None}),
+                 'migration': 'verified_safe_backup'}
+        directory = self.recovery / state['generation']
+        self._check_path(directory)
+        directory.mkdir(parents=True, exist_ok=False)
+        for name, data in original_bytes.items():
+            with (directory / name).open('xb') as stream:
+                stream.write(data)
+        # Preserve the pre-migration translation for diagnostics/rollback; it
+        # must never become the "original" restored into the game.
+        with (directory / 'legacy-L10NString.dat').open('xb') as stream:
+            stream.write(legacy_payload)
+        self._originals(state)
+        self._closed()
+        self.legacy_originals(expected_hashes)
+        if not self._matches_installed(state):
+            raise ValueError('Legacy game files changed during migration preparation')
+        self._save(state)
+        return self.inspect()
+
     def install(self, payload):
         self._closed()
         if not isinstance(payload, bytes) or len(payload) < 68 or payload[:4] != bytes((2, 0, 0, 0)):
