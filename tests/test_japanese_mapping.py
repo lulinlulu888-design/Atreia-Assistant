@@ -40,6 +40,15 @@ class JapaneseMappingTests(unittest.TestCase):
         self.assertEqual(mapping.numbers('[一星～五星将校]10回'), mapping.numbers('[1星~5星军官]10次'))
         self.assertNotEqual(mapping.numbers('2级'), mapping.numbers('3级'))
         self.assertNotEqual(mapping.numbers('50%'), mapping.numbers('0.5%'))
+        self.assertTrue(mapping.numeric_equivalent('噩梦三分钟', '3分ナイトメア'))
+        self.assertTrue(mapping.numeric_equivalent('24小时内服用六瓶', '24時間以内に6瓶'))
+        self.assertTrue(mapping.numeric_equivalent('二十个宝箱', '20個'))
+        self.assertEqual(mapping.numbers('伊斯拉佩尔'), mapping.numbers('イズラフェル'))
+        self.assertEqual(mapping.numbers('唯一級装備1個獲得'), mapping.numbers('获得1件独特级装备'))
+        self.assertEqual(mapping.numbers('隠された五つの運命'), mapping.numbers('被掩盖的五个命运'))
+        self.assertEqual(mapping.numbers('少しは強くなったかも'), mapping.numbers('也许稍微强了一点'))
+        self.assertTrue(mapping.numeric_equivalent('执政官十夫长的著装IV', 'アルコン十人隊長の衣服IV'))
+        self.assertFalse(mapping.numeric_equivalent('完成二次', '3回完了'))
 
     def test_review_is_bound_to_both_sources(self):
         review = {'english_sha256': mapping.fingerprint('Damage'), 'japanese_sha256': mapping.fingerprint('{se:1}'), 'translation': '{se:1} 伤害'}
@@ -73,6 +82,22 @@ class JapaneseMappingTests(unittest.TestCase):
         self.assertTrue(report['publishable'])
         self.assertFalse(mapping.literal_identifier('Quest_title', 'Accept', 'Accept', 'Accept'))
         self.assertFalse(mapping.literal_identifier('InputKeyText_TEST_desc', 'Jump', 'ジャンプ', 'Jump'))
+
+    def test_old_question_marks_cannot_hide_populated_japanese_text(self):
+        for placeholder in ('???', ''):
+            result, report = mapping.build({'a': placeholder}, {'a': '連環拳'}, {'a': placeholder}, {'a': placeholder})
+            self.assertEqual(result, {})
+            self.assertEqual(report['unresolved'][0]['reason'], 'missing_chinese_translation')
+        result, report = mapping.build({'a': '???'}, {'a': '???'}, {'a': '???'}, {'a': '???'})
+        self.assertTrue(report['publishable'])
+
+    def test_camera_and_machine_identifiers_are_source_bound_not_public_names(self):
+        key = 'NpcTalk_' + 'A' * 32 + '_cv_text'
+        self.assertTrue(mapping.literal_identifier(key, 'Default_Zoom_IN3', 'Default_Zoom_IN3', 'Default_Zoom_IN3'))
+        self.assertFalse(mapping.literal_identifier(key, 'Accept', 'Accept', 'Accept'))
+        self.assertTrue(mapping.literal_identifier('ServerName_55_desc', 'Dev_Reporting_InterServer', 'Dev_Reporting_InterServer', 'Dev_Reporting_InterServer'))
+        self.assertFalse(mapping.literal_identifier('ServerName_1_desc', 'Siel', 'Siel', 'Siel'))
+        self.assertFalse(mapping.literal_identifier('SkillString_TEST_skill_name', 'Fury', 'Fury', 'Fury'))
 
 
 if __name__ == '__main__':

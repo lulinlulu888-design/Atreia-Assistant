@@ -33,8 +33,18 @@ def signature(text):
     return Counter(TOKENS.findall(text))
 
 
-def numbers(text):
+def numbers(text, written=False):
     text = unicodedata.normalize('NFKC', TOKENS.sub('', text))
+    # Unique is an item grade, not the number one. Likewise a Chinese idiom
+    # meaning "go further" does not introduce a literal floor count.
+    text = text.replace('唯一', '独特').replace('更上一层', '更进一步').replace('更上一層', '更进一步')
+    def quantity(match):
+        value = small_han_number(match.group())
+        return match.group() if value is None else str(value)
+    # Written Chinese quantities are equivalent to Arabic digits; prose itself
+    # stays unchanged. Requiring an explicit classifier avoids parsing names.
+    if written:
+        text = re.sub(r'[零〇一二两三四五六七八九十]+(?=分钟|分鐘|小时|小時|時間|阶段|階段|等兵|个人|個人|種類|个|個|种|種|只|名|次|秒|分間|天|日|级|級|层|層|颗|顆|枚|件|项|項|回|度|瓶|条|條|米|段|つ|人|体|匹|本)', quantity, text)
     def ordinal(match):
         value = small_han_number(match.group(1))
         return match.group() if value is None else '第' + str(value)
@@ -54,12 +64,39 @@ def numbers(text):
     return Counter(result)
 
 
+def numeric_equivalent(first, second):
+    # An additional written-number interpretation can prove equivalence, but
+    # must not reclassify grade names or literary idioms as new numeric errors.
+    return numbers(first) == numbers(second) or numbers(first, written=True) == numbers(second, written=True)
+
+
 def literal_identifier(key, english, japanese, translation):
     if ''.join(english.split()) != ''.join(japanese.split()) or ''.join(english.split()) != ''.join(translation.split()):
         return False
     if re.fullmatch(r'[IVXLCDM★☆\d\s.+-]+', english):
         return True
     if key.startswith('InputKeyText_') and re.fullmatch(r'[A-Za-z0-9_+ .-]+', english):
+        return True
+    if re.fullmatch(r'NpcTalk_[A-F0-9]{32}_cv_text', key) and re.fullmatch(r'Default(?:_Zoom_IN[23]?)?(?:_(?:UP|Down))?|(?:Left|Right)_(?:UP|Down|30)', english):
+        return True
+    if re.fullmatch(r'ServerName_\d+_(?:short_)?desc', key) and re.fullmatch(r'Dev_(?:Reporting_)?(?:Light|Dark|InterServer)|RelQA02_(?:Light|Dark)_[1-3]|Dist2_[1-3]_(?:Light|Dark)|StandAlone_(?:Light|Dark|InterServer)|Review_(?:Siel|Israpel)|RV[LD]', english):
+        return True
+    if key in {'QuestString_TestQuest_All_District_None_037_step2_obj_2', 'QuestString_TestQuest_All_District_None_037_step2_obj_3'} and english in {'AskNPC', 'KillNPC'}:
+        return True
+    if key.startswith(('SkillString_', 'SkillAbnormalString_')):
+        if re.fullmatch(r'(?:HP|MP|SP|OP|DP)Heal(?:Ratio)?(?:_Item)?|IgnorePenaltyLoss_(?:Item|Exp)_PvE|Extending_Weapon|OnLanding|Abnormal_TRUE|Ground_(?:UnMovable|Movable)|EnvObj_Spawn|SpawnLocation_(?:SpawnDirection|CasterDirection)|Movable_In_Use=(?:TRUE|FALSE)|SoftMove (?:RingArc|Ring|Rectangle)_(?:Push|Pull)', english):
+            return True
+        if re.fullmatch(r'abnormal effect type = ForceKill(?:ByGetDamage)? (?:skill_damage_type = Magic|skill_attribute_type = Fire|skill_type Active|Abrnoaml Effect Type = Stun|need_condition)', english):
+            return True
+        if english in {'System', 'SelfDamage', 'EndCastSkillByCasterをDispel'} or re.fullmatch(r'movable_in_use=(?:true|false), overlap=none(?:, (?:charging|casting))?', english):
+            return True
+    if key.startswith('String_STR_Desc_Map_') and key.removeprefix('String_').removesuffix('_body') == english:
+        return True
+    # An English quotation is deliberately identical in the official locales.
+    # Keep it source-bound without storing the quoted text in source control.
+    if key == 'NoteData_T_Note_Collect_Verteron_002_text' and fingerprint(english) == '6e7dddc0673556f909825ee4e60a05591fc4086abafdee53352cb5eea0289e94':
+        return True
+    if key.startswith('String_UI_SETTING_') and (english in {'NVIDIA Reflex', 'TSR', 'TAA', 'FXAA', 'NCAO', 'GTAO', 'MSAA', 'HBAO', 'GFF', 'Auro 3D', 'Resonance'} or re.fullmatch(r'(?:DLSS|FSR)(?: [0-9.]+)?', english)):
         return True
     if re.fullmatch(r'ServerName_\d+_short_desc', key) and english in {'RUT', 'TAS', 'RED', 'HIT', 'GAU', 'LAM', 'TIE', 'HEL'}:
         return True
@@ -91,8 +128,10 @@ def build(official_english, official_japanese, previous_english, own_chinese, re
         if translation is not None:
             if signature(translation) != signature(japanese):
                 reason = 'japanese_runtime_tokens_or_markup_changed'
-            elif numbers(translation) != numbers(japanese):
+            elif not numeric_equivalent(translation, japanese):
                 reason = 'japanese_numeric_values_need_review'
+            elif re.fullmatch(r'[\s?？]*', TOKENS.sub('', translation)) and not re.fullmatch(r'[\s?？]*', TOKENS.sub('', japanese)):
+                reason = 'missing_chinese_translation'
             elif english and translation == english and re.search(r'[A-Za-z]{3}', TOKENS.sub('', english)) and not literal_identifier(key, english, japanese, translation):
                 reason = 'untranslated_english_needs_review'
             else:

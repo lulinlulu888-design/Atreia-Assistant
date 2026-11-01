@@ -4,9 +4,19 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).parents[1] / 'localization'))
 from official_japanese_reviews import propose
+from reviewed_japanese import reviewed_translation
 
 
 class OfficialJapaneseReviewTests(unittest.TestCase):
+    def test_authored_ui_labels_preserve_values_and_reject_changed_source(self):
+        key = 'String_UI_NPCSHOP_ITEMLIST_BUTTON_ADDMAX79_body'
+        self.assertEqual(reviewed_translation(key, 'MAX 79.9%'), '最大79.9%')
+        self.assertIsNone(reviewed_translation(key, 'MAX unknown'))
+        self.assertIsNone(reviewed_translation('NpcTalk_example', 'HERO'))
+        message = 'Message_MSG_GET_VEHICLE_CREATURE_SOUL_POINT_body'
+        self.assertEqual(reviewed_translation(message, '魂結晶を{1}個獲得しました。'), '获得了{1}个灵魂结晶。')
+        self.assertIsNone(reviewed_translation(message, '魂結晶を{0}個獲得しました。'))
+
     def test_source_mismatch_never_reuses_same_key(self):
         reviews, rejected = propose({'a': 'New'}, {'a': '新'}, {}, {}, {'a': 'Old'}, {'a': '舊'})
         self.assertFalse(reviews)
@@ -46,6 +56,22 @@ class OfficialJapaneseReviewTests(unittest.TestCase):
         self.assertEqual(reviews['a']['translation'], '隐藏宝箱')
         reviews, _ = propose({'a': 'Backpack'}, {'a': 'バッグ'}, {}, {}, {'a': 'Backpack'}, {'a': '背包'})
         self.assertEqual(reviews['a']['translation'], '背包')
+
+    def test_missing_global_english_can_use_current_official_tw_with_matching_japanese_parameters(self):
+        reviews, rejected = propose({'a': '???'}, {'a': '{pcname}、こんにちは。'}, {'a': '???'}, {'a': '???'},
+                                    {'a': 'Hello, {pcname}.'}, {'a': '{pcname}，你好。'})
+        self.assertFalse(rejected)
+        self.assertEqual(reviews['a']['translation'], '{pcname}，你好。')
+        self.assertEqual(reviews['a']['source_match'], 'english_unavailable_official_japanese_and_tw_key_runtime_and_values')
+        reviews, rejected = propose({'a': '???'}, {'a': '{pcname}、こんにちは。'}, {}, {},
+                                    {'a': 'Hello'}, {'a': '你好'})
+        self.assertFalse(reviews)
+        self.assertEqual(rejected[0]['reason'], 'japanese_runtime_signature_differs')
+
+    def test_unknown_english_does_not_hide_a_known_changed_english_source(self):
+        reviews, rejected = propose({'a': 'Purchase'}, {'a': '購入'}, {}, {}, {'a': 'Delete'}, {'a': '删除'})
+        self.assertFalse(reviews)
+        self.assertEqual(rejected[0]['reason'], 'official_english_sources_differ')
 
 
 if __name__ == '__main__':
