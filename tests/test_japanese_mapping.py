@@ -99,6 +99,14 @@ class JapaneseMappingTests(unittest.TestCase):
         self.assertTrue(mapping.numeric_equivalent('プロミスナインと3回', '与fromis_9进行3次'))
         self.assertFalse(mapping.numeric_equivalent('プロミスナインと3回', '与fromis_9进行4次'))
 
+    def test_spelled_time_and_solo_counts_keep_real_value_changes_blocked(self):
+        self.assertTrue(mapping.numeric_equivalent('100日記念', '百日纪念'))
+        self.assertTrue(mapping.numeric_equivalent('1年の吉凶', '一整年的吉凶'))
+        self.assertTrue(mapping.numeric_equivalent('1人でクリア', '独自完成'))
+        self.assertTrue(mapping.numeric_equivalent('最初のチェック ポイント', '第一个存档点'))
+        self.assertFalse(mapping.numeric_equivalent('2人でクリア', '独自完成'))
+        self.assertFalse(mapping.numeric_equivalent('200日記念', '百日纪念'))
+
     def test_camera_and_machine_identifiers_are_source_bound_not_public_names(self):
         key = 'NpcTalk_' + 'A' * 32 + '_cv_text'
         self.assertTrue(mapping.literal_identifier(key, 'Default_Zoom_IN3', 'Default_Zoom_IN3', 'Default_Zoom_IN3'))

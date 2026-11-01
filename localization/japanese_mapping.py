@@ -56,6 +56,8 @@ def numbers(text, written=False):
     text = re.sub(r'第([零〇一二两三四五六七八九十]+)(?=阶段|階段|段階|级|級|层|層|章|赛季|賽季|个|個)', ordinal, text)
     text = re.sub(r'([一二三四五六七八九])(?=[~～〜]?[一二三四五六七八九]?(?:等兵|星将校|星军官|星軍官))', lambda m: ' ' + str(HAN_DIGITS[m.group()]) + ' ', text)
     text = re.sub(r'([一二三四五六七八九])(?=星(?:[~～\]将军官]|$)|等(?:兵|[~～\]]))', lambda m: ' ' + str(HAN_DIGITS[m.group()]) + ' ', text)
+    if written:
+        text = text.replace('百日', '100日').replace('一整年', '1年')
     result = []
     for token in NUMBERS.findall(text):
         percentage = token.endswith('%')
@@ -72,7 +74,15 @@ def numbers(text, written=False):
 def numeric_equivalent(first, second):
     # An additional written-number interpretation can prove equivalence, but
     # must not reclassify grade names or literary idioms as new numeric errors.
-    return numbers(first) == numbers(second) or numbers(first, written=True) == numbers(second, written=True)
+    if numbers(first) == numbers(second) or numbers(first, written=True) == numbers(second, written=True):
+        return True
+    # Explicitly spelled concepts can carry the same count without a digit.
+    # Keep this as a separate interpretation so an idiom cannot create a new
+    # mismatch in prose which was already numerically equivalent.
+    def semantic(text):
+        text = text.replace('独自', '1人').replace('最初の', '第1个').replace('最初に', '第1次')
+        return text
+    return numbers(semantic(first), written=True) == numbers(semantic(second), written=True)
 
 
 def literal_identifier(key, english, japanese, translation):

@@ -4,10 +4,36 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).parents[1] / 'localization'))
 from official_japanese_reviews import propose
-from reviewed_japanese import reviewed_translation
+from reviewed_japanese import reviewed_translation, reviewed_wing_stats, reviewed_item_stats
 
 
 class OfficialJapaneseReviewTests(unittest.TestCase):
+    def test_title_review_preserves_name_and_replaces_all_outdated_attributes(self):
+        key = 'String_STR_ITEM_TITLE_L_TEST_DESC_body'
+        ja = '[空間を支配する者]のタイトルを獲得します。\n\n[保有効果]\nPvEダメージ耐性：1.0%\n\n[装着効果]\n追加防御力：340\nHP：1,000'
+        own = '获得[空间支配者]称号。\n\n[持有效果]\n精神力20'
+        text = reviewed_item_stats(key, ja, own)
+        self.assertIn('获得[空间支配者]称号。', text)
+        self.assertIn('PvE伤害抗性：1.0%', text)
+        self.assertIn('生命力：1,000', text)
+        self.assertNotIn('精神力', text)
+        self.assertIsNone(reviewed_item_stats(key, ja.replace('HP：1,000', '未知：1,000'), own))
+
+    def test_wing_stat_review_uses_japanese_values_and_all_labels(self):
+        key = 'String_STR_ITEM_WING_L_TEST_DESC_body'
+        ja = '[妖精の夢の翼(刻印)]を獲得します。\n\n[装着効果]\nHP：400\n[保有効果]\n追加命中：20\nPvPダメージ耐性1.00%'
+        own = '获得[妖精之梦翅膀]。\n\n[装备效果]\n生命力：200'
+        result = reviewed_wing_stats(key, ja, own)
+        self.assertIn('获得[妖精之梦翅膀（绑定）]。', result)
+        self.assertIn('生命力：400', result)
+        self.assertIn('额外命中：20', result)
+        self.assertIn('PvP伤害抗性：1.00%', result)
+        self.assertIsNone(reviewed_wing_stats(key, ja + '\n新属性：5', own))
+        self.assertIsNone(reviewed_wing_stats(key, ja.replace('400', '{value}'), own))
+        self.assertIsNone(reviewed_wing_stats(key, ja.replace('[保有効果]', '[未知]'), own))
+        reviews, _ = propose({key: 'Changed wing'}, {key: ja}, {key: 'Old wing'}, {key: own}, {}, {})
+        self.assertNotIn(key, reviews)
+
     def test_authored_ui_labels_preserve_values_and_reject_changed_source(self):
         key = 'String_UI_NPCSHOP_ITEMLIST_BUTTON_ADDMAX79_body'
         self.assertEqual(reviewed_translation(key, 'MAX 79.9%'), '最大79.9%')

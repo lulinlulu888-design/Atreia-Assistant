@@ -44,6 +44,83 @@ QUEST_CLAUSES = {
     '何の情報もない中、エルテネン結界塔廃墟を捜索していたところ、謎の遺物を発見した。': '在毫无线索的情况下搜索埃尔特内结界塔废墟时，发现了一件神秘遗物。',
 }
 
+WING_STATS = {
+    'HP': '生命力', 'MP': '精神力', 'HP回復': '生命力恢复', 'MP回復': '精神力恢复',
+    'HP自然回復': '生命力自然恢复', 'MP自然回復': '精神力自然恢复',
+    'HPポーション回復': '生命力药水恢复', 'HPポーション回復増加': '生命力药水恢复增幅',
+    'MP消耗減少': '精神力消耗减少', '飛行力': '飞行力',
+    '追加攻撃力': '额外攻击力', '追加防御力': '额外防御力', '追加命中': '额外命中', '追加回避': '额外回避',
+    '前方攻撃力': '正面攻击力', '後方攻撃力': '背面攻击力', '後方クリティカル抵抗': '背面致命一击抵抗',
+    'クリティカル': '致命一击', 'クリティカル攻撃力': '致命一击攻击力', 'クリティカル抵抗': '致命一击抵抗',
+    'ガード': '盾牌防御', 'ガード貫通': '盾牌防御贯穿', '貫通': '贯穿',
+    '状態異常抵抗': '异常状态抵抗', '状態異常的中': '异常状态命中',
+    '再使用時間減少': '冷却时间缩减', '受ける治癒量増加': '所受治疗量增加',
+    'ダメージ増幅': '伤害增幅', 'ダメージ耐性': '伤害抗性',
+    'ボス攻撃力': '首领攻击力', 'ボス防御力': '首领防御力',
+    'ボス ダメージ増幅': '首领伤害增幅', 'ボス ダメージ耐性': '首领伤害抗性',
+    'PvE攻撃力': 'PvE攻击力', 'PvEダメージ増幅': 'PvE伤害增幅', 'PvEダメージ耐性': 'PvE伤害抗性',
+    'PvP防御力': 'PvP防御力', 'PvPダメージ増幅': 'PvP伤害增幅', 'PvPダメージ耐性': 'PvP伤害抗性',
+}
+WING_STATS.update({
+    'HP増加': '生命力增加', 'MP増加': '精神力增加', '行動力': '行动力', '行動力自然回復': '行动力自然恢复',
+    '戦闘時のHP自然回復': '战斗中生命力自然恢复', '戦闘時のMP自然回復': '战斗中精神力自然恢复',
+    '戦闘時の行動力自然回復': '战斗中行动力自然恢复', '非戦闘時のHP自然回復': '非战斗时生命力自然恢复',
+    '非戦闘時のMP自然回復': '非战斗时精神力自然恢复', '非戦闘時の行動力自然回復': '非战斗时行动力自然恢复',
+    'PvE命中': 'PvE命中', 'PvE回避': 'PvE回避', 'PvE防御力': 'PvE防御力',
+    'PvP命中': 'PvP命中', 'PvP回避': 'PvP回避', 'PvP攻撃力': 'PvP攻击力',
+    'PvPクリティカル': 'PvP致命一击', 'PvPクリティカル抵抗': 'PvP致命一击抵抗',
+    'クリティカル防御力': '致命一击防御力', 'クリティカル ダメージ増幅': '致命一击伤害增幅',
+    'クリティカル ダメージ耐性': '致命一击伤害抗性', '前方クリティカル': '正面致命一击',
+    '後方クリティカル': '背面致命一击', '前方防御力': '正面防御力', '後方防御力': '背面防御力',
+    '後方ダメージ増幅': '背面伤害增幅', '後方ダメージ耐性': '背面伤害抗性',
+    '多段ヒット抵抗': '多段攻击抵抗', '多段ヒット的中': '多段攻击命中', '完璧抵抗': '完美抵抗',
+    '封魂石追加ダメージ': '封魂石追加伤害', '強打抵抗': '强击抵抗', '鉄壁': '铁壁', '鉄壁貫通': '铁壁贯穿',
+    '再生': '再生', '戦闘速度': '战斗速度', '移動速度': '移动速度', '飛行速度': '飞行速度',
+})
+
+
+def reviewed_item_stats(key, japanese, own):
+    """Keep our source-matched item name; rebuild every stat from Japanese.
+
+    Unknown labels or any nonnumeric stat value refuse the entire block. The
+    caller must prove the item's English name/description source is unchanged.
+    """
+    wing = key.startswith('String_STR_ITEM_WING_')
+    title_item = key.startswith('String_STR_ITEM_TITLE_')
+    if not (wing or title_item) or not key.endswith('_DESC_body'):
+        return None
+    lines = japanese.splitlines()
+    jp_end = 'を獲得します。' if wing else 'のタイトルを獲得します。'
+    cn_end = '。' if wing else '称号。'
+    if not lines or not re.fullmatch(r'\[[^\[\]<>\n]+\]' + re.escape(jp_end), lines[0]):
+        return None
+    name = re.fullmatch(r'获得\[([^\[\]<>\n]+)\]' + re.escape(cn_end), own.split('\n', 1)[0])
+    if not name or not re.search(r'[\u3400-\u9fff]', name[1]):
+        return None
+    title = name[1].removesuffix('（绑定）').removesuffix('(绑定)')
+    if '(刻印)' in lines[0]:
+        title += '（绑定）'
+    output = ['获得[' + title + ']' + cn_end]
+    headings = []
+    for line in lines[1:]:
+        if not line:
+            output.append('')
+        elif line in ('[装着効果]', '[保有効果]'):
+            headings.append(line)
+            output.append('[装备效果]' if line == '[装着効果]' else '[持有效果]')
+        else:
+            match = re.fullmatch(r'(.+?)[：:]?([0-9]+(?:,[0-9]{3})*(?:\.[0-9]+)?%?)', line)
+            if not headings or not match or match[1] not in WING_STATS:
+                return None
+            output.append(WING_STATS[match[1]] + '：' + match[2])
+    if headings != (['[装着効果]', '[保有効果]'] if wing else ['[保有効果]', '[装着効果]']):
+        return None
+    return '\n'.join(output)
+
+
+def reviewed_wing_stats(key, japanese, own):
+    return reviewed_item_stats(key, japanese, own) if key.startswith('String_STR_ITEM_WING_') else None
+
 # Complete Japanese clauses only. Slots stand for original runtime parameters
 # or literal numbers, never arbitrary Japanese prose. Unknown clauses block the
 # entire description; there is no partial Japanese/Chinese publication path.
@@ -203,6 +280,10 @@ def skill_description(japanese):
 
 
 def reviewed_translation(key, japanese):
+    if key == 'String_STR_ITEM_TITLE_D_C_SEALDUNGEON_017_B_body' and japanese == 'タイトル：リンゴの木を1本植える':
+        return '称号：种下1棵苹果树'
+    if key == 'String_STR_ITEM_TITLE_D_C_SEALDUNGEON_017_B_DESC_body' and japanese == '[リンゴの木を1本植える]のタイトルを獲得します。\n\n[保有効果]\nPvE回避5\n\n[装着効果]\n封魂石追加ダメージ7':
+        return '获得[种下1棵苹果树]称号。\n\n[持有效果]\nPvE回避：5\n\n[装备效果]\n封魂石追加伤害：7'
     exact_labels = {
         'String_STR_sub_N_CLB01_body': ('プロミスナイン', 'fromis_9组合'),
         'String_STR_ITEM_TOOLTIP_Cash_body': ('Cash', '付费道具'),
@@ -232,6 +313,12 @@ def reviewed_translation(key, japanese):
     if key == 'NpcTalk_6B632FCDECEE4325928285141BB9B30F_cv_text' and japanese == '待て！\n最初の文字だけ見ると<QK>湖の中の洞窟</>という言葉になる。':
         return '等等！\n只看每句开头的字，连起来就是<QK>湖中的洞窟</>。'
     if key.startswith('String_'):
+        if key.startswith('String_STR_ITEM_SOCIALACTION_'):
+            actions = {'視線固定': '视线锁定', 'ムード': '氛围', 'ときめく': '心动', 'レディ': '准备就绪',
+                       '躊躇う': '犹豫', '優雅': '优雅', '安定': '冷静'}
+            match = re.fullmatch(r'エモート\[([^\[\]]+)\]が追加されます。\nチャット ウィンドウに「/\1」を入力するとエモートを使用できます。', japanese)
+            if match and match[1] in actions:
+                return '习得情感动作[' + actions[match[1]] + ']。\n在聊天窗口输入“/' + match[1] + '”可使用该动作。'
         region = key.removeprefix('String_UI_GLOBAL_SERVICE_SERVER_REGION_DESC_').removesuffix('_body')
         if key.startswith('String_UI_GLOBAL_SERVICE_SERVER_REGION_DESC_') and region in REGIONS:
             name, location, recommended, cn_name, cn_location, cn_recommended = REGIONS[region]

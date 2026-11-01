@@ -13,7 +13,7 @@ from opencc import OpenCC
 from build_official_additions import mainland_terms, load_mainland_terms, transform_prose
 from japanese_mapping import build, fingerprint, numbers, signature, numeric_equivalent
 from japanese_mapping import TOKENS, NUMBERS
-from reviewed_japanese import reviewed_translation
+from reviewed_japanese import reviewed_translation, reviewed_item_stats
 
 
 def english_skeleton(text):
@@ -29,6 +29,8 @@ def propose(english, japanese, previous, own, tw_english, traditional):
         key = item['key']
         reason = None
         authored = reviewed_translation(key, japanese[key])
+        if authored is None and key in own and english.get(key) == previous.get(key) and key in english:
+            authored = reviewed_item_stats(key, japanese[key], own[key])
         if authored is not None and key in english:
             if signature(authored) != signature(japanese[key]) or not numeric_equivalent(authored, japanese[key]):
                 raise ValueError('Authored Japanese review changed runtime values: ' + key)
