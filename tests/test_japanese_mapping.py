@@ -34,6 +34,13 @@ class JapaneseMappingTests(unittest.TestCase):
         self.assertEqual(result['a'], '完成5次')
         self.assertTrue(report['publishable'])
 
+    def test_known_numeric_spellings_compare_without_changing_translation(self):
+        self.assertEqual(mapping.numbers('收集500,000欧比斯点数'), mapping.numbers('アビス ポイント50万収集'))
+        self.assertEqual(mapping.numbers('第二阶段III'), mapping.numbers('2段階III'))
+        self.assertEqual(mapping.numbers('[一星～五星将校]10回'), mapping.numbers('[1星~5星军官]10次'))
+        self.assertNotEqual(mapping.numbers('2级'), mapping.numbers('3级'))
+        self.assertNotEqual(mapping.numbers('50%'), mapping.numbers('0.5%'))
+
     def test_review_is_bound_to_both_sources(self):
         review = {'english_sha256': mapping.fingerprint('Damage'), 'japanese_sha256': mapping.fingerprint('{se:1}'), 'translation': '{se:1} 伤害'}
         result, report = mapping.build({'a': 'Damage'}, {'a': '{se:1}'}, {}, {}, {'a': review})

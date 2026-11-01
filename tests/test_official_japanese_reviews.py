@@ -30,6 +30,17 @@ class OfficialJapaneseReviewTests(unittest.TestCase):
             self.assertFalse(reviews)
             self.assertEqual(rejected[0]['reason'], expected)
 
+    def test_number_only_source_variant_is_bound_to_japanese_values(self):
+        reviews, rejected = propose({'a': 'Complete 5 times'}, {'a': '3回完了'}, {}, {},
+                                    {'a': 'Complete 3 times'}, {'a': '完成3次'})
+        self.assertFalse(rejected)
+        self.assertEqual(reviews['a']['translation'], '完成3次')
+        self.assertEqual(reviews['a']['source_match'], 'same_english_prose_parameter_or_number_difference')
+        reviews, rejected = propose({'a': 'Complete 5 times'}, {'a': '3回完了'}, {}, {},
+                                    {'a': 'Purchase 3 times'}, {'a': '购买3次'})
+        self.assertFalse(reviews)
+        self.assertEqual(rejected[0]['reason'], 'official_english_sources_differ')
+
 
 if __name__ == '__main__':
     unittest.main()

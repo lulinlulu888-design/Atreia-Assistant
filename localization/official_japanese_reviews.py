@@ -7,10 +7,16 @@ Every decision and its official Chinese source digest is retained for auditing.
 import argparse
 from collections import Counter
 import json
+import re
 from pathlib import Path
 from opencc import OpenCC
 from build_official_additions import mainland_terms, load_mainland_terms, transform_prose
 from japanese_mapping import build, fingerprint, numbers, signature
+from japanese_mapping import TOKENS, NUMBERS
+
+
+def english_skeleton(text):
+    return re.sub(r'\s+', ' ', NUMBERS.sub(' ', TOKENS.sub(' ', text))).strip().casefold()
 
 
 def propose(english, japanese, previous, own, tw_english, traditional):
@@ -21,7 +27,9 @@ def propose(english, japanese, previous, own, tw_english, traditional):
     for item in initial['unresolved']:
         key = item['key']
         reason = None
-        if key not in traditional or tw_english.get(key) != english.get(key):
+        same_english = key in tw_english and key in english and tw_english[key] == english[key]
+        same_prose = key in tw_english and key in english and english_skeleton(tw_english[key]) == english_skeleton(english[key]) and bool(english_skeleton(english[key]))
+        if key not in traditional or not (same_english or same_prose):
             reason = 'official_english_sources_differ'
         else:
             chinese = transform_prose(traditional[key], converter.convert)
@@ -34,6 +42,8 @@ def propose(english, japanese, previous, own, tw_english, traditional):
                 reviews[key] = {'english_sha256': fingerprint(english[key]),
                                 'japanese_sha256': fingerprint(japanese[key]),
                                 'traditional_sha256': fingerprint(traditional[key]),
+                                'traditional_english_sha256': fingerprint(tw_english[key]),
+                                'source_match': 'exact_english' if same_english else 'same_english_prose_parameter_or_number_difference',
                                 'translation': chinese, 'provenance': 'local_official_tw'}
         if reason:
             rejected.append({'key': key, 'reason': reason})
