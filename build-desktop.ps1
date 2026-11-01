@@ -1,21 +1,25 @@
-param([string]$LocalizationEnginePath, [string]$LocalizationDecoderPath, [string]$LocalizationAdditionsPath, [switch]$DebugBuild)
+param([string]$LocalizationEnginePath, [string]$LocalizationDecoderPath, [string]$LocalizationAdditionsPath,
+      [string]$JapaneseBundles, [string]$Python,
+      [ValidateSet('steam','purple')][string[]]$LocalizationClients = @('steam','purple'), [switch]$DebugBuild)
 $ErrorActionPreference = 'Stop'
 $taskRoot = $PSScriptRoot
 $taskDesktop = Join-Path $taskRoot 'desktop'
-if ($LocalizationEnginePath) {
+if ($LocalizationEnginePath -or $LocalizationDecoderPath -or $LocalizationAdditionsPath) {
+    throw 'The old English localization preparation is no longer supported. Use JapaneseBundles and Python with reviewed Japanese bundles.'
+}
+if ($JapaneseBundles) {
+    if (-not $Python) { throw 'Python is required to prepare the Japanese helper.' }
     $taskStage = Join-Path $taskRoot ('dist/desktop-localization-' + [guid]::NewGuid().ToString('N'))
-    & (Join-Path $taskRoot 'prepare-localization.ps1') -Engine $LocalizationEnginePath -Destination $taskStage -DecoderPath $LocalizationDecoderPath -AdditionsPath $LocalizationAdditionsPath
+    & (Join-Path $taskRoot 'prepare-japanese-localization.ps1') -Bundles $JapaneseBundles -Python $Python -Clients $LocalizationClients -Destination $taskStage
     if ($LASTEXITCODE -ne 0) { throw 'Localization component preparation failed.' }
     $taskVendor = Join-Path $taskDesktop 'src-tauri/vendor/localization'
-    foreach ($taskName in @('Atreia-Localization-Bridge.exe', 'Aion2-Steam-CN-v2.4.0.exe')) {
+    foreach ($taskName in @('Atreia-Localization-Bridge.exe', 'helper.sha256', 'build.json')) {
         Copy-Item -LiteralPath (Join-Path $taskStage $taskName) -Destination (Join-Path $taskVendor $taskName)
     }
-    if (Test-Path -LiteralPath (Join-Path $taskStage 'dependencies')) {
-        $taskVendorDependencies = Join-Path $taskVendor 'dependencies'
-        New-Item -ItemType Directory -Force -Path $taskVendorDependencies | Out-Null
-        Copy-Item -LiteralPath (Join-Path $taskStage 'dependencies/oo2core_9_win64.dll') -Destination (Join-Path $taskVendorDependencies 'oo2core_9_win64.dll')
-    }
 }
+$taskVendor = Join-Path $taskDesktop 'src-tauri/vendor/localization'
+if (-not (Test-Path -LiteralPath (Join-Path $taskVendor 'helper.sha256'))) { throw 'Prepare the reviewed Japanese helper before building the desktop app.' }
+if (Test-Path -LiteralPath (Join-Path $taskVendor 'Aion2-Steam-CN-v2.4.0.exe')) { throw 'Legacy engine remains in localization resources; archive it before packaging.' }
 & (Join-Path $taskRoot 'test-localization-safety.ps1')
 if ($LASTEXITCODE -ne 0) { throw 'Translation safety checks failed.' }
 Push-Location $taskDesktop

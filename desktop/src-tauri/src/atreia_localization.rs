@@ -12,7 +12,12 @@ use tauri::{Emitter, Manager};
 pub struct CaptureControl(pub Mutex<crate::capture::pcap_capturer::PcapCapturer>);
 static LOCALIZATION_BUSY: AtomicBool = AtomicBool::new(false);
 static CAPTURE_STARTING: AtomicBool = AtomicBool::new(false);
-const ENGINE_HASH: &str = "1d01a3ab4c9604296da6b2265fd0a5a1247d628d31fd4ab02eb8bac539340e58";
+const HELPER_HASH: &str = env!("ATREIA_LOCALIZATION_HELPER_SHA256");
+
+fn valid_helper_digest(bytes: &[u8], expected: &str) -> bool {
+    expected.len() == 64 && Sha256::digest(bytes).iter()
+        .map(|byte| format!("{byte:02x}")).collect::<String>() == expected
+}
 
 fn valid_japanese_protocol(value: &Value) -> bool {
     value["protocol"] == 1 && value["entry"] == "ja-JP"
@@ -263,11 +268,9 @@ pub async fn localization_execute(
         if !directory.join("Atreia-Localization-Bridge.exe").is_file() {
             directory = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("vendor/localization");
         }
-        let engine = directory.join("Aion2-Steam-CN-v2.4.0.exe");
         let helper = directory.join("Atreia-Localization-Bridge.exe");
-        let bytes = std::fs::read(&engine).map_err(|_| "未提供汉化组件；不会自动下载未知程序。")?;
-        let digest = Sha256::digest(bytes).iter().map(|byte| format!("{byte:02x}")).collect::<String>();
-        if digest != ENGINE_HASH || !helper.is_file() {
+        let bytes = std::fs::read(&helper).map_err(|_| "未提供汉化组件；不会自动下载未知程序。")?;
+        if !valid_helper_digest(&bytes, HELPER_HASH) {
             return Err("汉化组件缺失或校验不匹配。".into());
         }
         // Refuse an old English-entry bridge before it can modify game files.
@@ -297,7 +300,7 @@ pub async fn localization_execute(
             let _ = app.emit_to("localization", "atreia-localization-stage", serde_json::json!({"operation":operation,"client":client,"stage":"running"}));
         }
         let mut command = Command::new(helper);
-        command.current_dir(dunce::simplified(&directory)).arg(dunce::simplified(&engine)).arg(&operation).arg(dunce::simplified(&root)).arg(&client);
+        command.current_dir(dunce::simplified(&directory)).arg("atreia-japanese-entry-v1").arg(&operation).arg(dunce::simplified(&root)).arg(&client);
         #[cfg(windows)] {
             use std::os::windows::process::CommandExt;
             command.creation_flags(0x08000000); // CREATE_NO_WINDOW; native engine dialogs remain visible
@@ -326,6 +329,15 @@ mod tests {
         assert!(!valid_japanese_protocol(&wrong));
         let mut incomplete = good; incomplete["operations"] = serde_json::json!(["inspect","install"]);
         assert!(!valid_japanese_protocol(&incomplete));
+    }
+
+    #[test]
+    fn helper_integrity_is_bound_to_the_compiled_digest() {
+        let bytes = b"reviewed helper";
+        let expected = Sha256::digest(bytes).iter().map(|byte| format!("{byte:02x}")).collect::<String>();
+        assert!(valid_helper_digest(bytes, &expected));
+        assert!(!valid_helper_digest(b"changed helper", &expected));
+        assert!(!valid_helper_digest(bytes, ""));
     }
     #[cfg(windows)]
     #[test]
@@ -370,7 +382,7 @@ mod tests {
         let pak = roots[0].join("Aion2/Content/Paks/L10N/Text/en-US/pakchunk502000-Windows_0_P.pak");
         let before = std::fs::read(&pak).unwrap();
         let output = Command::new(directory.join("Atreia-Localization-Bridge.exe"))
-            .current_dir(&directory).arg(directory.join("Aion2-Steam-CN-v2.4.0.exe"))
+            .current_dir(&directory).arg("atreia-japanese-entry-v1")
             .arg("inspect").arg(&roots[0]).arg("steam").output().unwrap();
         let response: Value = serde_json::from_slice(&output.stdout).unwrap();
         assert!(output.status.success(), "{}", response["message"]);
