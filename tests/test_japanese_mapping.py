@@ -112,6 +112,15 @@ class JapaneseMappingTests(unittest.TestCase):
         self.assertTrue(mapping.numeric_equivalent('4元素を獲得', '获得四元素'))
         self.assertFalse(mapping.numeric_equivalent('5元素を獲得', '获得四元素'))
 
+    def test_written_hundreds_and_counting_sequences_remain_quantitative(self):
+        for spelling, value in [('一百', 100), ('一百零一', 101), ('两百三十', 230), ('一千二百零三', 1203)]:
+            self.assertEqual(mapping.small_han_number(spelling), value)
+            self.assertTrue(mapping.numeric_equivalent(str(value) + '個', spelling + '个'))
+            self.assertFalse(mapping.numeric_equivalent(str(value + 1) + '個', spelling + '个'))
+        self.assertTrue(mapping.numeric_equivalent('1、2、3…', '一、二、三…'))
+        self.assertFalse(mapping.numeric_equivalent('1、2、4…', '一、二、三…'))
+        self.assertIsNone(mapping.small_han_number('一百一百'))
+
     def test_camera_and_machine_identifiers_are_source_bound_not_public_names(self):
         key = 'NpcTalk_' + 'A' * 32 + '_cv_text'
         self.assertTrue(mapping.literal_identifier(key, 'Default_Zoom_IN3', 'Default_Zoom_IN3', 'Default_Zoom_IN3'))

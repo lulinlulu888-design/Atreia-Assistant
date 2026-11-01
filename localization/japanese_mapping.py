@@ -18,6 +18,13 @@ HAN_DIGITS = {'零': 0, '〇': 0, '一': 1, '二': 2, '两': 2, '三': 3, '四':
 def small_han_number(text):
     if text in HAN_DIGITS:
         return HAN_DIGITS[text]
+    for unit, multiplier in (('千', 1000), ('百', 100)):
+        if text.count(unit) == 1:
+            high, low = text.split(unit)
+            if high in HAN_DIGITS and HAN_DIGITS[high] > 0:
+                tail = small_han_number(low.lstrip('零〇')) if low.lstrip('零〇') else 0
+                if tail is not None and tail < multiplier:
+                    return HAN_DIGITS[high] * multiplier + tail
     if text.count('十') == 1:
         high, low = text.split('十')
         if (not high or high in HAN_DIGITS) and (not low or low in HAN_DIGITS):
@@ -46,18 +53,21 @@ def numbers(text, written=False):
     # numeric counterparts in Japanese. These are not new gameplay values.
     text = text.replace('四元素', '4元素').replace('每秒', '每1秒').replace('毎秒', '毎1秒').replace('每小时', '每1小时')
     text = text.replace('五星増幅石', '5星増幅石').replace('五星增幅石', '5星增幅石')
+    text = text.replace('四大祭壇', '4大祭壇').replace('四大祭坛', '4大祭坛')
     def quantity(match):
         value = small_han_number(match.group())
         return match.group() if value is None else ' ' + str(value) + ' '
     # Written Chinese quantities are equivalent to Arabic digits; prose itself
     # stays unchanged. Requiring an explicit classifier avoids parsing names.
     if written:
-        text = re.sub(r'[零〇一二两三四五六七八九十]+(?=分钟|分鐘|小时|小時|時間|阶段|階段|等兵|个人|個人|種類|个|個|种|種|只|名|次|秒|分間|天|日|年|位|级|級|层|層|颗|顆|枚|件|项|項|回|度|瓶|条|條|米|段|つ|人|体|匹|本)', quantity, text)
+        text = re.sub(r'[零〇一二两三四五六七八九十百千]+(?=分钟|分鐘|小时|小時|時間|阶段|階段|等兵|个人|個人|種類|守护者|个|個|种|種|只|名|次|秒|分間|天|日|年|位|级|級|层|層|颗|顆|枚|件|项|項|回|度|瓶|条|條|米|段|つ|人|体|匹|本)', quantity, text)
+        text = re.sub(r'(?<![\u3400-\u9fff])([一二三四五六七八九十]+(?:、[一二三四五六七八九十]+)+)(?=[.…。!?]|$)',
+                      lambda m: '、'.join(str(small_han_number(v)) for v in m[1].split('、')), text)
     def ordinal(match):
         value = small_han_number(match.group(1))
         return match.group() if value is None else '第' + str(value)
     # Compare known number spellings without rewriting the translated text.
-    text = re.sub(r'第([零〇一二两三四五六七八九十]+)(?=阶段|階段|段階|级|級|层|層|章|赛季|賽季|个|個)', ordinal, text)
+    text = re.sub(r'第([零〇一二两三四五六七八九十]+)(?=阶段|階段|段階|级|級|层|層|章|幕|赛季|賽季|个|個)', ordinal, text)
     text = re.sub(r'([一二三四五六七八九])(?=[~～〜]?[一二三四五六七八九]?(?:等兵|星将校|星军官|星軍官))', lambda m: ' ' + str(HAN_DIGITS[m.group()]) + ' ', text)
     text = re.sub(r'([一二三四五六七八九])(?=星(?:[~～\]将军官]|$)|等(?:兵|[~～\]]))', lambda m: ' ' + str(HAN_DIGITS[m.group()]) + ' ', text)
     if written:
@@ -86,6 +96,7 @@ def numeric_equivalent(first, second):
     def semantic(text):
         text = text.replace('独自', '1人').replace('ソロ', '1人').replace('最初の', '第1个').replace('最初に', '第1次')
         text = text.replace('每件', '每1件').replace('单件', '1件').replace('每个栏位', '每1个栏位')
+        text = text.replace('逐一', '1つずつ')
         return text
     return numbers(semantic(first), written=True) == numbers(semantic(second), written=True)
 

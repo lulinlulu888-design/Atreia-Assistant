@@ -202,5 +202,233 @@
   "AchievementString_Archieve_STR_Group_L_Item_Collect_340101807_obj_desc": {
     "japanese_sha256": "547a5b45077f95ee234f050cf87b2f92e395698e058d18a6eaf99c392d131bdb",
     "translation": "收集250个称号"
+  },
+  "NpcTalk_85B56689D6B44672ABABED65C640A3D9_cv_text": {
+    "japanese_sha256": "177b818a3548a0750ee23b0d4e642974b3033a94435ac8c2da810ee91d457dd2",
+    "translation": "亚特雷亚的天空分裂成2部分后，\n天界与魔界的主神看似彼此对立，\n但他们的权能原本就是一体的。"
+  },
+  "NpcTalk_91A1B4B01AE94046B4EAAE31C38F1444_cv_text": {
+    "japanese_sha256": "177b818a3548a0750ee23b0d4e642974b3033a94435ac8c2da810ee91d457dd2",
+    "translation": "亚特雷亚的天空分裂成2部分后，\n天界与魔界的主神看似彼此对立，\n但他们的权能原本就是一体的。"
+  },
+  "NpcTalk_5AA01144EFEE482FA90E8DCF92F5DB4C_cv_text": {
+    "japanese_sha256": "f6482eb3a8f7171abc31baf92f05f88aa907d959f3d4cab883c47f8fd0fa8052",
+    "translation": "1、2、3……嗯，没有缺什么。"
+  },
+  "NpcTalk_BBFA2848C9344ABC86BF3A7BC2F1C7F5_cv_text": {
+    "japanese_sha256": "f6523c1f353268cc51c161aca04f7b6b05f6de8a930742d4937dbaaeb7ea688d",
+    "translation": "太棒了！情境剧的第一幕顺利结束了！"
+  },
+  "NpcTalk_D1DA34896E1D4310BAF41089A34C1DEB_cv_text": {
+    "japanese_sha256": "920ff712e97e9a00aba463904f85eb187abcb53a5217997ae4ee5dc01c0177b1",
+    "translation": "这里就是当年包括战士<QK>乌尔图</>在内的12名守护者，\n与名为<QK>米努亚</>的巨大龙兽战斗的地方。"
+  },
+  "NpcTalk_2E064E99D94B4D13892BCF7AA565C1D5_cv_text": {
+    "japanese_sha256": "0302142f9a5406bed667323baa023bae4576db2c39a3f42b19a5deb6585adc18",
+    "translation": "说什么傻话呢，喵？\n就算我们有100人，也肯定打不过教官啊，喵……"
+  },
+  "NpcTalk_941D9CA20B064B70BBFC7B87DE14DC29_cv_text": {
+    "japanese_sha256": "e3151cc8af2d69982c48abd38139c40b74fa57f15b742794a2393dd4270c8239",
+    "translation": "正因为知道盗墓是坏事，\n我才和朋友杰斐尔约定，干完这1票就洗手不干了。"
+  },
+  "NpcTalk_CBEFD1F182DB4B44889F7EF6C6B43B50_cv_text": {
+    "japanese_sha256": "613b43d1211c80e79defb62f6c185e1586235b2df45ca9cdf0865e416a24a694",
+    "translation": "这里就是情境剧开演的首个舞台！\n呵呵，看起来就像真的洞穴吧？"
+  },
+  "NpcTalk_00C59EB8BB9E415B86E331F8FF1DDDA1_cv_text": {
+    "japanese_sha256": "eea7ec6995b6e79d3a7054d14c036e00daabd383625eb1ef60690e7eb9250afc",
+    "translation": "以防万一，还是去调查12名守护者的石像吧。\n说不定……能找到什么办法。"
+  },
+  "NpcTalk_CE43C3A68BA344CC8E727152AF4D58CF_cv_text": {
+    "japanese_sha256": "196a3d756783fd9d325d7f8333ef59edd5408ddb67741ba3e700812b86eeb2f9",
+    "translation": "哦，这不是{pcname}大人吗？我是精灵引导人艾文。\n早就听说过{pcname}大人修复四大祭坛的事迹了。"
+  },
+  "NpcTalk_29CD74D310BC400BA7E732CB92EE4707_cv_text": {
+    "japanese_sha256": "e884bff5965539cd83e1413e9d3c92855be448e7c690ca5e624227c8e7c48802",
+    "translation": "这次我接到了重新检查四大祭坛的任务。\n本来是件光荣的差事，可最近却出了些问题。"
+  },
+  "NpcTalk_8DFD08F3CC9F48BB920FB44A3D329EF0_cv_text": {
+    "japanese_sha256": "f5071e7ac1c9cdc89aa0b0387d8556263276e35c0cb952d8edb6c8130e987e7e",
+    "translation": "1、2、3、4……嗯！"
+  },
+  "NpcTalk_826272F0AD754586B34621916086618F_cv_text": {
+    "japanese_sha256": "74cf4cf34320ad6949e5ca5e02cdab6a06409d77e3d80e10f74455dcda6c4378",
+    "translation": "我当然非常欢迎！\n这次要讲的是诺尔尼尔创立的第二段故事，也是最后的故事。"
+  },
+  "NpcTalk_CAA39090A93647199DFC8CABA2D02E35_cv_text": {
+    "japanese_sha256": "517a953d6f7effebd739b0dd51242428722ef40bc332f635d887d720e2a566b2",
+    "translation": "看起来只有开头的字写法不同……\n是墨水用完了吗……？接着看下一封信！"
+  },
+  "NpcTalk_1998F476520E48F09F3715628D3DEA02_cv_text": {
+    "japanese_sha256": "8a022f49f2aaa8bc9b0d4a7a2343322f0d4946117da26d87bbe54d9d7770a2cb",
+    "translation": "不过，要我独自检查四大祭坛，实在有些力不从心……\n既然您来了，方便的话，能陪我一起去吗？"
+  },
+  "NpcTalk_96746E212F384F53916A03B56CF8EB08_cv_text": {
+    "japanese_sha256": "132a3aafe83b377d5467dd74c4ed981c25dfe1c21811925e04bdcc17435d6bcd",
+    "translation": "达令5，又是你，喵！节奏又没跟上啊，喵！"
+  },
+  "NpcTalk_4852909879784BCA8D0D4E79631328D5_cv_text": {
+    "japanese_sha256": "5b23a473edce463df82710312be5c887eb4acdcce525e4932b3f62d2cc96a3ea",
+    "translation": "你、你愿意放过我吗，喵？今天的恩情我不会忘记的，喵。\n总有一天我成为真正的匠人后，\n一定请守护者当我的首位客人，喵！"
+  },
+  "NpcTalk_0068F421F9D24D28B5096C7F7E67D367_cv_text": {
+    "japanese_sha256": "03958ab96192bdf8c99621fe278dff07409c2062c4f215999d50fd30dbf319fc",
+    "translation": "法夫奈特原石和矿石虫，各要100个就好……\n啊！守护者的脸色好吓人，喵！知道了，知道了啦，喵。"
+  },
+  "NpcTalk_939CB7731E03474BA8F842470232D945_cv_text": {
+    "japanese_sha256": "d6580d63e1ad3278a62b09f560f23a79b3da226468e1ffeeb8f1cb94acab909d",
+    "translation": "哈哈哈！你以为自己已经赢了吗？\n不过，大发善心的本大爷就告诉你1件事。"
+  },
+  "NpcTalk_F5A5336F7E194CF285EE7BDF60EF005A_cv_text": {
+    "japanese_sha256": "8435ba7c0ebc5e4b1504c728b6677e9d517ebd39561b20e53a6265a747ed0d96",
+    "translation": "该去实现鲁班的第二个……也是最后的愿望了。\n前往因派图西姆吧。"
+  },
+  "NpcTalk_CF96F7EB99344341A05E1E209D13C1B5_cv_text": {
+    "japanese_sha256": "30518fefd10c52d4c66e1d0b97e097c09470b78e654c376e7e574d90328fd126",
+    "translation": "首先……\n从<QK>哈达尔的信</>开始吧。"
+  },
+  "NpcTalk_962ACF6CDB7A4FF0A8621DC46465241C_cv_text": {
+    "japanese_sha256": "bfb188fd3500e19b6b9fd92068a11fc1bfb5b35bfd9d1fe537e5760fb8618974",
+    "translation": "龙信徒想在那里制造第2个、第3个阿特隆。"
+  },
+  "NpcTalk_E970227367D8449B9141D55D736D219F_cv_text": {
+    "japanese_sha256": "2f9f5244f00f240594369990b2c00cd2631a2a43d4ade219bd178e3b98ca7def",
+    "translation": "第2个、第3个阿特隆？！\n阿特隆都已经倒下了，他们还执着于那该死的人造神吗？"
+  },
+  "NpcTalk_BE2FA346F0264538B723181033248AEB_cv_text": {
+    "japanese_sha256": "e8e644ae78203c4e8c48173dd82e9b1a6d80888389f7c0410db5d122d65d9ce6",
+    "translation": "克罗梅内！是你救了我，让我活下来的啊！\n为什么你却独自离去了？！"
+  },
+  "NpcTalk_07034C500FD848009ED5BC6C7E241586_cv_text": {
+    "japanese_sha256": "122f5632e3f193b84ee8bd674d13d05a1c863b778f29c53d5e1ff7d1ae58e935",
+    "translation": "唉……为了1株卡普拉提，差点连命都丢了。"
+  },
+  "NpcTalk_740F8CFF018345C4AB8C590456FC7E78_cv_text": {
+    "japanese_sha256": "c3c51166b586aa9a31b5818b09a083e6ae34780cbf0c8197c3450ea86af67b5c",
+    "translation": "说起来，希塔尼耶前不久回来了。\n你知道她的性子吧？哪怕犯1个小错，也得听她唠叨将近1小时。"
+  },
+  "NpcTalk_F7D2710D5DF84470ABB02302C4D2A16D_cv_text": {
+    "japanese_sha256": "7813b7d40403bdde1932ca88826e1e730f0e3448d629c3e2848ed3cb253cd6c8",
+    "translation": "守护者！守护者！看到了吗，喵？\n那些裂缝可不止1条、2条啊，喵！"
+  },
+  "NpcTalk_C4B400FB26E545A486F5A36DF60054A9_cv_text": {
+    "japanese_sha256": "2326fb2d8b9352b4117427c2cba21179113c7f4c52a681de5632dec5b7e6d744",
+    "translation": "你、你愿意饶了我吗，喵？今天的恩情我不会忘记的，喵。\n总有一天我成为真正的匠人后，\n一定请守护者当我的首位客人，喵！"
+  },
+  "NpcTalk_A94865016F8D47059261E06FA5D52C04_cv_text": {
+    "japanese_sha256": "1148ad0b3d5a3ddb117434d63cd4a688ad04e529f7fba71c93746f698967cfab",
+    "translation": "听说失踪现场附近的悬崖间，\n藏着1个入口。\n那个入口通向很久以前就被废弃的礼拜堂。"
+  },
+  "NpcTalk_56B6DF35194049318DD07DD0D620A4FA_cv_text": {
+    "japanese_sha256": "e99ca1df2847f3ce1d92afc9e1517cb0d13438d4a507da48e6d1cbeb3d2c961d",
+    "translation": "既然你喜欢这样的地方，要不要和我一起踏遍9大名胜？\n这里已经来过了，还剩8处。"
+  },
+  "NpcTalk_FDE45ED4A7554515B916218AA6AEA94E_cv_text": {
+    "japanese_sha256": "e885db1a523fa3c2dad6d43c9c87cc977a0d41f7e0f739d0942d23287f154048",
+    "translation": "幸好，这3种东西都能在庭园里找到。"
+  },
+  "NpcTalk_A9CE8990E1E7454BAC17BFFACE464588_cv_text": {
+    "japanese_sha256": "eeac10891ded0bcd1d050350d8b4202969149a9ee44085888415a25712403904",
+    "translation": "被你这样智力低下的个体救下，\n从统计学上来说，概率趋近于零。"
+  },
+  "NpcTalk_F6F00A95E19D4E85A003F3A87CE5CCCA_cv_text": {
+    "japanese_sha256": "db6de311f7eae8b60900a743b1ebffde77fe50d34294542345a91b481b6dd157",
+    "translation": "敢独自在这种地方走来走去，\n看来你不是普通的守护者，喵。\n没眼力的术古也许看不出，我可是看得明明白白，喵！"
+  },
+  "NpcTalk_42E91ACAC76243BA8A5B998C488D2440_cv_text": {
+    "japanese_sha256": "4cfd36a532f0b85a26a380e9b80777b00a1dd877e363c5764fab80374a92410a",
+    "translation": "修罗的材料又多了1份。"
+  },
+  "NpcTalk_E52EFFA9BC094400B899BC062EA3B7AB_cv_text": {
+    "japanese_sha256": "a78102ccc42067582dd1d08b85be715d7be5ab6e56147fdb128615d5160ec322",
+    "translation": "就像同1片天空中的2轮明月，我愿与你共度此生。"
+  },
+  "NpcTalk_5E90328D85C146A9AAB84F8C6E051603_cv_text": {
+    "japanese_sha256": "f727db047c06728b350f1da2848fdd58e0d6a89cefb39058c1d96a576a11ebe7",
+    "translation": "向那2人拿到发起人同意书后，再回到这里，喵。"
+  },
+  "NpcTalk_32259B19487342BAB3499E029D71DCE0_cv_text": {
+    "japanese_sha256": "f2d2c0487c2e4a6241e70392aa175f05359d88fa7f4531e739b65f27f32d6c1e",
+    "translation": "我害怕独自调查，就请求了支援，\n可是一直没人来……\n这样下去，我也会被绑走的……呜呜……"
+  },
+  "NpcTalk_3FF808FB68154EE6A42A459D1C5B6CC8_cv_text": {
+    "japanese_sha256": "8339f441d09b841b2cb757ee52ae3d53bbfb55762735e310e4906e3df37de142",
+    "translation": "守护者，我还有1个请求，呜。\n你见证了霍利奥尔大人的最后时刻，\n希望你能来参加葬礼，呜。"
+  },
+  "NpcTalk_1B62694FD2C14C1680CE77C0563C6C12_cv_text": {
+    "japanese_sha256": "9f6a60274ac612922b685d1c8604d6b6f9288f3d696b7003b401f35401243233",
+    "translation": "最近，军团里也有人对幻影训练所心存不满，\n而那2人尤其敌视那里。"
+  },
+  "NpcTalk_D8C7CDB8322B4215BB77CFEB8DFD0A31_cv_text": {
+    "japanese_sha256": "80a3494ee14006e4f5d7c2801429c68b1ad06c89c019d95914bece1b91340616",
+    "translation": "他们2人会并肩坐在那里吗？"
+  },
+  "NpcTalk_F636B34F7CD84E0AAEDECC1A6A998CB7_cv_text": {
+    "japanese_sha256": "297cb5e7ef153728f6e2b9de808add2b507f0ee8f697d046e28466bb5924c5ff",
+    "translation": "按记录书所写，把这3种材料合为1体后，\n再祈祷石碑能够复原吧。"
+  },
+  "NpcTalk_38D82047641A4B4EBF090ECA573392D7_cv_text": {
+    "japanese_sha256": "985a93722615d6b07937e17d5d74bc86bda515c44b1e7b84f7eaf4060b3cb41e",
+    "translation": "我正在寻找贝尔特伦9大名胜。\n你知道吗，这里的蘑菇树顶也是9大名胜中的1处。"
+  },
+  "NpcTalk_031F37E5017C4A1EB4DF0FE3623CA75C_cv_text": {
+    "japanese_sha256": "1fc240f64bcfc574645c52ea00943613aeb1ca4323e09d2cd4a3f62aa7fb3166",
+    "translation": "有希塔尼耶这样办事利落的人加入，真让人放心。\n原本堆积如山的工作，也能逐一解决了。"
+  },
+  "NpcTalk_AEC4F28084C046D496B40C67D56140CC_cv_text": {
+    "japanese_sha256": "a643d209ed49b457de7e3b8a0be47affb0ce76cd137d9c0c414868bae100d16f",
+    "translation": "很快就能踏遍9大名胜了！"
+  },
+  "NpcTalk_5263437BB6D542DE8D026E0E2D3B5870_cv_text": {
+    "japanese_sha256": "132a3aafe83b377d5467dd74c4ed981c25dfe1c21811925e04bdcc17435d6bcd",
+    "translation": "达令5，又是你，喵！节奏又没跟上啊，喵！"
+  },
+  "NpcTalk_C1A9FEDBA1FA48709E1C05D73B604AA0_cv_text": {
+    "japanese_sha256": "8d604a995b7a1028328d3f8774fc0f3f8e19465d7bb2a2b818c752ddf7990c22",
+    "translation": "制作药水并不难！\n只是还缺1种材料。"
+  },
+  "NpcTalk_B4A86E752EFA4C88B04C73D37FD8BA7C_cv_text": {
+    "japanese_sha256": "961b7b21a34bed7570629138e56b66ed5672d4ff836c03738ebb3903057375e4",
+    "translation": "1、2、3……5？！5个？"
+  },
+  "NpcTalk_492090C0D86B477C8B05524DFEF0B3C5_cv_text": {
+    "japanese_sha256": "a0dc2c8339bb5ddccc8104c510e173c0cf107de705b4aa97df6b0a9296ec383a",
+    "translation": "可是，任务中遇到危险时，\n他竟懦弱地抛下同伴，独自逃走了。\n诺托斯军团因此\n将奥勒迪斯逐出了军团。"
+  },
+  "NpcTalk_1ECCA24A3CB34E5084B92E50BA62D2E1_cv_text": {
+    "japanese_sha256": "8ea52cef349ccf7d2e6f701640ff9ca993b07456ace124bac3510915401e8c46",
+    "translation": "能从这座危险的岛上带着收获回去的，\n恐怕我们还是头一批吧。哈哈！\n这是答应你的报酬，请收下。"
+  },
+  "NpcTalk_7E8D0B3EBDDA43578709A532AB3B0301_cv_text": {
+    "japanese_sha256": "41549508469c606ecf63150e8b1d39f90763e6d82ac9d01ae326aee4dcc9b449",
+    "translation": "眼看着团员们死去，\n却为了救1个老人，把物资都搭进去了！\n那个叫菲尔诺斯的家伙，到底懂什么！"
+  },
+  "NpcTalk_732469A63FFD4A8EACD16ECCA6720EFE_cv_text": {
+    "japanese_sha256": "51ea0bf08e1dc64067d1966ccd6875d8cd4905b8509c5c5eb109fe5a47bf0b97",
+    "translation": "虽然还只是原型，性能已经相当不错了。\n不过，还算不上完成品。"
+  },
+  "NpcTalk_B6E4A82804574934A58862BAE62DFF72_cv_text": {
+    "japanese_sha256": "c5d954399387a6a93f2142f4082479312a0ab39cfc9ef0d4c319aea436907a30",
+    "translation": "第5回合！\n积分增加至2倍，喵！"
+  },
+  "NpcTalk_C50F96989E7C415AAB5E7344DB392CA8_cv_text": {
+    "japanese_sha256": "fffd35b6f2f67a6776a9d75481166ec6a45f0785b6c28a5ced4d49afce9ea860",
+    "translation": "最后的回合！\n积分增加至2倍，喵！"
+  },
+  "NpcTalk_1D9F948859624257856940C136D32EC2_cv_text": {
+    "japanese_sha256": "1b8581eb7027fd66397dfe94df046353b6f22e58a698cd95f50513619e0f1a91",
+    "translation": "报酬翻倍后，术古佣兵团就主动接下了这件事。\n是的……\n可是，那些叫刀刃团的家伙，实在是群恶棍。"
+  },
+  "NpcTalk_B0D4EE29B982437DB65C30E8D7F7D360_cv_text": {
+    "japanese_sha256": "cb8ffa982363d4de5bc3296016393ec0b4f13347582fde91ffa31094a29a8c0a",
+    "translation": "村里有1件被称为<QK>阿尔特盖德独石柱</>的古代遗物。\n看来该告诉你一些关于那座独石柱的事了。"
+  },
+  "NpcTalk_03B7AC18A84D4B48B0E412C53A493B5C_cv_text": {
+    "japanese_sha256": "44a7e0f0fd73a53f51c2ce2546a11344e6e6520a9d812c9c9a595f8235f3a432",
+    "translation": "从这里出去，就是<QK>第二间房</>。"
+  },
+  "NpcTalk_C827A977715C48F3B3FAC30BDF24C7AC_cv_text": {
+    "japanese_sha256": "12b51474d97d45234ca3ee313091f2bb5c8a49b883de17a6d62c4975677f7304",
+    "translation": "12345678910123456789101234567891012345678910\n12345678910123456789101234567891012345678910\n12345678910123456789101234567891012345678910"
   }
 }
