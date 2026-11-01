@@ -26,6 +26,15 @@ UI_LABELS = {
     'Level Up': '等级提升', 'Point': '点数', 'Part {0}': '第{0}部分',
 }
 
+REGIONS = {
+    'AS': ('アジア', '日本(東京)', '東北アジア', '亚洲', '日本（东京）', '东北亚'),
+    'JP': ('日本', '韓国', '日本', '日本', '韩国', '日本'),
+    'NAE': ('北米 - 東部', 'アメリカ(バージニア)', 'アメリカ東部地域', '北美东部', '美国（弗吉尼亚州）', '美国东部'),
+    'NAW': ('北米 - 西部', 'アメリカ(オレゴン)', 'アメリカ西部地域', '北美西部', '美国（俄勒冈州）', '美国西部'),
+    'EU': ('ヨーロッパ', 'ドイツ(フランクフルト)', 'ドイツ、アイルランド、イギリス、フランス、スウェーデン、イタリア、スペイン、スイス',
+           '欧洲', '德国（法兰克福）', '德国、爱尔兰、英国、法国、瑞典、意大利、西班牙、瑞士'),
+}
+
 # Complete Japanese clauses only. Slots stand for original runtime parameters
 # or literal numbers, never arbitrary Japanese prose. Unknown clauses block the
 # entire description; there is no partial Japanese/Chinese publication path.
@@ -119,6 +128,21 @@ CLAUSES = (
     ('的中時に[昇天打]の再使用時間が{0}減少します。', '命中时，[升天击]的冷却时间减少{0}。'),
 )
 CLAUSES += (
+    ('<desc_point>{0}</>間、攻撃を受けるたびに<desc_point>{1}</>ずつ、最大<desc_point>{2}</>の衝撃を吸収するバリアを生成します。', '生成护盾，持续<desc_point>{0}</>，每次受到攻击时吸收<desc_point>{1}</>伤害，最多吸收<desc_point>{2}</>伤害。'),
+    ('アビス下層の入場中は利用時間が消費されます。', '进入欧比斯下层期间会消耗使用时间。'),
+    ('基本利用時間は毎週{0}時間に初期化されます。', '每周将基本使用时间重置为{0}小时。'),
+    ('移動速度{0}%増加', '移动速度提高{0}%'),
+    ('行動不可状態の時に怒り消耗量が{0}%減少します。', '无法行动时，怒气消耗量减少{0}%。'),
+    ('すべてのスキル再使用時間{0}%減少', '所有技能的冷却时间缩短{0}%'),
+    ('一時的にガード ダメージ減少が{0}%増加し、確定武器ガードをします。', '暂时使格挡伤害减免提高{0}%，并必定触发武器防御。'),
+    ('ガード成功時に{0}回、怒りを<chat_combat>{1}</>、行動力を<chat_combat>{2}</>回復します。', '防御成功时，恢复{0}次怒气<chat_combat>{1}</>和行动力<chat_combat>{2}</>。'),
+    ('連続で最大{0}回まで発動することができ、ガード成功時に{1}回、怒りを<chat_combat>{2}</>、行動力を<chat_combat>{3}</>回復します。', '最多可连续发动{0}次；防御成功时，恢复{1}次怒气<chat_combat>{2}</>和行动力<chat_combat>{3}</>。'),
+    ('連続で最大{0}回まで発動することができ、ガード成功時に{1}回、怒りを<chat_combat>{2}</>、行動力を<chat_combat>{3}</>回復し、{4}間、移動速度が{5}%増加します。', '最多可连续发动{0}次；防御成功时，恢复{1}次怒气<chat_combat>{2}</>和行动力<chat_combat>{3}</>，并使移动速度提高{5}%，持续{4}。'),
+    ('連続で最大{0}回まで発動することができ、ガード成功時に{1}回、怒りを<chat_combat>{2}</>、行動力を<chat_combat>{3}</>、HPを{4}%回復し、{5}間、移動速度が{6}%増加します。', '最多可连续发动{0}次；防御成功时，恢复{1}次怒气<chat_combat>{2}</>、行动力<chat_combat>{3}</>和生命力{4}%，并使移动速度提高{6}%，持续{5}。'),
+    ('{0}m内の対象を中心に{1}m内の最大{2}体の敵に<chat_combat>{3}～{4}</>のダメージを与えて、{5}%の確率で{6}間、気絶状態にします。', '以{0}米内的目标为中心，对{1}米范围内最多{2}名敌人造成<chat_combat>{3}～{4}</>伤害，并有{5}%的概率使其眩晕，持续{6}。'),
+    ('{0}m内の対象を中心に{1}m内の最大{2}体の敵に<chat_combat>{3}～{4}</>のダメージと{5}のMPダメージを与えて、{6}%の確率で{7}間、気絶状態にします。', '以{0}米内的目标为中心，对{1}米范围内最多{2}名敌人造成<chat_combat>{3}～{4}</>伤害和{5}精神力伤害，并有{6}%的概率使其眩晕，持续{7}。'),
+    ('的中時に{0}間、攻撃力が{1}%増加します。', '命中时，攻击力提高{1}%，持续{0}。'),
+    ('的中人数に比例して、防御力が最大{0}%増加します。', '根据命中人数提高防御力，最多提高{0}%。'),
     ('状態異常持続中は怒り消耗{0}%減少', '异常状态持续期间，怒气消耗减少{0}%。'),
     ('再使用時間{0}%減少', '冷却时间缩短{0}%。'),
 )
@@ -170,12 +194,31 @@ def skill_description(japanese):
 
 
 def reviewed_translation(key, japanese):
+    if key == 'NpcTalk_6B632FCDECEE4325928285141BB9B30F_cv_text' and japanese == '待て！\n最初の文字だけ見ると<QK>湖の中の洞窟</>という言葉になる。':
+        return '等等！\n只看每句开头的字，连起来就是<QK>湖中的洞窟</>。'
     if key.startswith('String_'):
+        region = key.removeprefix('String_UI_GLOBAL_SERVICE_SERVER_REGION_DESC_').removesuffix('_body')
+        if key.startswith('String_UI_GLOBAL_SERVICE_SERVER_REGION_DESC_') and region in REGIONS:
+            name, location, recommended, cn_name, cn_location, cn_recommended = REGIONS[region]
+            tag = '<ref style="Lobby_GlobalRegionTooltip_Etc" attr="color">'
+            expected = name + tag + 'サーバー位置：' + location + ' - 推奨地域：' + recommended + '</>'
+            if japanese == expected:
+                return cn_name + tag + '服务器位置：' + cn_location + ' - 推荐地区：' + cn_recommended + '</>'
         if japanese in UI_LABELS:
             return UI_LABELS[japanese]
         maximum = re.fullmatch(r'MAX ([0-9]+(?:\.[0-9]+)?%)', japanese)
         if key.startswith('String_UI_NPCSHOP_ITEMLIST_BUTTON_ADDMAX') and maximum:
             return '最大' + maximum[1]
+        if key.startswith('String_STR_G_ITEM_'):
+            season = re.fullmatch(r'グローバル シーズン(\d+)(月間パス|パス)( アンロック|経験値)_(天族|魔族)(?:_(無償|有償))?', japanese)
+            if season:
+                text = '全球第' + season[1] + '赛季' + ('月度通行证' if season[2] == '月間パス' else '通行证')
+                text += ('解锁' if season[3] == ' アンロック' else '经验') + '_' + season[4]
+                if season[5]:
+                    text += '_' + ('免费' if season[5] == '無償' else '付费')
+                return text
+        if key.startswith(('String_STR_DESC_Contents_Ticket_', 'String_STR_ITEM_')):
+            return skill_description(japanese)
     if key == 'Message_MSG_GET_VEHICLE_CREATURE_SOUL_POINT_body' and japanese == '魂結晶を{1}個獲得しました。':
         return '获得了{1}个灵魂结晶。'
     if key.startswith(('SkillString_', 'SkillAbnormalString_')) and key.endswith(('_skill_name', '_desc_name')):

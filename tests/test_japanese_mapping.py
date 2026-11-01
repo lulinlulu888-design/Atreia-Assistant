@@ -91,6 +91,14 @@ class JapaneseMappingTests(unittest.TestCase):
         result, report = mapping.build({'a': '???'}, {'a': '???'}, {'a': '???'}, {'a': '???'})
         self.assertTrue(report['publishable'])
 
+    def test_adjacent_season_and_written_rank_do_not_merge_numbers(self):
+        self.assertTrue(mapping.numeric_equivalent('アビス シーズン2八等兵', '欧比斯赛季2 8等兵'))
+        self.assertFalse(mapping.numeric_equivalent('アビス シーズン2八等兵', '欧比斯赛季28等兵'))
+        self.assertTrue(mapping.numeric_equivalent('一～五等兵討伐', '击败1~5等兵'))
+        self.assertTrue(mapping.numeric_equivalent('グローバル シーズン1', '全球第一赛季'))
+        self.assertTrue(mapping.numeric_equivalent('プロミスナインと3回', '与fromis_9进行3次'))
+        self.assertFalse(mapping.numeric_equivalent('プロミスナインと3回', '与fromis_9进行4次'))
+
     def test_camera_and_machine_identifiers_are_source_bound_not_public_names(self):
         key = 'NpcTalk_' + 'A' * 32 + '_cv_text'
         self.assertTrue(mapping.literal_identifier(key, 'Default_Zoom_IN3', 'Default_Zoom_IN3', 'Default_Zoom_IN3'))

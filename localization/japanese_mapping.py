@@ -38,9 +38,13 @@ def numbers(text, written=False):
     # Unique is an item grade, not the number one. Likewise a Chinese idiom
     # meaning "go further" does not introduce a literal floor count.
     text = text.replace('唯一', '独特').replace('更上一层', '更进一步').replace('更上一層', '更进一步')
+    # A band's proper name is not a quest count. Japanese spells the same
+    # name without an Arabic digit; stripping only this name retains all
+    # actual quantities elsewhere in the sentence.
+    text = re.sub(r'(?i)(?<![A-Za-z0-9_])fromis_?9(?![A-Za-z0-9_])', 'fromisnine', text)
     def quantity(match):
         value = small_han_number(match.group())
-        return match.group() if value is None else str(value)
+        return match.group() if value is None else ' ' + str(value) + ' '
     # Written Chinese quantities are equivalent to Arabic digits; prose itself
     # stays unchanged. Requiring an explicit classifier avoids parsing names.
     if written:
@@ -49,8 +53,9 @@ def numbers(text, written=False):
         value = small_han_number(match.group(1))
         return match.group() if value is None else '第' + str(value)
     # Compare known number spellings without rewriting the translated text.
-    text = re.sub(r'第([零〇一二两三四五六七八九十]+)(?=阶段|階段|段階|级|級|层|層|章)', ordinal, text)
-    text = re.sub(r'([一二三四五六七八九])(?=星(?:[~～\]将军官]|$)|等(?:兵|[~～\]]))', lambda m: str(HAN_DIGITS[m.group()]), text)
+    text = re.sub(r'第([零〇一二两三四五六七八九十]+)(?=阶段|階段|段階|级|級|层|層|章|赛季|賽季|个|個)', ordinal, text)
+    text = re.sub(r'([一二三四五六七八九])(?=[~～〜]?[一二三四五六七八九]?(?:等兵|星将校|星军官|星軍官))', lambda m: ' ' + str(HAN_DIGITS[m.group()]) + ' ', text)
+    text = re.sub(r'([一二三四五六七八九])(?=星(?:[~～\]将军官]|$)|等(?:兵|[~～\]]))', lambda m: ' ' + str(HAN_DIGITS[m.group()]) + ' ', text)
     result = []
     for token in NUMBERS.findall(text):
         percentage = token.endswith('%')
