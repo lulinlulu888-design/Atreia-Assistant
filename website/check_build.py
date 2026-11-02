@@ -35,7 +35,7 @@ def main():
     assert url.path == f"/releases/v{release['version']}/Atreia-Assistant_{release['version']}_x64.msi"
     assert len(release['sha256']) == 64 and int(release['sha256'], 16) >= 0
     assert release['size'] > 0
-    for name in ('index.html', 'guides/localization.html', 'guides/combat.html'):
+    for name in ('index.html', 'guides/localization.html', 'guides/combat.html', 'guides/radar.html'):
         path = PUBLIC / name
         page = Page()
         raw = path.read_text(encoding='utf-8')

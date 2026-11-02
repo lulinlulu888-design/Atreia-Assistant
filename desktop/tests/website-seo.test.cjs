@@ -104,7 +104,7 @@ for (const { file, html, url } of pages) {
 }
 
 test('all public pages have distinct titles and descriptions and appear in the sitemap exactly once', () => {
-  assert.deepEqual(htmlFiles, ['guides/combat.html', 'guides/localization.html', 'index.html']);
+  assert.deepEqual(htmlFiles, ['guides/combat.html', 'guides/localization.html', 'guides/radar.html', 'index.html']);
   assert.equal(new Set(pages.map(page => title(page.html))).size, pages.length);
   assert.equal(new Set(pages.map(page => meta(page.html, 'description')[0].content)).size, pages.length);
   const sitemap = read('sitemap.xml');

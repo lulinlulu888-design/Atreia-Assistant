@@ -9,7 +9,8 @@
 | [项目首页](../README.md) | 下载、三个功能入口、客户端语言设置 |
 | [汉化安装与还原](../docs/guides/localization.html) | Steam 选择日本語，PURPLE 选择 English |
 | [战斗统计指南](../docs/guides/combat.html) | Npcap、统计浮窗与战斗记录 |
-| [隐藏宝箱雷达](../desktop/RADAR.md) | 开关、定位、显示方式与实验功能限制 |
+| [隐藏宝箱雷达指南](../docs/guides/radar.html) | 开启、暂停、定位与无数据排查 |
+| [雷达实现与验证范围](../desktop/RADAR.md) | 显示方式、采集生命周期与实验功能限制 |
 | [软件自动更新](../desktop/UPDATES.md) | 版本检查、包校验与快捷方式 |
 | [2.0.64 更新说明](../releases/2.0.64.md) | 本次改动和升级步骤 |
 

@@ -10,3 +10,9 @@
   pointer-events: none;
 }
 .hero-copy, .next { z-index: 2; }
+
+.help-intro { margin-top: 12px; color: #627973; font-size: 14px; }
+.help-resources { display: flex; flex-wrap: wrap; gap: 16px 32px; margin-top: 28px; }
+.help-resources a { display: inline-flex; align-items: center; gap: 8px; color: #087d78; font-size: 14px; }
+.help-resources a:hover, .guide-links a:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+.guide-links a span { min-width: 0; }

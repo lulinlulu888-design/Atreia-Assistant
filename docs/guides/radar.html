@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AION2 隐藏宝箱雷达使用与定位排查指南｜亚特雷亚助手</title>
+  <meta name="description" content="亚特雷亚助手 AION2 隐藏宝箱雷达使用指南：开启与暂停紧凑浮窗、理解角色定位和距离提示、与 DPS 同时运行，以及无数据时的排查。实验功能不保证发现所有宝箱。">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#f6f8f7">
+  <link rel="canonical" href="https://lulinlulu888-design.github.io/Atreia-Assistant/guides/radar.html">
+  <link rel="sitemap" type="application/xml" href="../sitemap.xml">
+  <link rel="icon" type="image/png" href="../assets/brand/atreia-icon.png">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/guide.css">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="亚特雷亚助手">
+  <meta property="og:title" content="AION2 隐藏宝箱雷达使用与定位排查指南｜亚特雷亚助手">
+  <meta property="og:description" content="亚特雷亚助手 AION2 隐藏宝箱雷达使用指南：开启与暂停紧凑浮窗、理解角色定位和距离提示、与 DPS 同时运行，以及无数据时的排查。实验功能不保证发现所有宝箱。">
+  <meta property="og:url" content="https://lulinlulu888-design.github.io/Atreia-Assistant/guides/radar.html">
+  <meta property="og:image" content="https://lulinlulu888-design.github.io/Atreia-Assistant/assets/hero-atreia.jpg">
+  <meta property="og:image:width" content="1536">
+  <meta property="og:image:height" content="1024">
+  <meta property="og:image:alt" content="亚特雷亚助手的云海浮岛与城堡主题画面">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AION2 隐藏宝箱雷达使用与定位排查指南｜亚特雷亚助手">
+  <meta name="twitter:description" content="亚特雷亚助手 AION2 隐藏宝箱雷达使用指南：开启与暂停紧凑浮窗、理解角色定位和距离提示、与 DPS 同时运行，以及无数据时的排查。实验功能不保证发现所有宝箱。">
+  <meta name="twitter:image" content="https://lulinlulu888-design.github.io/Atreia-Assistant/assets/hero-atreia.jpg">
+  <meta name="twitter:image:alt" content="亚特雷亚助手的云海浮岛与城堡主题画面">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://lulinlulu888-design.github.io/Atreia-Assistant/guides/radar.html#webpage",
+      "url": "https://lulinlulu888-design.github.io/Atreia-Assistant/guides/radar.html",
+      "name": "AION2 隐藏宝箱雷达使用与定位排查指南｜亚特雷亚助手",
+      "description": "亚特雷亚助手 AION2 隐藏宝箱雷达使用指南：开启与暂停紧凑浮窗、理解角色定位和距离提示、与 DPS 同时运行，以及无数据时的排查。实验功能不保证发现所有宝箱。",
+      "inLanguage": "zh-CN",
+      "dateModified": "2026-11-02",
+      "isPartOf": {
+        "@id": "https://lulinlulu888-design.github.io/Atreia-Assistant/#website"
+      },
+      "about": {
+        "@id": "https://lulinlulu888-design.github.io/Atreia-Assistant/#software"
+      },
+      "breadcrumb": {
+        "@id": "https://lulinlulu888-design.github.io/Atreia-Assistant/guides/radar.html#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://lulinlulu888-design.github.io/Atreia-Assistant/guides/radar.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://lulinlulu888-design.github.io/Atreia-Assistant/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "隐藏宝箱雷达",
+          "item": "https://lulinlulu888-design.github.io/Atreia-Assistant/guides/radar.html"
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body class="guide-page">
+  <a class="skip-link" href="#main">跳转到正文</a>
+  <header class="site-header"><div class="header-inner"><a class="brand" href="../" aria-label="亚特雷亚助手官网首页"><img src="../assets/brand/atreia-icon.png" width="42" height="42" alt=""><span><strong>亚特雷亚助手</strong><small>ATREIA ASSISTANT</small></span></a><nav aria-label="主导航"><a href="../#features">功能</a><a href="../#download">下载</a><a href="combat.html">战斗统计指南</a></nav></div></header>
+  <main class="guide-main" id="main">
+    <nav class="breadcrumbs" aria-label="面包屑"><a href="../">首页</a><span aria-hidden="true">/</span><span aria-current="page">隐藏宝箱雷达</span></nav>
+    <article>
+      <header class="guide-header"><p class="eyebrow">EXPLORATION GUIDE</p><h1>AION2 隐藏宝箱雷达使用指南</h1><p class="guide-lead">用紧凑浮窗查看已识别的隐藏宝箱记录。雷达仍是实验功能：能够识别连接，不代表已经取得角色位置或附近宝箱。</p><p class="guide-updated">适用于 2.0.64 · 更新于 <time datetime="2026-11-02">2026 年 11 月 2 日</time></p></header>
+      <nav class="guide-toc" aria-label="本页目录"><h2>本页内容</h2><ul><li><a href="#start">开启与暂停</a></li><li><a href="#position">理解定位与距离</a></li><li><a href="#troubleshoot">没有数据时</a></li><li><a href="#limits">验证范围</a></li></ul></nav>
+      <div class="guide-content">
+        <section id="start"><h2>打开浮窗，按需开启</h2><ol><li>安装<a href="../#download">最新版亚特雷亚助手</a>和 <a href="https://npcap.com/#download">Npcap 驱动</a>。已有 Npcap 无需重复安装，也无需 SDK。</li><li>在助手主界面打开宝箱雷达，主界面继续保留。只打开浮窗不会启动采集。</li><li>点击浮窗上的电源按钮直接开启，无需二次确认；采集说明可在设置中查看。</li><li>再次点击电源按钮暂停，或关闭雷达窗口。若 DPS 仍在运行，采集器会继续服务于战斗统计。</li></ol><p>浮窗默认 210 × 240 逻辑像素，显示比例随系统缩放调整。设置在独立窗口打开，可调整范围、透明度、标记和提示音，不会把游戏里的浮窗撑大。</p><figure class="guide-figure guide-figure--compact"><img src="../assets/screenshots/radar-2.0.59.jpg" width="210" height="240" alt="2.0.59 真实隐藏宝箱雷达浮窗，尚未开启采集" loading="lazy"><figcaption>2.0.59 真实界面截图 · 未开启采集</figcaption></figure></section>
+        <section id="position"><h2>连接、定位与宝箱是三个不同状态</h2><ul><li><strong>等待游戏连接：</strong>尚未识别可用连接，先检查游戏、Npcap 和运行权限。</li><li><strong>已连接，等待首次角色定位：</strong>连接已识别，但没有取得自己的位置，因此不能计算宝箱距离。</li><li><strong>参考位置：</strong>坐标一段时间未刷新时保留上次位置，距离带“约”并显示定位年龄，不代表实时精确定位。</li><li><strong>范围内数量：</strong>只统计已收到且可根据当前定位判断范围的宝箱记录；显示 0 不能证明周围没有宝箱。</li></ul><p>雷达正北朝上，不随镜头旋转。距离包括高度差；切图或断线后会清除旧定位。普通步行不保证刷新坐标，正常跳跃、冲刺或滑翔可能帮助刷新，但不保证每次动作都能完成定位。</p></section>
+        <section id="troubleshoot"><h2>宝箱就在附近，却没有标记？</h2><ol><li>先看底部状态，区分未开启、等待连接和缺少角色定位；确认电源按钮已开启。</li><li>如提示 Npcap 未加载或权限不足，按驱动提示处理后重试。游戏已打开不等于采集链路可用。</li><li>连接已识别但仍无自身坐标时，正常移动或进行跳跃等动作，观察状态是否刷新。</li><li>游戏更新后检查助手版本；仍有问题时记录客户端、助手版本、底部状态和截图，提交问题反馈。</li></ol><p>雷达只能处理客户端收到的对象记录，不是全地图宝箱数据库，也无法保证识别所有加速器连接或宝箱类型。</p></section>
+        <section id="limits"><h2>目前验证到什么程度？</h2><p class="guide-note">角色定位已在本地实机观察成功；可见宝箱标记与真实距离尚未完成全面现场验收。自动化测试覆盖协议、定位及窗口逻辑，不替代游戏现场验证。</p><p>DPS 与雷达可分别或同时开启，关闭主界面后保留托盘。采集在本机处理，不上传、不发送游戏封包，也不读取游戏内存；第三方工具仍需遵守游戏规则。</p></section>
+        <section class="guide-related"><h2>继续了解助手</h2><p><a href="localization.html">Steam / PURPLE 汉化指南</a> · <a href="combat.html">DPS 战斗统计指南</a> · <a href="https://github.com/lulinlulu888-design/Atreia-Assistant/blob/main/documentation/README.md">完整项目文档</a> · <a href="https://github.com/lulinlulu888-design/Atreia-Assistant/issues">反馈问题</a></p><div class="guide-cta"><a class="button button-primary" href="../#download">下载亚特雷亚助手</a><a href="../">返回官网首页</a></div></section>
+      </div>
+    </article>
+  </main>
+  <footer class="guide-footer"><p>Atreia Assistant · 免费开源社区工具 · GPL-3.0</p><p>本项目与 NCSOFT、Steam 无隶属或背书关系。</p></footer>
+</body>
+</html>

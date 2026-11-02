@@ -1,2 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://a2go.cc/</loc></url><url><loc>https://a2go.cc/guides/localization.html</loc></url><url><loc>https://a2go.cc/guides/combat.html</loc></url></urlset>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://a2go.cc/</loc><lastmod>2026-11-02</lastmod></url>
+  <url><loc>https://a2go.cc/guides/localization.html</loc><lastmod>2026-11-02</lastmod></url>
+  <url><loc>https://a2go.cc/guides/combat.html</loc><lastmod>2026-11-02</lastmod></url>
+  <url><loc>https://a2go.cc/guides/radar.html</loc><lastmod>2026-11-02</lastmod></url>
+</urlset>

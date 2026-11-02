@@ -18,14 +18,14 @@
   <meta property="og:title" content="AION2 汉化教程：Steam / PURPLE 安装与还原｜亚特雷亚助手">
   <meta property="og:description" content="从检测游戏目录到安装、更新和还原，了解 Steam / PURPLE 简体中文汉化的完整使用步骤。">
   <meta property="og:url" content="https://lulinlulu888-design.github.io/Atreia-Assistant/guides/localization.html">
-  <meta property="og:image" content="https://lulinlulu888-design.github.io/Atreia-Assistant/assets/localization-preview.jpg">
-  <meta property="og:image:width" content="720">
-  <meta property="og:image:height" content="490">
+  <meta property="og:image" content="https://lulinlulu888-design.github.io/Atreia-Assistant/assets/screenshots/localization-2.0.59.jpg">
+  <meta property="og:image:width" content="603">
+  <meta property="og:image:height" content="501">
   <meta property="og:image:alt" content="亚特雷亚助手的客户端选择、游戏目录检测与汉化操作界面">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AION2 汉化教程：Steam / PURPLE 安装与还原｜亚特雷亚助手">
   <meta name="twitter:description" content="Steam / PURPLE 汉化安装、Steam 日本語 / PURPLE English 文字语言设置、更新后重新检测与备份还原。">
-  <meta name="twitter:image" content="https://lulinlulu888-design.github.io/Atreia-Assistant/assets/localization-preview.jpg">
+  <meta name="twitter:image" content="https://lulinlulu888-design.github.io/Atreia-Assistant/assets/screenshots/localization-2.0.59.jpg">
   <meta name="twitter:image:alt" content="亚特雷亚助手的客户端选择、游戏目录检测与汉化操作界面">
   <script type="application/ld+json">
   {
@@ -65,13 +65,14 @@
     <nav class="breadcrumbs" aria-label="面包屑"><a href="../">首页</a><span aria-hidden="true">/</span><span aria-current="page">汉化安装与还原</span></nav>
     <article>
       <header class="guide-header"><p class="eyebrow">LOCALIZATION GUIDE</p><h1>AION2 汉化安装与还原指南</h1><p class="guide-lead">在 Steam / Global 或 PURPLE 客户端中使用简体中文。亚特雷亚助手提供目录检测、汉化安装、更新与还原入口，汉化功能不需要 Npcap 驱动。</p><p class="guide-updated">更新于 <time datetime="2026-11-02">2026 年 11 月 2 日</time></p></header>
-      <nav class="guide-toc" aria-label="本页目录"><h2>本页内容</h2><ul><li><a href="#prepare">安装前准备</a></li><li><a href="#install">安装汉化</a></li><li><a href="#update">游戏更新后</a></li><li><a href="#restore">还原与排查</a></li></ul></nav>
+      <nav class="guide-toc" aria-label="本页目录"><h2>本页内容</h2><ul><li><a href="#compatibility">版本与语言</a></li><li><a href="#prepare">安装前准备</a></li><li><a href="#install">安装汉化</a></li><li><a href="#update">游戏更新后</a></li><li><a href="#restore">还原与排查</a></li></ul></nav>
       <div class="guide-content">
-        <section id="prepare"><h2>安装前：确认客户端并退出游戏</h2><p>从<a href="../#download">官网下载安装包</a>，安装后通过桌面快捷方式打开助手。请选择 Windows x64 MSI 整合安装包，无需下载 GitHub 的 Source code 或构建材料。</p><ul><li>先完成 AION2（永恒之塔2）客户端更新，再完全退出游戏，避免语言文件被占用。</li><li>如果正在使用战斗统计，先在统计设置中选择“停止统计并返回首页”。</li><li>核对自己使用的是 Steam / Global 还是 PURPLE；两端的目录和语言资源不能混用。</li></ul><p class="guide-note">游戏更新可能改变语言资源。当前适配范围见<a href="../#help">首页兼容性说明</a>，每次安装前都应重新检测。未通过兼容性检查时，请停止操作，不要手动覆盖资源。</p></section>
-        <section id="install"><h2>Steam / PURPLE 汉化安装步骤</h2><ol><li>在助手首页打开“游戏汉化”，选择对应的客户端。</li><li>点击“检测”自动查找游戏目录。没有找到或存在多个目录时，用文件夹按钮选择包含 <code>Aion2/Content</code> 的游戏根目录，不要选择启动器目录或直接选择 <code>Content</code> 子目录。</li><li>确认检测结果与目标路径。更换客户端或编辑目录后，需要重新检测。</li><li>点击“安装 / 更新汉化”，在确认窗口核对客户端、目录与操作，再确认继续。取消确认不会安装汉化。</li><li>等待完成后进入游戏，将<strong>Steam 文字语言设为「日本語」，PURPLE 文字语言设为 English</strong>，让汉化语言表生效。</li></ol><figure class="guide-figure"><img src="../assets/localization-preview.jpg" width="720" height="490" loading="lazy" alt="亚特雷亚助手汉化面板：选择客户端，检测游戏目录，安装或还原汉化"><figcaption>汉化面板将检测、安装与还原放在同一个入口。</figcaption></figure><p>安装过程保留原始资源备份，并检查兼容性；请不要在操作进行时移动游戏目录、删除备份或强制关闭助手。</p></section>
+        <section id="compatibility"><h2>2.0.64：先确认客户端和文字语言</h2><ul><li><strong>Steam / Global：</strong>安装汉化后，文字语言选择<strong>「日本語」</strong>。本版验证基线为 Steam Build 26262663，中文显示及切换语言已由用户实机确认。</li><li><strong>PURPLE 台服：</strong>文字语言仍选择 <strong>English</strong>，沿用原方案，无需日文资源。本版针对 TW 127 完成真实资源与编码回读检查。</li></ul><p>语音语言可保持自己的设置。游戏内所有界面尚未逐一验收；游戏更新后应重新检测，不能直接沿用旧版本的兼容结论。</p></section>
+        <section id="prepare"><h2>安装前：确认客户端并退出游戏</h2><p>从<a href="../#download">官网下载安装包</a>，安装后通过中文桌面快捷方式“亚特雷亚助手”打开软件。请选择 Windows x64 MSI 整合安装包，无需下载 GitHub 的 Source code 或构建材料。</p><ul><li>先完成 AION2（永恒之塔2）客户端更新，再完全退出游戏，避免语言文件被占用。</li><li>实际安装或还原汉化前，先停止战斗统计和宝箱雷达的采集；仅打开这些窗口不代表正在写入游戏。</li><li>核对自己使用的是 Steam / Global 还是 PURPLE；两端的目录和语言资源不能混用。</li></ul><p class="guide-note">游戏更新可能改变语言资源。当前适配范围见<a href="#compatibility">本页版本与语言说明</a>，每次安装前都应重新检测。未通过兼容性检查时，请停止操作，不要手动覆盖资源。</p></section>
+        <section id="install"><h2>Steam / PURPLE 汉化安装步骤</h2><ol><li>在助手首页打开独立的“游戏汉化”窗口，主界面会继续保留，再选择对应的客户端。</li><li>点击“检测”自动查找游戏目录。没有找到或存在多个目录时，用文件夹按钮选择包含 <code>Aion2/Content</code> 的游戏根目录，不要选择启动器目录或直接选择 <code>Content</code> 子目录。</li><li>确认检测结果与目标路径。更换客户端或编辑目录后，需要重新检测。</li><li>点击“安装 / 更新汉化”，在确认窗口核对客户端、目录与操作，再确认继续。取消确认不会安装汉化。</li><li>等待完成后进入游戏，将<strong>Steam 文字语言设为「日本語」，PURPLE 文字语言设为 English</strong>，让汉化语言表生效。</li></ol><figure class="guide-figure"><img src="../assets/screenshots/localization-2.0.59.jpg" width="603" height="501" loading="lazy" alt="亚特雷亚助手汉化面板：选择客户端，检测游戏目录，安装或还原汉化"><figcaption>2.0.59 真实汉化窗口截图；2.0.64 的文字语言设置以上方说明为准。</figcaption></figure><p>安装过程保留原始资源备份，并检查兼容性；请不要在操作进行时移动游戏目录、删除备份或强制关闭助手。</p></section>
         <section id="update"><h2>游戏或助手更新后，需要重新汉化吗？</h2><p>游戏更新可能替换语言资源；助手更新则可能带来新的适配与译文。先更新游戏和助手，退出游戏后，再进入“游戏汉化”重新检测并执行“安装 / 更新汉化”。</p><p>安装新版助手 MSI 只升级软件本身，不会自动修改游戏文件。请以当前客户端的检测结果为准，不要把另一端或旧版本的语言文件复制到新版本目录。</p></section>
         <section id="restore"><h2>如何还原，以及汉化不显示时怎么办？</h2><h3>还原原始语言资源</h3><p>完全退出游戏，在“游戏汉化”中选择原来的客户端与目录，重新检测后点击“还原”，核对确认窗口再继续。还原会检查备份与当前资源是否匹配；如果提示不匹配，请保留文件并反馈问题，不要强行写回旧备份。</p><h3>安装后仍然显示原文或问号</h3><ul><li>确认设置的是<strong>Steam 文字语言「日本語」或 PURPLE 文字语言 English</strong>，而不仅是语音语言，并重新进入游戏检查。</li><li>确认安装汉化的目录就是启动器实际启动的那一份游戏。</li><li>如果刚更新过游戏，退出后重新检测并安装汉化。</li><li>如果只有部分文字未汉化，记录具体界面并反馈漏译；游戏内所有界面尚未逐一验收。</li></ul><p>仍无法解决时，请到 <a href="https://github.com/lulinlulu888-design/Atreia-Assistant/issues">GitHub Issues 反馈汉化问题</a>，附上助手版本、Steam 或 PURPLE 客户端、检测提示和问题截图。截图请遮挡账号等个人信息。</p></section>
-        <section class="guide-related"><h2>继续了解助手</h2><p>汉化和战斗统计是两个独立入口。只使用汉化不会启动网络采集；需要查看伤害与技能明细时，可阅读<a href="combat.html">AION2 DPS 战斗统计与 Npcap 使用指南</a>。</p><div class="guide-cta"><a class="button button-primary" href="../#download">下载亚特雷亚助手</a><a href="../">返回官网首页</a></div></section>
+        <section class="guide-related"><h2>继续了解助手</h2><p>汉化、战斗统计和宝箱雷达可以分别打开独立窗口，主界面继续保留。只使用汉化不会启动网络采集；继续阅读<a href="combat.html">DPS 战斗统计指南</a>或<a href="radar.html">隐藏宝箱雷达指南</a>。</p><div class="guide-cta"><a class="button button-primary" href="../#download">下载亚特雷亚助手</a><a href="../">返回官网首页</a></div></section>
       </div>
     </article>
   </main>
