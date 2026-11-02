@@ -126,6 +126,7 @@ class EntryHostTests(unittest.TestCase):
                          lambda: self.fail('Inspection must be read-only'))
         self.assertEqual(result['state'], 'legacy_ready_to_migrate')
         self.assertFalse((self.game / 'Atreia_Japanese_Entry_Backup').exists())
+        self.assertTrue((safe / NAMES[0]).exists())
         result = execute('install', self.game, 'steam', self.bundles, self.bindings, lambda: None)
         self.assertEqual(result['state'], 'installed')
         state_path = self.game / 'Atreia_Japanese_Entry_Backup/state.json'
@@ -136,7 +137,7 @@ class EntryHostTests(unittest.TestCase):
         execute('restore', self.game, 'steam', self.bundles, {}, lambda: None)
         self.assertFalse(dat.exists())
         for name, path in self.originals.items():
-            self.assertEqual(path.read_bytes(), (safe / name).read_bytes())
+            self.assertEqual(path.read_bytes(), (safe / (name + '.bak')).read_bytes())
 
     def test_legacy_migration_rejects_wrong_original_and_running_game(self):
         safe, dat = self.legacy_layout()
@@ -157,7 +158,20 @@ class EntryHostTests(unittest.TestCase):
         result = execute('restore', self.game, 'steam', self.bundles, self.bindings, lambda: None)
         self.assertEqual(result['state'], 'restored')
         self.assertFalse(dat.exists())
-        self.assertEqual(self.originals[NAMES[0]].read_bytes(), (safe / NAMES[0]).read_bytes())
+        self.assertEqual(self.originals[NAMES[0]].read_bytes(), (safe / (NAMES[0] + '.bak')).read_bytes())
+
+    def test_reference_tool_bak_layout_is_readable_without_mutating_detection(self):
+        safe, dat = self.legacy_layout()
+        for name in NAMES:
+            (safe / name).rename(safe / (name + '.bak'))
+        result = execute('inspect', self.game, 'steam', self.bundles, self.bindings,
+                         lambda: self.fail('Inspection must be read-only'))
+        self.assertEqual(result['state'], 'legacy_ready_to_migrate')
+        execute('install', self.game, 'steam', self.bundles, self.bindings, lambda: None)
+        execute('inspect', self.game, 'steam', self.bundles, self.bindings,
+                lambda: self.fail('Inspection must be read-only'))
+        execute('restore', self.game, 'steam', self.bundles, self.bindings, lambda: None)
+        self.assertFalse(dat.exists())
 
 
 if __name__ == '__main__':

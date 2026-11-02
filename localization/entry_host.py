@@ -76,7 +76,7 @@ def execute(operation, root, client, bundle_root, bindings, closed_check=ensure_
         legacy = False
         if state and state['status'] == 'installed':
             transaction._originals(state)
-            originals = {name: transaction.recovery / state['generation'] / name for name in NAMES}
+            originals = {name: path for name, path in transaction.original_paths(state).items() if name in NAMES}
         else:
             originals = {name: transaction.paths[name] for name in NAMES}
             if not state and originals[NAMES[0]].is_file() and originals[NAMES[0]].stat().st_size == 0:

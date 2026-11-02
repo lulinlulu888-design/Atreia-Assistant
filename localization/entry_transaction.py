@@ -83,11 +83,23 @@ class JapaneseEntryTransaction:
             raise ValueError('Invalid original file set')
         return state
 
-    def _originals(self, state):
+    def _backup_path(self, directory, name):
+        raw, safe = directory / name, directory / (name + '.bak')
+        for path in (raw, safe):
+            self._check_path(path)
+        if raw.exists() and safe.exists() and raw.read_bytes() != safe.read_bytes():
+            raise ValueError('Conflicting backup copies: ' + name)
+        return safe if safe.exists() else raw
+
+    def original_paths(self, state):
         directory = self.recovery / state['generation']
+        return {name: self._backup_path(directory, name) for name in state['originals']}
+
+    def _originals(self, state):
+        paths = self.original_paths(state)
         result = {}
         for name, expected in state['originals'].items():
-            path = directory / name
+            path = paths[name]
             self._check_path(path)
             if expected is None:
                 if path.exists():
@@ -99,6 +111,42 @@ class JapaneseEntryTransaction:
                     raise ValueError('Recovery original hash mismatch: ' + name)
                 result[name] = data
         return result
+
+    def _isolate_backups(self):
+        """Rename only known backup package names; live resources are excluded.
+
+        Both names remain readable during an interrupted migration. All conflicts
+        are checked before the first rename, and no bytes are changed.
+        """
+        directories = [(self.root / 'Aion2_Japanese_Backup_Safe', NAMES),
+                       (self.root / 'Aion2_English_Backup_Safe',
+                        tuple(name.replace('503000', '502000') for name in NAMES))]
+        self._check_path(self.recovery)
+        if self.recovery.exists():
+            for directory in self.recovery.iterdir():
+                if len(directory.name) == 32 and all(c in '0123456789abcdef' for c in directory.name):
+                    self._check_path(directory)
+                    if directory.is_dir():
+                        directories.append((directory, NAMES))
+        pending = []
+        for directory, names in directories:
+            for name in names:
+                self._backup_path(directory, name)  # validate both names, including conflicts
+                raw, safe = directory / name, directory / (name + '.bak')
+                if raw.is_file():
+                    pending.append((raw, safe, digest(raw.read_bytes())))
+        for raw, safe, expected in pending:
+            self._closed()
+            self._check_path(raw)
+            self._check_path(safe)
+            if digest(raw.read_bytes()) != expected or (safe.exists() and digest(safe.read_bytes()) != expected):
+                raise ValueError('Backup changed during extension migration')
+            if safe.exists():
+                raw.unlink()  # identical .bak copy remains
+            else:
+                raw.rename(safe)
+            if digest(safe.read_bytes()) != expected:
+                raise ValueError('Backup migration verification failed')
 
     def _matches_installed(self, state):
         if not self.paths[NAMES[0]].is_file() or self.paths[NAMES[0]].stat().st_size:
@@ -131,7 +179,7 @@ class JapaneseEntryTransaction:
             raise ValueError('Not a legacy empty Japanese package')
         if any(self.paths[name].exists() for name in NAMES[1:]) or not self.dat.is_file():
             raise ValueError('Legacy Japanese layout is incomplete or has changed')
-        paths = {name: self.root / 'Aion2_Japanese_Backup_Safe' / name for name in NAMES}
+        paths = {name: self._backup_path(self.root / 'Aion2_Japanese_Backup_Safe', name) for name in NAMES}
         for name, path in paths.items():
             self._check_path(path)
             if not path.is_file() or digest(path.read_bytes()) != expected_hashes[name]:
@@ -152,7 +200,7 @@ class JapaneseEntryTransaction:
         self._check_path(directory)
         directory.mkdir(parents=True, exist_ok=False)
         for name, data in original_bytes.items():
-            with (directory / name).open('xb') as stream:
+            with (directory / (name + '.bak')).open('xb') as stream:
                 stream.write(data)
         # Preserve the pre-migration translation for diagnostics/rollback; it
         # must never become the "original" restored into the game.
@@ -188,12 +236,13 @@ class JapaneseEntryTransaction:
             directory.mkdir(parents=True, exist_ok=False)
             for name, data in before.items():
                 if data is not None:
-                    with (directory / name).open('xb') as stream:
+                    with (directory / (name + '.bak')).open('xb') as stream:
                         stream.write(data)
             self._originals(state)
         self._closed()
         if any((path.read_bytes() if path.is_file() else None) != before[name] for name, path in self.paths.items()):
             raise ValueError('Game resources changed during preparation')
+        self._isolate_backups()
         state.update(status='preparing', payload_sha256=digest(payload),
                      previous_payload_sha256=previous.get('payload_sha256') if previous else None)
         self._save(state)
@@ -250,6 +299,7 @@ class JapaneseEntryTransaction:
                     allowed.add(None)
                 if actual not in allowed:
                     raise ValueError('Unrelated file change during interrupted transaction; refusing stale recovery')
+        self._isolate_backups()
         state['status'] = 'restoring'
         self._save(state)
         self._write_files(originals)

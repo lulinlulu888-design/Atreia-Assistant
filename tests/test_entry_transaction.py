@@ -51,6 +51,65 @@ class EntryTransactionTests(unittest.TestCase):
         self.transaction.restore()
         self.assert_original()
 
+    def test_new_backups_have_no_loadable_package_extension(self):
+        self.transaction.install(self.payload)
+        state = self.transaction._read_state()
+        directory = self.transaction.recovery / state['generation']
+        for name in NAMES:
+            self.assertFalse((directory / name).exists())
+            self.assertEqual((directory / (name + '.bak')).read_bytes(), self.before[name])
+        self.transaction.restore()
+        self.assert_original()
+
+    def old_backup_layout(self):
+        self.transaction.install(self.payload)
+        state = self.transaction._read_state()
+        directory = self.transaction.recovery / state['generation']
+        for name in NAMES:
+            (directory / (name + '.bak')).rename(directory / name)
+        return directory
+
+    def test_old_generation_and_legacy_backups_are_isolated_without_changing_content(self):
+        directory = self.old_backup_layout()
+        history = self.transaction.recovery / ('f' * 32)
+        history.mkdir()
+        (history / NAMES[0]).write_bytes(b'old historical package')
+        legacy = self.root / 'Aion2_English_Backup_Safe'
+        legacy.mkdir()
+        english_name = NAMES[0].replace('503000', '502000')
+        (legacy / english_name).write_bytes(b'old English backup')
+        self.transaction.install(self.payload + b'updated')
+        self.assertFalse((history / NAMES[0]).exists())
+        self.assertEqual((history / (NAMES[0] + '.bak')).read_bytes(), b'old historical package')
+        self.assertEqual((legacy / (english_name + '.bak')).read_bytes(), b'old English backup')
+        self.assertTrue(all((directory / (name + '.bak')).exists() for name in NAMES))
+        self.transaction.restore()
+        self.assert_original()
+
+    def test_backup_conflicts_refuse_install_before_live_writes(self):
+        directory = self.old_backup_layout()
+        (directory / (NAMES[-1] + '.bak')).write_bytes(b'conflicting backup')
+        with self.assertRaises(ValueError):
+            self.transaction.install(self.payload + b'updated')
+        self.assertEqual(self.transaction.dat.read_bytes(), self.payload)
+        self.assertTrue(all((directory / name).exists() for name in NAMES))
+
+    def test_interrupted_extension_migration_keeps_restore_possible(self):
+        directory = self.old_backup_layout()
+        original_rename = Path.rename
+        def interrupt(path, target):
+            if path.name == NAMES[1]:
+                raise OSError('Interrupted backup rename')
+            return original_rename(path, target)
+        with patch.object(Path, 'rename', interrupt):
+            with self.assertRaises(OSError):
+                self.transaction.install(self.payload + b'updated')
+        self.assertTrue((directory / (NAMES[0] + '.bak')).exists())
+        self.assertTrue((directory / NAMES[1]).exists())
+        self.assertEqual(self.transaction.dat.read_bytes(), self.payload)
+        self.transaction.restore()
+        self.assert_original()
+
     def test_running_game_refusal_changes_nothing(self):
         def running():
             raise RuntimeError('Game is running')
