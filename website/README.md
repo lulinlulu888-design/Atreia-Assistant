@@ -49,4 +49,4 @@ releases/vVERSION/SHA256SUMS.txt
 
 `.github/workflows/release.yml` 在 Windows 正式发布成功后运行 S3 同步，校验 MSI，再使用 GitHub OIDC 获取 15 分钟临时凭证。角色 `AtreiaGitHubReleasePublisher` 不使用长期访问密钥；其信任和权限策略保存在 `deploy/github-*.json`，只信任本仓库 `v2.*` 标签，只能读取、写入指定桶的正式 MSI 与校验文件，不能删除、列举或修改其他桶。
 
-流水线仅接受 `v2.NUMBER.NUMBER` 正式版本，拒绝草稿和预发布；上传后重新下载并逐字节比较。2.0.63 已通过真实 OIDC 发布角色上传和回读核对。`sync-downloads.yml` 可用独立的 `v2.NUMBER.NUMBER-sync-downloads` 标签重试现有正式版的同步，不重新构建或修改正式版本标签；校验文件同时兼容 Windows CRLF 和 Unix LF。官网仍需更新 `release.json`、构建验证并使用上述部署脚本发布。
+流水线仅接受 `v2.NUMBER.NUMBER` 正式版本，拒绝草稿和预发布；上传后重新下载并逐字节比较。2.0.64 已通过真实 OIDC 发布角色上传和回读核对。`sync-downloads.yml` 可用独立的 `v2.NUMBER.NUMBER-sync-downloads` 标签重试现有正式版的同步，不重新构建或修改正式版本标签；校验文件同时兼容 Windows CRLF 和 Unix LF。官网仍需更新 `release.json`、构建验证并使用上述部署脚本发布。

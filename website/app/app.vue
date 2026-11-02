@@ -10,7 +10,7 @@ useHead({ script: [{ type: 'application/ld+json', innerHTML: JSON.stringify({
   downloadUrl: release.url, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
 }) }] })
 const features = [
-  { id: 'localization', index: '01 / LOCALIZATION', title: '用熟悉的语言，探索亚特雷亚。', text: 'Steam / Global 与 PURPLE 简体中文汉化，沿用国服《永恒之塔》的常用名称与术语。检测、安装、备份与还原，各有清晰的边界。', points: ['检测客户端与游戏目录', '安装前备份，支持还原', '持续核对人物、任务与物品译名'], image: 'localization-2.0.59.jpg', width: 603, height: 501, caption: '2.0.59 真实汉化窗口', icon: Languages },
+  { id: 'localization', index: '01 / LOCALIZATION', title: '用熟悉的语言，探索亚特雷亚。', text: 'Steam / Global 与 PURPLE 简体中文汉化，沿用国服《永恒之塔》的常用名称与术语。自动检测游戏目录，安装前保留备份，支持还原。', points: ['Steam 文字语言选择「日本語」', 'PURPLE 文字语言仍选择 English', '持续核对人物、任务与物品译名'], image: 'localization-2.0.59.jpg', width: 603, height: 501, caption: '2.0.59 真实汉化窗口', icon: Languages },
   { id: 'combat', index: '02 / COMBAT ANALYTICS', title: '每一份输出，清楚呈现。', text: '独立的 DPS 战斗统计浮窗，查看伤害、治疗与技能贡献。战斗结束后，回看保存在本机的战斗记录。', points: ['伤害、治疗、护盾与技能明细', '战后回看本地历史记录', '按需开启，不自动上传战斗数据'], image: '', width: 0, height: 0, caption: '', icon: Activity },
   { id: 'radar', index: '03 / EXPLORATION', title: '隐藏宝箱，小窗随行。', text: '与 DPS 共用 Rust、Tauri 和 Npcap 技术路线的实验性雷达。独立开关，紧凑浮窗；识别连接、角色坐标与附近宝箱记录。', points: ['紧凑浮窗，独立外观与提示音设置', '点击开启直接启动，可随时暂停', '可与战斗统计、汉化窗口同时运行'], image: 'radar-2.0.59.jpg', width: 210, height: 240, caption: '2.0.59 真实雷达窗口 · 未开启采集', icon: Radar },
 ]
