@@ -1,3 +1,5 @@
+> **Upstream reference / 원본 문서:** This preserved A2Tools README describes upstream downloads and features. For Atreia Assistant installation, capture requirements and build instructions, use the [project README](../README.md), [documentation index](../documentation/README.md) and [fork notes](ATREIA-FORK.md).
+
 # A2Tools DPS Meter
 
 [![License](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)

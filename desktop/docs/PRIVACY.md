@@ -1,3 +1,5 @@
+> **Preserved upstream document:** The upload, account, supporter and A2Tools update flows below describe the upstream application. Atreia Assistant disables those upstream account/upload/update entry points and uses its own updater. Current behavior: [fork notes](../ATREIA-FORK.md), [updater](../UPDATES.md), and [website click statistics](../../website/README.md).
+
 # What leaves your machine
 
 This document is written to be checkable. Everything in the "today" section can

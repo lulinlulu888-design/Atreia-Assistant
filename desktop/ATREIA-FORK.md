@@ -1,63 +1,50 @@
-# 亚特雷亚助手 · A2Tools 整合分支
+# 亚特雷亚助手桌面整合说明
 
-本目录直接基于 taengu/A2Tools-DPS-Meter 的提交
-`70aade3fef1ef8b15fe5ce3d27cfdbfc5f854b98`，不是独立原创统计软件。
-上游：https://github.com/taengu/A2Tools-DPS-Meter
-完整上游 LICENSE、源码署名和 README 保留，修改版继续使用 GPL-3.0。
+当前桌面发布入口为本目录的 Rust / Tauri 程序，适用版本 2.0.64。玩家下载与设置见[项目首页](../README.md)，构建命令见[开发指南](../documentation/DEVELOPMENT.md)。
 
-## 2026-10-22 Selected Backports
+## 上游来源
 
-Checked upstream v2.0.74 (899375ba); this fork is not a wholesale v2.0.74 merge.
-The following GPL-3.0 changes are adapted into the 2.0.58 development build:
+本目录基于 [taengu/A2Tools-DPS-Meter](https://github.com/taengu/A2Tools-DPS-Meter) 的固定提交 `70aade3fef1ef8b15fe5ce3d27cfdbfc5f854b98`，保留上游 LICENSE、源码署名和原 README，修改版继续使用 GPL-3.0。它不是独立原创的统计软件。
 
-- 722dd6b8 (Seralth): additional-hit record tail parsing.
-- 8f2d81a3 (taengu): small critical hits use damage, not the attacker's power scalar.
-- 7a0ad04c (taengu): shield absorption IDs are not extra damage; shielded DoT ticks count.
-- 6f806dc6 / 3631610 (Nullceptions): dismiss stale hover tooltips using the native pointer.
+2026-10-22 对照上游 v2.0.74（899375ba）定向移植以下修复，不代表完整合并该版本：
 
-Regression tests replay the upstream shield and additional-hit records. Native pointer
-polling only runs while a tooltip is shown and does not transmit pointer data.
-Accounts, automatic uploads, Discord activity and online plugin downloads remain disabled.
-Live-game validation and formal release are separate from these automated checks.
+| 提交 | 原作者 | 内容 |
+| --- | --- | --- |
+| 722dd6b8 | Seralth | 附加伤害记录尾部解析 |
+| 8f2d81a3 | taengu | 小额暴击使用伤害值而非攻击者系数 |
+| 7a0ad04c | taengu | 护盾吸收不计为额外伤害，正确处理受护盾影响的 DoT |
+| 6f806dc6 / 3631610 | Nullceptions | 根据原生鼠标位置清理过期悬停提示 |
 
-启动先显示 680×500 逻辑像素的主界面。战斗统计、游戏汉化和实验性宝箱雷达分别打开独立窗口，也可同时运行，主界面保留。
-采集仅在用户明确确认后开启；仅使用汉化不启用抓包。DPS 与雷达共用采集管线，分别关闭不会中止另一个仍运行的功能。
-设置/详情按需打开，不恢复上次留下的详情窗口到启动页上。雷达默认 210×240 逻辑像素，设置使用单独窗口。
+回归测试重放相关记录。原生指针轮询仅在显示提示时运行，不上传指针数据。自动化检查不等同于所有游戏场景的实测。
 
-新增游戏汉化入口，调用本项目的版本固定汉化桥接组件。该组件可选，
-不包含在源码中，也不自动下载。两端共用经过版本和摘要核验的语言表编解码器，
-始终读取所选端的当前资源；保留键、顺序和运行时参数，不能直接套用另一端旧表。
-本地官方繁体补译按原英文文本 SHA-256 绑定，仅填补尚未翻译的文本。
-只有用户明确选择目标并确认后才执行安装/还原；原引擎保留备份及回滚。
+## 独立窗口与采集
 
-独立应用标识避免覆盖原 A2Tools 设置，不迁移旧工具设置。启动采集需
-本地确认，取消不抓包。保留上游先检查网卡 TCP 流量再识别战斗通道的
-自动检测方式，这比 Python 分支的精确 PID 范围更宽，确认框明确告知。
-关闭原项目更新入口，避免把整合版更新回上游版本；禁用账号/上传命令
-及自动上传、Discord 活动，保留本地统计和历史。
-Npcap 仍由用户按官方许可安装，不捆绑驱动或安装器。
-支持 Npcap 标准安装目录，无需启用 WinPcap 兼容模式；仅从 Windows
-系统目录加载并核实 Npcap 版本，不从当前工作目录加载同名 DLL。
+- 启动显示 680 × 500 逻辑像素主界面，打开功能后继续保留。
+- 汉化、DPS 和雷达分别打开独立窗口；关闭主界面留在托盘，已开启工具继续工作。
+- DPS 开启前显示采集确认；雷达打开窗口时不采集，点击浮窗开启按钮直接启动。
+- DPS 与雷达共享 Rust / Npcap 采集管线，开关独立；关闭一项不会停止另一项仍需的采集。
+- 仅显示主页或汉化窗口不启动采集。窗口可同时存在，不代表可以在游戏运行或采集事务冲突时改写语言资源。
+- 统计保留本地记录与历史，不启用账号、战斗上传、Discord 活动或上游软件更新入口。
 
-统计设置提供“停止统计并返回首页”，停止当前采集后保存本地战斗记录、
-关闭统计相关窗口，再显示功能选择页。每次启动使用独立停止标记，
-旧线程不会被下一次启动重新激活。统计窗口不包含汉化入口、上游账号、
-联系方式、收款按钮或日志上传入口；许可证及来源署名保留。
+采集先只读检查网卡 TCP 流量再识别游戏连接，不是历史 Python 原型的精确 PID 限定采集。Npcap 由用户自行安装，本项目不捆绑驱动；支持其标准安装目录，不要求 WinPcap 兼容模式。
 
-Windows CI 见 `.github/workflows/desktop.yml`，检查启动页测试、Rust 测试
-及完整桌面构建；不安装驱动、不启动抓包、不发布汉化引擎或游戏资源。
+窗口尺寸、材质及界面验证入口见[UI.md](UI.md)，雷达限制见[RADAR.md](RADAR.md)。
 
-开发构建：`npm ci`，`npm run build`，`npm run tauri build -- --no-bundle`。
-也可在根目录运行 `./build-desktop.ps1`；可选
-`-LocalizationEnginePath '完整路径/Aion2-Steam-CN-v2.4.0.exe'`
-会复用已有摘要校验及桥接编译流程，只加入本地测试组件。
-另外可提供 `-LocalizationDecoderPath '完整路径/oo2core_9_win64.dll'`
-及 `-LocalizationAdditionsPath '完整路径/localization-additions.json.gz'`。
-解压依赖只接受核准摘要；补译压缩数据嵌入本地桥接组件，不提交游戏文本到 Git。
-补译生成器为 `localization/build_official_additions.py`，输入必须是键集合一致的
-本地英文与繁体表；`localization/locale_codec.py` 可离线解码用户已有资源。
-维护工具依赖 blake3、cryptography、lz4 与 opencc-python-reimplemented，
-这些 Python 依赖不用于玩家安装流程。
-脚本不会启动应用、驱动或修改游戏。依赖和组件的发布审计仍需另行完成。
-这是迁移中的开发分支，不能把构建通过等同于游戏实测通过。
-Python/Tk 原实现保留在根目录，当前修改未替换其发布入口。
+## 分客户端汉化
+
+Steam 使用独立的日文入口冻结组件；PURPLE 使用原英文引擎及专用桥接器。两端分别固定组件摘要、校验协议并拒绝跨端操作。
+
+Git 源码不附带原引擎、解压库或完整游戏语言文本。获授权的发布材料、来源记录、对应源码及许可放在正式 Release 中；不能仅因调用接口就将这些资源视为 GPL。详见[第三方来源](../THIRD_PARTY_NOTICES.md)。
+
+源码入口：
+
+- [atreia_localization.rs](src-tauri/src/atreia_localization.rs)：客户端路由、独立窗口、事务与组件检查。
+- [atreia_radar.rs](src-tauri/src/atreia_radar.rs)：雷达窗口、设置和共享采集生命周期。
+- [atreia_update.rs](src-tauri/src/atreia_update.rs)：本项目更新清单、下载和包校验。
+- [汉化维护说明](../localization/README.md)：译文来源、组件布局与重建流程。
+
+## 开发和发布
+
+[desktop.yml](../.github/workflows/desktop.yml) 不含游戏资源，可检查前端、Rust、C# 和桌面构建；[release.yml](../.github/workflows/release.yml) 另行准备完整双端组件并生成正式 MSI。两种构建的前提不同，详见[开发指南](../documentation/DEVELOPMENT.md)。
+
+应用基线、当前游戏版本和实机结果以[2.0.64 构建记录](../releases/BUILD-2.0.64.md)为准。根目录的 Python/Tk 代码保留作历史研究，不再是当前 Windows 正式安装包入口。

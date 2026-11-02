@@ -1,3 +1,5 @@
+> **Upstream reference:** This is the preserved A2Tools README. Its downloads, accounts, uploads, Npcap requirements and platform packages describe upstream, not this fork. For Atreia Assistant, use the [project README](../README.md), [documentation index](../documentation/README.md) and [fork notes](ATREIA-FORK.md).
+
 # A2Tools DPS Meter
 
 [![License](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)

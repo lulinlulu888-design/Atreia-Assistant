@@ -1,3 +1,5 @@
+> **上游参考文档**：以下保留 A2Tools 原文、署名及链接。下载、账号、上传、Npcap 要求和平台软件包描述属于上游，不是本助手的操作指引。亚特雷亚助手请查看[项目首页](../README.md)、[文档导航](../documentation/README.md)和[整合说明](ATREIA-FORK.md)。
+
 # A2Tools DPS Meter
 
 [![License](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
