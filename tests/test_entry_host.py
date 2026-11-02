@@ -6,7 +6,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).parents[1] / 'localization'))
 from entry_host import execute
 from entry_bundle import write_bundle, sha
-from entry_container import encode, configuration
+from entry_container import encode, configuration, with_official_references
 from entry_transaction import NAMES
 from legacy_english import EN_NAMES
 import json
@@ -29,7 +29,7 @@ class EntryHostTests(unittest.TestCase):
         japanese, chinese = {'key': 'イズラフェル'}, {'key': '伊斯拉佩尔'}
         official = self.root / 'official.dat'
         official.write_bytes(encode(japanese, manifest, bytes(range(32))))
-        payload = encode(chinese, manifest, bytes(range(32)))
+        payload = encode(with_official_references(chinese, japanese), manifest, bytes(range(32)))
         sources = {name: sha(name.encode()) for name in ('official_japanese', 'official_english', 'own_chinese', 'review_manifest')}
         sources['official_japanese'] = sha(official.read_bytes())
         self.bundles = self.root / 'bundles'

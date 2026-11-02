@@ -28,6 +28,22 @@ class EntryContainerTests(unittest.TestCase):
         data = container.fstring('😀')
         self.assertEqual(struct.unpack('<i', data[:4])[0], -3)
 
+    def test_references_preserve_all_ui_and_exact_source_in_separate_keys(self):
+        japanese = {'b': '日本語 {pcname}', 'a': ''}
+        chinese = {'b': '国服译文 {pcname}', 'a': ''}
+        result = container.with_official_references(chinese, japanese)
+        self.assertEqual(list(result), ['b', 'a', container.REFERENCE_PREFIX + 'b', container.REFERENCE_PREFIX + 'a'])
+        self.assertEqual(result['b'], chinese['b'])
+        self.assertEqual(result[container.REFERENCE_PREFIX + 'b'], japanese['b'])
+        self.assertEqual(len(chinese), 2)
+
+    def test_missing_ui_and_reference_key_collision_cannot_be_hidden_by_references(self):
+        with self.assertRaises(ValueError):
+            container.with_official_references({'b': '译文'}, {'b': '原文', 'a': '原文'})
+        conflicting = {'key': 'x', container.REFERENCE_PREFIX + 'key': 'y'}
+        with self.assertRaises(ValueError):
+            container.with_official_references(conflicting, conflicting)
+
     def test_malformed_container_is_rejected(self):
         data = container.encode({'a': '测试'}, self.keys, bytes(32))
         for invalid in (data[:-1], bytes(68), data[:20]):

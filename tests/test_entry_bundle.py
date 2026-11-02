@@ -6,7 +6,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).parents[1] / 'localization'))
 from entry_bundle import write_bundle, load_bundle, verify_original_packages, sha
 from entry_transaction import NAMES
-from entry_container import encode, configuration
+from entry_container import encode, configuration, with_official_references, REFERENCE_PREFIX
 from legacy_english import EN_NAMES
 import json
 
@@ -25,7 +25,7 @@ class EntryBundleTests(unittest.TestCase):
         self.japanese = {'key': 'イズラフェル'}
         self.report = {'publishable': True, 'unresolved': []}
         self.manifest = {configuration('ja-JP')[0]: bytes(range(32))}
-        self.payload = encode(self.mapping, self.manifest, bytes(range(32)))
+        self.payload = encode(with_official_references(self.mapping, self.japanese), self.manifest, bytes(range(32)))
         self.official = self.root / 'official-japanese.dat'
         self.official.write_bytes(encode(self.japanese, self.manifest, bytes(range(32))))
         self.sources = {name: sha(name.encode()) for name in ('official_japanese', 'official_english', 'own_chinese', 'review_manifest')}
@@ -97,6 +97,33 @@ class EntryBundleTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.create()
         self.assertFalse(self.destination.exists())
+
+    def test_display_only_candidate_is_not_packaged(self):
+        self.payload = encode(self.mapping, self.manifest, bytes(range(32)))
+        with self.assertRaises(ValueError):
+            self.create()
+        self.assertFalse(self.destination.exists())
+
+    def test_corrupted_official_reference_is_rejected(self):
+        table = with_official_references(self.mapping, self.japanese)
+        table[REFERENCE_PREFIX + 'key'] = 'changed source'
+        self.payload = encode(table, self.manifest, bytes(range(32)))
+        with self.assertRaises(ValueError):
+            self.create()
+        self.assertFalse(self.destination.exists())
+
+    def test_old_or_incomplete_reference_bundle_is_rejected(self):
+        metadata = self.create()
+        metadata['format'] = 1
+        path = self.destination / 'bundle.json'
+        path.write_text(json.dumps(metadata), encoding='utf-8')
+        with self.assertRaises(ValueError):
+            load_bundle(self.destination, 'steam', sha(path.read_bytes()))
+        metadata['format'] = 2
+        metadata['reference_keys'] = 0
+        path.write_text(json.dumps(metadata), encoding='utf-8')
+        with self.assertRaises(ValueError):
+            load_bundle(self.destination, 'steam', sha(path.read_bytes()))
 
 
 if __name__ == '__main__':

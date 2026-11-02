@@ -10,6 +10,22 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from locale_codec import decrypt, digest
 
 LIMIT = 256 * 1024 * 1024
+REFERENCE_PREFIX = 'ATREIA_OFFICIAL_JA_REFERENCE_'
+
+
+def with_official_references(mapping, japanese):
+    """Keep every reviewed UI value and append exact official source references.
+
+    The reference-key mechanism is described by Foohi666/Aion2-CN-Foohi v1.2.1.8.
+    Inputs are our reviewed mapping and locally extracted official Japanese only.
+    References never replace or excuse missing UI translations.
+    """
+    if not japanese or list(mapping) != list(japanese):
+        raise ValueError('Complete ordered UI mapping required before adding references')
+    references = {REFERENCE_PREFIX + key: value for key, value in japanese.items()}
+    if mapping.keys() & references.keys():
+        raise ValueError('Official reference namespace conflicts with a UI key')
+    return {**mapping, **references}
 
 
 def configuration(locale):

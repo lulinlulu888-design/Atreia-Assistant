@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 from entry_bundle import write_bundle, sha
-from entry_container import encode, unpack
+from entry_container import encode, unpack, with_official_references
 from entry_transaction import NAMES
 from japanese_mapping import build, require_complete
 from locale_codec import read_manifest, decode
@@ -32,7 +32,7 @@ def main():
     mapping, report = build(english, japanese, tables['previous_english'], tables['own_chinese'], tables['reviews'])
     require_complete(japanese, mapping, report)
     prefix, _ = unpack(args.official_japanese.read_bytes(), manifest)
-    payload = encode(mapping, manifest, prefix)
+    payload = encode(with_official_references(mapping, japanese), manifest, prefix)
     source_hashes = {name: sha(path.read_bytes()) for name, path in (
         ('official_japanese', args.official_japanese), ('official_english', args.official_english),
         ('own_chinese', args.own_chinese), ('review_manifest', args.reviews))}

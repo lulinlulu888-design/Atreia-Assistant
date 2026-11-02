@@ -11,7 +11,7 @@ from pathlib import Path
 from entry_transaction import NAMES
 from japanese_mapping import require_complete
 from locale_codec import decode
-from entry_container import unpack
+from entry_container import unpack, with_official_references, REFERENCE_PREFIX
 from legacy_english import EN_NAMES
 
 
@@ -48,8 +48,9 @@ def write_bundle(destination, client, official_paths, japanese, mapping, report,
         path = Path(temporary) / 'generated.dat'
         path.write_bytes(payload)
         actual_mapping = decode(path, codec_manifest, 'ja-JP')
-    if list(actual_mapping.items()) != list(mapping.items()):
-        raise ValueError('Generated DAT differs from the reviewed mapping')
+    expected_table = with_official_references(mapping, japanese)
+    if list(actual_mapping.items()) != list(expected_table.items()):
+        raise ValueError('Generated DAT differs from the reviewed UI or official references')
     if unpack(payload, codec_manifest)[0] != unpack(official_data, codec_manifest)[0]:
         raise ValueError('Official Japanese envelope prefix changed')
     package_hashes = {}
@@ -58,8 +59,10 @@ def write_bundle(destination, client, official_paths, japanese, mapping, report,
         if not data:
             raise ValueError('Official source package cannot be empty')
         package_hashes[name] = sha(data)
-    metadata = {'format': 1, 'entry': 'ja-JP', 'text_language': '日本語', 'client': client,
+    metadata = {'format': 2, 'entry': 'ja-JP', 'text_language': '日本語', 'client': client,
                 'keys': len(japanese), 'payload_sha256': sha(payload), 'package_sha256': package_hashes,
+                'reference_keys': len(japanese), 'table_keys': len(expected_table),
+                'reference_prefix': REFERENCE_PREFIX,
                 'source_sha256': source_hashes, 'translation_origin': 'atreia_mainland_reviewed'}
     if official_english_paths is not None:
         if set(official_english_paths) != set(EN_NAMES):
@@ -83,8 +86,13 @@ def load_bundle(directory, client, expected_metadata_hash):
     if len(data) > 65536 or sha(data) != expected_metadata_hash:
         raise ValueError('Bundled metadata hash mismatch')
     metadata = json.loads(data.decode('utf-8'))
-    if metadata.get('format') != 1 or metadata.get('entry') != 'ja-JP' or metadata.get('client') != client:
+    if metadata.get('format') != 2 or metadata.get('entry') != 'ja-JP' or metadata.get('client') != client:
         raise ValueError('Wrong bundled entry or client')
+    keys = metadata.get('keys')
+    if (type(keys) is not int or not 0 < keys <= 500000
+            or metadata.get('reference_keys') != keys or metadata.get('table_keys') != keys * 2
+            or metadata.get('reference_prefix') != REFERENCE_PREFIX):
+        raise ValueError('Incomplete official reference metadata')
     if metadata.get('translation_origin') != 'atreia_mainland_reviewed':
         raise ValueError('Unknown translation origin')
     if set(metadata.get('package_sha256', {})) != set(NAMES) or not all(valid_hash(value) for value in metadata['package_sha256'].values()):
