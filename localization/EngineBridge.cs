@@ -50,11 +50,21 @@ static class EngineBridge
     static int Main(string[] args)
     {
         Console.OutputEncoding = new System.Text.UTF8Encoding(false);
+#if PURPLE_ONLY
+        if (args.Length == 1 && args[0] == "--protocol")
+        {
+            Console.WriteLine("{\"protocol\":1,\"entry\":\"en-US\",\"clients\":[\"purple\"],\"operations\":[\"inspect\",\"install\",\"restore\"]}");
+            return 0;
+        }
+#endif
         string operation = args.Length > 1 ? args[1] : "invalid";
         string root = null;
         string client = args.Length == 4 ? args[3] : null;
         try
         {
+#if PURPLE_ONLY
+            if (client != "purple") throw new ArgumentException("此组件仅用于 PURPLE 英文入口，不能用于 Steam。");
+#endif
             if (args.Length != 4 || (args[3] != "steam" && args[3] != "purple") ||
                 (operation != "inspect" && operation != "install" && operation != "restore"))
                 throw new ArgumentException("仅支持已明确选择的 Steam 或 PURPLE 客户端及检测、安装、还原操作");

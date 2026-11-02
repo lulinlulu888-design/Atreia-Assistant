@@ -102,8 +102,9 @@ class EntryHostTests(unittest.TestCase):
         self.assertFalse((self.game / 'Atreia_Japanese_Entry_Backup').exists())
 
     def test_missing_client_bundle_is_not_guessed(self):
-        with self.assertRaises(ValueError):
-            execute('install', self.game, 'purple', self.bundles, self.bindings, lambda: None)
+        for operation in ('inspect', 'install', 'restore'):
+            with self.assertRaises(ValueError):
+                execute(operation, self.game, 'purple', self.bundles, self.bindings, lambda: None)
         self.assertTrue(self.originals[NAMES[0]].stat().st_size)
 
     def legacy_layout(self):

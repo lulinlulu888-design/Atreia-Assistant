@@ -13,6 +13,47 @@ pub struct CaptureControl(pub Mutex<crate::capture::pcap_capturer::PcapCapturer>
 static LOCALIZATION_BUSY: AtomicBool = AtomicBool::new(false);
 static CAPTURE_STARTING: AtomicBool = AtomicBool::new(false);
 const HELPER_HASH: &str = env!("ATREIA_LOCALIZATION_HELPER_SHA256");
+const PURPLE_HELPER_HASH: &str = env!("ATREIA_PURPLE_HELPER_SHA256");
+
+#[derive(Debug, PartialEq)]
+enum LocalizationEntry { SteamJapanese, PurpleEnglish }
+
+impl LocalizationEntry {
+    fn for_client(client: &str) -> Result<Self, String> {
+        match client {
+            "steam" => Ok(Self::SteamJapanese),
+            "purple" => Ok(Self::PurpleEnglish),
+            _ => Err("不支持此客户端。".into()),
+        }
+    }
+    fn directory(&self, base: &Path) -> PathBuf {
+        match self { Self::SteamJapanese => base.to_path_buf(), Self::PurpleEnglish => base.join("purple") }
+    }
+    fn digest(&self) -> &'static str {
+        match self { Self::SteamJapanese => HELPER_HASH, Self::PurpleEnglish => PURPLE_HELPER_HASH }
+    }
+    fn argument(&self, directory: &Path) -> PathBuf {
+        match self {
+            Self::SteamJapanese => PathBuf::from("atreia-japanese-entry-v1"),
+            Self::PurpleEnglish => directory.join("Aion2-Steam-CN-v2.4.0.exe"),
+        }
+    }
+    fn valid_protocol(&self, value: &Value) -> bool {
+        match self {
+            Self::SteamJapanese => valid_japanese_protocol(value),
+            Self::PurpleEnglish => value["protocol"] == 1 && value["entry"] == "en-US"
+                && value["clients"] == serde_json::json!(["purple"])
+                && ["inspect", "install", "restore"].iter().all(|operation|
+                    value["operations"].as_array().is_some_and(|items| items.iter().any(|item| item.as_str() == Some(*operation)))),
+        }
+    }
+    fn install_message(&self) -> &'static str {
+        match self {
+            Self::SteamJapanese => "请先完全退出游戏。\n将核对当前语言资源并写入汉化文件，保留独立备份并支持失败回滚。安装后文字语言请选择“日本語”，语音保持原设置。\n取消会返回汉化面板，不修改游戏文件。",
+            Self::PurpleEnglish => "请先完全退出游戏。\nPURPLE 沿用英文入口汉化，安装前保留备份并检查补译完整性。安装后文字语言请选择 English，语音保持原设置。\n取消会返回汉化面板，不修改游戏文件。",
+        }
+    }
+}
 
 fn valid_helper_digest(bytes: &[u8], expected: &str) -> bool {
     expected.len() == 64 && Sha256::digest(bytes).iter()
@@ -199,7 +240,7 @@ pub fn inspect_localization_target(root: String, client: String) -> Result<Value
             "ok": true,
             "supported": true,
             "root": root,
-            "message": "已找到 PURPLE 游戏目录；日文入口需要完整的官方日文文字资源。检测将核对资源版本，使用独立备份支持还原。"
+            "message": "已找到 PURPLE 游戏目录；沿用英文入口汉化。检测将核对当前资源及补译完整性，安装后文字语言请选择 English。"
         })),
         _ => Err("未知客户端。".into()),
     }
@@ -263,27 +304,30 @@ pub async fn localization_execute(
     tauri::async_runtime::spawn_blocking(move || {
         let _guard = guard;
         let root = validate_target(&root, &client, &operation)?;
+        let entry = LocalizationEntry::for_client(&client)?;
         let mut directory = app.path().resource_dir().map_err(|e| e.to_string())?.join("vendor/localization");
         #[cfg(debug_assertions)]
-        if !directory.join("Atreia-Localization-Bridge.exe").is_file() {
+        if !entry.directory(&directory).join("Atreia-Localization-Bridge.exe").is_file() {
             directory = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("vendor/localization");
         }
+        let directory = entry.directory(&directory);
         let helper = directory.join("Atreia-Localization-Bridge.exe");
         let bytes = std::fs::read(&helper).map_err(|_| "未提供汉化组件；不会自动下载未知程序。")?;
-        if !valid_helper_digest(&bytes, HELPER_HASH) {
+        if !valid_helper_digest(&bytes, entry.digest()) {
             return Err("汉化组件缺失或校验不匹配。".into());
         }
-        // Refuse an old English-entry bridge before it can modify game files.
+        // Each client has its own pinned component and protocol. Never fall back
+        // to the other client's entry when a component is absent or mismatched.
         let mut probe = Command::new(&helper);
         probe.current_dir(dunce::simplified(&directory)).arg("--protocol");
         #[cfg(windows)] {
             use std::os::windows::process::CommandExt;
             probe.creation_flags(0x08000000);
         }
-        let protocol = probe.output().map_err(|_| "无法核对日文入口组件协议。")?;
+        let protocol = probe.output().map_err(|_| "无法核对汉化组件协议。")?;
         let value = if protocol.stdout.len() <= 4096 { serde_json::from_slice::<Value>(&protocol.stdout).ok() } else { None };
-        if !protocol.status.success() || !value.as_ref().is_some_and(valid_japanese_protocol) {
-            return Err("当前汉化组件不是已审核的日文入口版本，未修改游戏。请安装新版完整助手。".into());
+        if !protocol.status.success() || !value.as_ref().is_some_and(|v| entry.valid_protocol(v)) {
+            return Err("汉化组件与所选客户端不匹配，未修改游戏。请安装新版完整助手。".into());
         }
         if operation != "inspect" {
             let restoring = operation == "restore";
@@ -291,7 +335,7 @@ pub async fn localization_execute(
                 title: if restoring { "还原游戏语言" } else { "安装 / 更新汉化" }.into(),
                 confirm_label: if restoring { "确认还原" } else { "确认安装" }.into(),
                 details: vec![("客户端".into(), if client == "purple" { "PURPLE" } else { "Steam / Global" }.into()), ("游戏目录".into(), root.display().to_string())],
-                message: if restoring { "请先完全退出游戏。\n将根据校验过的备份还原语言文件；若游戏版本或备份不匹配，会停止操作。\n取消会返回汉化面板，不修改游戏文件。" } else { "请先完全退出游戏。\n将重新核对当前语言资源并写入汉化文件。使用日文入口，保留独立备份并支持失败回滚。安装后文字语言请选择“日本語”，语音保持原设置。\n取消会返回汉化面板，不修改游戏文件。" }.into(),
+                message: if restoring { "请先完全退出游戏。\n将根据校验过的备份还原语言文件；若游戏版本或备份不匹配，会停止操作。\n取消会返回汉化面板，不修改游戏文件。" } else { entry.install_message() }.into(),
             }))?;
             if !accepted {
                 return Ok(serde_json::json!({"ok":false,"cancelled":true,"operation":operation,"message":"已取消，未修改游戏。"}));
@@ -300,7 +344,7 @@ pub async fn localization_execute(
             let _ = app.emit_to("localization", "atreia-localization-stage", serde_json::json!({"operation":operation,"client":client,"stage":"running"}));
         }
         let mut command = Command::new(helper);
-        command.current_dir(dunce::simplified(&directory)).arg("atreia-japanese-entry-v1").arg(&operation).arg(dunce::simplified(&root)).arg(&client);
+        command.current_dir(dunce::simplified(&directory)).arg(dunce::simplified(&entry.argument(&directory))).arg(&operation).arg(dunce::simplified(&root)).arg(&client);
         #[cfg(windows)] {
             use std::os::windows::process::CommandExt;
             command.creation_flags(0x08000000); // CREATE_NO_WINDOW; native engine dialogs remain visible
@@ -320,6 +364,24 @@ pub async fn localization_execute(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn client_routes_have_separate_helpers_protocols_and_language_instructions() {
+        let base = Path::new("components");
+        let steam = LocalizationEntry::for_client("steam").unwrap();
+        let purple = LocalizationEntry::for_client("purple").unwrap();
+        assert!(LocalizationEntry::for_client("unknown").is_err());
+        assert_eq!(steam.directory(base), base);
+        assert_eq!(purple.directory(base), base.join("purple"));
+        assert_eq!(steam.argument(base), Path::new("atreia-japanese-entry-v1"));
+        assert_eq!(purple.argument(&purple.directory(base)), base.join("purple/Aion2-Steam-CN-v2.4.0.exe"));
+        let ja = serde_json::json!({"protocol":1,"entry":"ja-JP","operations":["inspect","install","restore"]});
+        let en = serde_json::json!({"protocol":1,"entry":"en-US","clients":["purple"],"operations":["inspect","install","restore"]});
+        assert!(steam.valid_protocol(&ja)); assert!(!steam.valid_protocol(&en));
+        assert!(purple.valid_protocol(&en)); assert!(!purple.valid_protocol(&ja));
+        assert!(steam.install_message().contains("日本語"));
+        assert!(purple.install_message().contains("English"));
+        assert!(!purple.install_message().contains("日本語"));
+    }
     #[test]
     fn japanese_protocol_rejects_legacy_and_incomplete_helpers() {
         let good = serde_json::json!({"protocol":1,"entry":"ja-JP","operations":["inspect","install","restore"]});

@@ -1,0 +1,8 @@
+{
+  "version": "2.0.64",
+  "verified_game_builds": {"steam": "26262663", "purple_tw": "127"},
+  "source_key_counts": {"steam": 153297, "purple_tw": 160286},
+  "text_language": {"steam": "日本語", "purple_tw": "English"},
+  "steam_official_reference_keys": 153297,
+  "note": "Steam Chinese rendering and English-to-Japanese language switch confirmed by the user. PURPLE retains its original English-entry scheme and reviewed 2.0.63 translation additions; current-resource decoding and missing-translation checks passed. Not a claim that every game screen or chest radar scenario has been tested."
+}

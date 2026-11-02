@@ -1,0 +1,6 @@
+{
+  "source_archive_sha256": "2bbda1e41458a776e6f19d9f301f8085309580069361d93d75081ae9179bc2d0",
+  "steam_payload_sha256": "2a11c23c38a8f6bb7257d6637be6d11602d4bc2c46ed29d5641896c55b4df265",
+  "purple_additions_sha256": "2a4905a82ce4304f9feb58139f7a672920ccacef67c123cc8f19158af8c90704",
+  "entries": {"steam": "ja-JP", "purple": "en-US"}
+}

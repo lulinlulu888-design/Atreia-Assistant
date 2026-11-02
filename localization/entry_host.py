@@ -56,7 +56,7 @@ def ensure_game_closed():
 
 
 def execute(operation, root, client, bundle_root, bindings, closed_check=ensure_game_closed):
-    if operation not in PROTOCOL['operations'] or client not in ('steam', 'purple'):
+    if operation not in PROTOCOL['operations'] or client != 'steam':
         raise ValueError('未知汉化操作或客户端。')
     root = Path(root).resolve(strict=True)
     if not (root / 'Aion2/Content').is_dir():

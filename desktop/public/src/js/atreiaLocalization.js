@@ -84,7 +84,7 @@
     }
     const refreshClient = () => {
       status.textContent = client.value === 'purple'
-        ? '请先退出游戏并准备完整的官方日文文字资源。安装后文字语言设为“日本語”，语音保持原设置。'
+        ? '点击检测自动查找 PURPLE 游戏目录。沿用英文入口汉化，安装后文字语言请选择 English；语音保持原设置。'
         : '点击检测自动查找 Steam 游戏目录。安装日文入口汉化后，文字语言请选择“日本語”；语音保持原设置。';
     };
     client.addEventListener('change', () => { if (busy) return; verifiedKey = null; root.value = ''; root.title = ''; candidates.hidden = true; refreshClient(); setBusy(false); });

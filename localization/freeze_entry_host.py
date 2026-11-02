@@ -20,7 +20,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('bundles', type=Path)
     parser.add_argument('destination', type=Path)
-    parser.add_argument('--clients', nargs='+', choices=('steam', 'purple'), default=['steam', 'purple'])
+    parser.add_argument('--clients', nargs='+', choices=('steam',), default=['steam'])
     args = parser.parse_args()
     if sys.platform != 'win32':
         parser.error('Build on Windows')

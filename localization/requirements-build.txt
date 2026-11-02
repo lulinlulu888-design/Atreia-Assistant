@@ -1,0 +1,5 @@
+blake3==1.0.11
+cryptography==50.0.2
+lz4==4.4.5
+opencc-python-reimplemented==0.1.7
+pyinstaller==6.22.3

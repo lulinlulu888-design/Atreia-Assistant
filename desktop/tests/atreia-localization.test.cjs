@@ -37,6 +37,16 @@ test('standalone startup renders without capture, detection or installation', ()
   assert.equal(ui.buttons[3].textContent,'关闭窗口');
 });
 
+test('language instructions follow the selected client without requiring Japanese for PURPLE', () => {
+  const ui = setup(() => { throw new Error('selection must not start a component'); });
+  assert.match(ui.status.textContent, /日本語/);
+  ui.client.value = 'purple'; ui.client.events.change();
+  assert.match(ui.status.textContent, /English/);
+  assert.doesNotMatch(ui.status.textContent, /日本語|日文/);
+  ui.client.value = 'steam'; ui.client.events.change();
+  assert.match(ui.status.textContent, /日本語/);
+});
+
 test('standalone close preserves controls and reopening invalidates compatibility approval', async () => {
   const calls=[];const ui=setup(async command=>{calls.push(command);return {ok:true,message:'passed'};},true);
   ui.client.value='purple';ui.root.value='D:/AION2';await ui.buttons[0].events.click();

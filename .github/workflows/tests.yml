@@ -10,7 +10,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m unittest discover -s tests -v
+      - run: python -m pip install -r localization/requirements-build.txt
+      - run: python -X utf8 -m unittest discover -s tests -v
   protocol:
     strategy:
       matrix:
@@ -23,6 +24,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - run: python -m pip install -r localization/requirements-build.txt
       - run: cargo build --manifest-path backend/Cargo.toml --locked
       - name: End-to-end capture to backend tests (Windows)
         if: runner.os == 'Windows'

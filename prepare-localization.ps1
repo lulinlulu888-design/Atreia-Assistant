@@ -2,7 +2,8 @@ param(
     [Parameter(Mandatory=$true)][string]$Engine,
     [Parameter(Mandatory=$true)][string]$Destination,
     [string]$DecoderPath,
-    [string]$AdditionsPath
+    [string]$AdditionsPath,
+    [switch]$PurpleOnly
 )
 $ErrorActionPreference = 'Stop'
 if (Test-Path -LiteralPath $Destination) { throw 'Localization staging directory must be new.' }
@@ -15,6 +16,7 @@ if (-not (Test-Path -LiteralPath $taskCompiler)) { throw '.NET Framework compile
 New-Item -ItemType Directory -Path $Destination | Out-Null
 $taskHelper = Join-Path $Destination 'Atreia-Localization-Bridge.exe'
 $taskResources = @()
+if ($PurpleOnly) { $taskResources += '/define:PURPLE_ONLY' }
 if ($AdditionsPath) {
     $taskAdditions = (Resolve-Path -LiteralPath $AdditionsPath).Path
     $taskResources += "/resource:$taskAdditions,Atreia.Localization.OfficialAdditions.gz"
@@ -32,4 +34,6 @@ if ($DecoderPath) {
     New-Item -ItemType Directory -Path $taskDependencies | Out-Null
     Copy-Item -LiteralPath $taskDecoder -Destination (Join-Path $taskDependencies 'oo2core_9_win64.dll')
 }
+$taskHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $taskHelper).Hash.ToLowerInvariant()
+[IO.File]::WriteAllText((Join-Path $Destination 'helper.sha256'), $taskHash, [Text.UTF8Encoding]::new($false))
 Write-Output (Resolve-Path -LiteralPath $Destination).Path

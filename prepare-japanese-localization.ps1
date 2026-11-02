@@ -2,7 +2,7 @@ param(
     [Parameter(Mandatory=$true)][string]$Bundles,
     [Parameter(Mandatory=$true)][string]$Python,
     [Parameter(Mandatory=$true)][string]$Destination,
-    [ValidateSet('steam','purple')][string[]]$Clients = @('steam','purple')
+    [ValidateSet('steam')][string[]]$Clients = @('steam')
 )
 $ErrorActionPreference = 'Stop'
 if (Test-Path -LiteralPath $Destination) { throw 'Localization staging directory must be new.' }

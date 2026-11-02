@@ -9,6 +9,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   windows-release:
+    if: ${{ !endsWith(github.ref_name, '-downloads') }}
     runs-on: windows-latest
     defaults:
       run:
@@ -40,37 +41,30 @@ jobs:
           $seed = "Atreia-Assistant_${version}_localization-sources.zip"
           $releases = gh api "repos/$env:GITHUB_REPOSITORY/releases?per_page=100" | ConvertFrom-Json
           if ($LASTEXITCODE) { throw 'Release listing failed' }
-          $drafts = @($releases | Where-Object { $_.draft -and $_.name -eq "亚特雷亚助手 $version · 双端汉化与独立工具窗口" })
+          $drafts = @($releases | Where-Object { $_.draft -and $_.name -eq "亚特雷亚助手 $version · Steam 日文入口修复，PURPLE 沿用原方案" })
           if ($drafts.Count -ne 1) { throw 'Expected exactly one named release draft' }
           $draftRef = $drafts[0].tag_name
           if ($draftRef -ne $env:GITHUB_REF_NAME -and $draftRef -notmatch '^untagged-[a-f0-9]+$') { throw 'Unexpected draft tag' }
           "RELEASE_DRAFT_REF=$draftRef" >> $env:GITHUB_ENV
-          gh release view $draftRef --repo $env:GITHUB_REPOSITORY --json isDraft,assets > release-stage/draft.json
-          if ($LASTEXITCODE) { throw 'Expected a draft release with reviewed source materials' }
-          $draft = Get-Content release-stage/draft.json | ConvertFrom-Json
-          if (-not $draft.isDraft -or @($draft.assets).Count -ne 1 -or $draft.assets[0].name -ne $seed) { throw 'Expected an unpublished draft containing only the source archive' }
+          $draft = gh release view $draftRef --repo $env:GITHUB_REPOSITORY --json isDraft,assets | ConvertFrom-Json
+          if ($LASTEXITCODE -or -not $draft.isDraft -or @($draft.assets).Count -ne 1 -or $draft.assets[0].name -ne $seed) { throw 'Expected an unpublished draft containing only the reviewed sources' }
           gh release download $draftRef --repo $env:GITHUB_REPOSITORY --pattern $seed --dir release-stage
           if ($LASTEXITCODE) { throw 'Source download failed' }
-          if ((Get-FileHash "release-stage/$seed").Hash -ne 'D8C81E9C408BCB9725B2BC5C731CF753AFEF25677A93143EC275BDFC9A6883E6') { throw 'Unreviewed client snapshots' }
-          Expand-Archive "release-stage/$seed" release-stage/materials/localization-inputs/dual-sources
-          python -m pip install opencc-python-reimplemented==0.1.7
-          if ($LASTEXITCODE) { throw 'Codec dependency installation failed' }
-          python -m unittest discover -s tests -q
+          $approved = Get-Content "releases/localization-$version.json" -Raw | ConvertFrom-Json
+          if ((Get-FileHash "release-stage/$seed").Hash.ToLowerInvariant() -cne $approved.source_archive_sha256) { throw 'Unreviewed source archive' }
+          Expand-Archive "release-stage/$seed" release-stage/materials/localization-inputs/japanese-entry
+          python -m pip install -r localization/requirements-build.txt
+          if ($LASTEXITCODE) { throw 'Build dependency installation failed' }
+          python -X utf8 -m unittest discover -s tests -q
           if ($LASTEXITCODE) { throw 'Python tests failed' }
-          $inputs = 'release-stage/materials/localization-inputs'
-          python localization/build_dual_release.py "$inputs/corrections.json.gz" "$inputs/dual-sources/steam-en-US.json" "$inputs/dual-sources/purple-en-US.json" "$inputs/dual-sources/purple-zh-TW.json" "$inputs/dual" --steam-baseline "$inputs/current-steam.json" --reviewed-steam "$inputs/dual-sources/steam-reviewed.json"
-          if ($LASTEXITCODE) { throw 'Dual-client generation failed' }
-          python localization/build_steam_26077854.py "$inputs/dual-sources/steam-26077854.json" "$inputs/dual/dual-corrections.json.gz" "$inputs/dual-sources/steam-26077854-report.json" "$inputs/steam-26077854.json.gz"
-          if ($LASTEXITCODE) { throw 'Steam source-bound update generation failed' }
-          python localization/build_purple_20261022.py "$inputs/dual-sources/purple-20261022-en-US.json" "$inputs/dual-sources/purple-20261022-zh-TW.json" "$inputs/dual-sources/purple-en-US.json" "$inputs/steam-26077854.json.gz" "$inputs/purple-20261022"
-          if ($LASTEXITCODE) { throw 'PURPLE source-bound update generation failed' }
-          python localization/unify_hidden_cube.py "$inputs/purple-20261022/additions.json.gz" "$inputs/hidden-cube-additions.json.gz" "$inputs/dual-sources/steam-26077854.json" "$inputs/dual-sources/purple-20261022-en-US.json"
-          if ($LASTEXITCODE) { throw 'Hidden Cube terminology normalization failed' }
-          ./prepare-localization.ps1 -Engine release-stage/materials/component/Aion2-Steam-CN-v2.4.0.exe -DecoderPath release-stage/materials/component/dependencies/oo2core_9_win64.dll -AdditionsPath "$inputs/hidden-cube-additions.json.gz" -Destination release-stage/component
-          if ($LASTEXITCODE) { throw 'Current-source bridge build failed' }
-          Copy-Item release-stage/component/* release-stage/materials/component/ -Recurse -Force
-          Copy-Item release-stage/component/* desktop/src-tauri/vendor/localization/ -Recurse -Force
+          ./prepare-release-localization.ps1 -Inputs release-stage/materials/localization-inputs/japanese-entry -BaseComponent release-stage/materials/component -Python (Get-Command python).Source -Destination release-stage/prepared
+          if ($LASTEXITCODE) { throw 'Split-client localization preparation failed' }
+          Copy-Item release-stage/prepared/component/* desktop/src-tauri/vendor/localization/ -Recurse -Force
           Copy-Item release-stage/materials/notices/* desktop/src-tauri/vendor/notices/ -Recurse -Force
+          python -X utf8 prepare-python-notices.py desktop/src-tauri/vendor/notices/japanese-helper
+          if ($LASTEXITCODE) { throw 'Python runtime notices failed' }
+          Copy-Item release-stage/prepared release-stage/materials/japanese-entry -Recurse
+          Copy-Item desktop/src-tauri/vendor/notices/japanese-helper release-stage/materials/notices/japanese-helper -Recurse
           "RELEASE_VERSION=$version" >> $env:GITHUB_ENV
       - name: Test and build installer
         working-directory: desktop
@@ -94,33 +88,24 @@ jobs:
           $installers = @(Get-ChildItem desktop/src-tauri/target/release/bundle/msi/*.msi)
           if ($installers.Count -ne 1) { throw 'Expected one installer' }
           ./test-installer-shortcut.ps1 -MsiPath $installers[0].FullName
+          if ($LASTEXITCODE) { throw 'Installer shortcut check failed' }
           Copy-Item $installers[0].FullName "release-stage/publish/Atreia-Assistant_${version}_x64.msi"
           git archive --format=zip --output=release-stage/materials/application-source.zip HEAD
           if ($LASTEXITCODE) { throw 'Source archive failed' }
           Copy-Item "releases/BUILD-$version.md" release-stage/materials/BUILD.md
-          $inputs = 'release-stage/materials/localization-inputs'
-          $baseBuild = Get-Content release-stage/materials/build.json -Raw | ConvertFrom-Json
-          if ($baseBuild.version -ne '2.0.51' -or $baseBuild.cargo_source_packages -le 0) { throw 'Unexpected base build metadata' }
           $compatibility = Get-Content "releases/compatibility-$version.json" -Raw | ConvertFrom-Json
-          if ($null -eq $compatibility.verified_game_builds) { throw 'Missing verified client builds' }
-          $review = Get-Content "$inputs/dual/review.json" -Raw | ConvertFrom-Json
-          if ($null -eq $review.inputs) { throw 'Missing localization snapshot provenance' }
-          $review.inputs | Add-Member -NotePropertyName current_steam -NotePropertyValue '6cff77bce26125541e7bc7999b8e4a43e859db2d8d3b09bed8eeffa0d648638d'
-          $review.inputs | Add-Member -NotePropertyName current_steam_report -NotePropertyValue 'bf856c067b9eb6b6594d32f3903a6b07fcff6959bb64d607c27ce0699576c469'
-          $review.inputs | Add-Member -NotePropertyName current_purple -NotePropertyValue '275173f15d13479dcd4ce156467d2fded8976cd6441bc41e34dfb8149da43f79'
-          $review.inputs | Add-Member -NotePropertyName current_traditional -NotePropertyValue 'b5f328a5f2947cde5476c1eb8a203264b1c814007ca06313600c955d08c27058'
+          $baseBuild = Get-Content release-stage/materials/build.json -Raw | ConvertFrom-Json
           [ordered]@{
             version = $version
             commit = $env:GITHUB_SHA
-            base_materials = [ordered]@{
-              version = '2.0.51'
-              url = 'https://github.com/lulinlulu888-design/Atreia-Assistant/releases/download/v2.0.51/Atreia-Assistant_2.0.51_build-materials.zip'
-              sha256 = 'b7dab6b9ac30c92a9bf17e3dd5b6117272e9147e8940c7763ceee28937a4d219'
-            }
+            base_materials_version = '2.0.51'
             cargo_source_packages = $baseBuild.cargo_source_packages
             verified_game_builds = $compatibility.verified_game_builds
-            localization_snapshot_sha256 = $review.inputs
-          } | ConvertTo-Json -Depth 10 | Set-Content release-stage/materials/build.json -Encoding utf8
+            localization_sources = (Get-Content "releases/localization-$version.json" -Raw | ConvertFrom-Json)
+            steam = (Get-Content release-stage/prepared/bundles/steam/bundle.json -Raw | ConvertFrom-Json)
+            helper = (Get-Content release-stage/prepared/component/build.json -Raw | ConvertFrom-Json)
+            purple_helper_sha256 = (Get-Content release-stage/prepared/component/purple/helper.sha256 -Raw).Trim()
+          } | ConvertTo-Json -Depth 12 | Set-Content release-stage/materials/build.json -Encoding utf8
           Compress-Archive -Path release-stage/materials/* -DestinationPath "release-stage/publish/Atreia-Assistant_${version}_build-materials.zip"
           Get-ChildItem release-stage/publish | ForEach-Object { "$((Get-FileHash $_.FullName).Hash.ToLower())  $($_.Name)" } | Set-Content release-stage/publish/SHA256SUMS.txt -Encoding ascii
       - uses: actions/upload-artifact@v4
@@ -135,7 +120,7 @@ jobs:
           if ($LASTEXITCODE -or -not $draft.isDraft -or @($draft.assets).Count -ne 1) { throw 'Release changed while building; refusing to publish or overwrite' }
           gh release upload $env:RELEASE_DRAFT_REF release-stage/publish/* --repo $env:GITHUB_REPOSITORY
           if ($LASTEXITCODE) { throw 'Asset upload failed; draft remains unpublished' }
-          gh release edit $env:RELEASE_DRAFT_REF --tag $env:GITHUB_REF_NAME --verify-tag --repo $env:GITHUB_REPOSITORY --draft=false --title "亚特雷亚助手 $env:RELEASE_VERSION · 双端汉化与独立工具窗口" --notes-file "releases/$env:RELEASE_VERSION.md" --latest
+          gh release edit $env:RELEASE_DRAFT_REF --tag $env:GITHUB_REF_NAME --verify-tag --repo $env:GITHUB_REPOSITORY --draft=false --title "亚特雷亚助手 $env:RELEASE_VERSION · Steam 日文入口修复，PURPLE 沿用原方案" --notes-file "releases/$env:RELEASE_VERSION.md" --latest
           if ($LASTEXITCODE) { throw 'Release publication failed' }
   s3-downloads:
     needs: windows-release
@@ -158,6 +143,7 @@ jobs:
           version="${GITHUB_REF_NAME#v}"
           gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease --jq 'if .isDraft or .isPrerelease then error("Not a formal release") else "Formal release verified" end'
           cd release-downloads
+          sed -i 's/\r$//' SHA256SUMS.txt
           installer="Atreia-Assistant_${version}_x64.msi"
           test -s "$installer"
           test "$(grep -Ec "^[a-f0-9]{64}  ${installer//./\\.}$" SHA256SUMS.txt)" = 1
